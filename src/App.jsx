@@ -6,26 +6,9 @@ import HomePage from './components/home/HomePage'
 import MarketplacePage from './components/marketplace/MarketplacePage'
 import DashboardPage from './components/dashboard/DashboardPage'
 import ProductModal from './components/marketplace/ProductModal'
-
-const BEANS = Array.from({ length: 12 }, (_, i) => ({
-  left: `${(i * 83) % 100}%`,
-  size: 14 + ((i * 7) % 16),
-  dur: 18 + ((i * 5) % 14),
-  delay: -((i * 3) % 18),
-}))
-
-function Ambient() {
-  return (
-    <div className="ambient" aria-hidden>
-      <div className="blob b1" />
-      <div className="blob b2" />
-      <div className="blob b3" />
-      {BEANS.map((b, i) => (
-        <span key={i} className="float-bean" style={{ left: b.left, width: b.size, height: b.size * 1.35, animationDuration: `${b.dur}s`, animationDelay: `${b.delay}s` }} />
-      ))}
-    </div>
-  )
-}
+import AuthModal from './components/auth/AuthModal'
+import Ambient from './components/layout/Ambient'
+import Gate from './components/gate/Gate'
 
 function Toast() {
   const { toast } = useApp()
@@ -49,6 +32,15 @@ function Toast() {
   )
 }
 
+function Footer() {
+  return (
+    <footer className="site-foot">
+      <span>☕ Brewmind — made for busy café owners</span>
+      <span>Pixel art by <a href="https://limezu.itch.io" target="_blank" rel="noreferrer">LimeZu</a> · Photography via <a href="https://unsplash.com" target="_blank" rel="noreferrer">Unsplash</a> · Estimates are illustrative</span>
+    </footer>
+  )
+}
+
 function Shell() {
   const { tab } = useApp()
 
@@ -66,16 +58,21 @@ function Shell() {
         {tab === 'marketplace' && <MarketplacePage />}
         {tab === 'dashboard' && <DashboardPage />}
       </main>
+      <Footer />
       <ProductModal />
+      <AuthModal />
       <Toast />
     </>
   )
 }
 
 export default function App() {
+  // the group password page stands in front of everything; nothing below loads or calls the API until it opens
   return (
-    <AppProvider>
-      <Shell />
-    </AppProvider>
+    <Gate>
+      <AppProvider>
+        <Shell />
+      </AppProvider>
+    </Gate>
   )
 }

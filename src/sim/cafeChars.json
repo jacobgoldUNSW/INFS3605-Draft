@@ -1,0 +1,190 @@
+{
+ "fw": 32,
+ "fh": 64,
+ "chars": {
+  "owner": {
+   "y": 0,
+   "kind": "staff"
+  },
+  "barista": {
+   "y": 256,
+   "kind": "staff"
+  },
+  "barista2": {
+   "y": 512,
+   "kind": "staff"
+  },
+  "floor": {
+   "y": 768,
+   "kind": "staff"
+  },
+  "bea": {
+   "y": 1024,
+   "kind": "staff"
+  },
+  "copilot": {
+   "y": 1280,
+   "kind": "staff"
+  },
+  "xero": {
+   "y": 1536,
+   "kind": "staff"
+  },
+  "dext": {
+   "y": 1792,
+   "kind": "staff"
+  },
+  "deputy": {
+   "y": 2048,
+   "kind": "staff"
+  },
+  "square": {
+   "y": 2304,
+   "kind": "staff"
+  },
+  "lightspeed": {
+   "y": 2560,
+   "kind": "staff"
+  },
+  "marketman": {
+   "y": 2816,
+   "kind": "staff"
+  },
+  "ordermentum": {
+   "y": 3072,
+   "kind": "staff"
+  },
+  "canva": {
+   "y": 3328,
+   "kind": "staff"
+  },
+  "podium": {
+   "y": 3584,
+   "kind": "staff"
+  },
+  "slang": {
+   "y": 3840,
+   "kind": "staff"
+  },
+  "mailchimp": {
+   "y": 4096,
+   "kind": "staff"
+  },
+  "cust1": {
+   "y": 4352,
+   "kind": "extra"
+  },
+  "cust2": {
+   "y": 4480,
+   "kind": "extra"
+  },
+  "cust3": {
+   "y": 4608,
+   "kind": "extra"
+  },
+  "cust4": {
+   "y": 4736,
+   "kind": "extra"
+  },
+  "cust5": {
+   "y": 4864,
+   "kind": "extra"
+  },
+  "cust6": {
+   "y": 4992,
+   "kind": "extra"
+  },
+  "cust7": {
+   "y": 5120,
+   "kind": "extra"
+  },
+  "cust8": {
+   "y": 5248,
+   "kind": "extra"
+  },
+  "cust9": {
+   "y": 5376,
+   "kind": "extra"
+  },
+  "cust10": {
+   "y": 5504,
+   "kind": "extra"
+  },
+  "cust11": {
+   "y": 5632,
+   "kind": "extra"
+  },
+  "cust12": {
+   "y": 5760,
+   "kind": "extra"
+  },
+  "cust13": {
+   "y": 5888,
+   "kind": "extra"
+  },
+  "cust14": {
+   "y": 6016,
+   "kind": "extra"
+  },
+  "cust15": {
+   "y": 6144,
+   "kind": "extra"
+  },
+  "cust16": {
+   "y": 6272,
+   "kind": "extra"
+  },
+  "cust17": {
+   "y": 6400,
+   "kind": "extra"
+  },
+  "cust18": {
+   "y": 6528,
+   "kind": "extra"
+  },
+  "cust19": {
+   "y": 6656,
+   "kind": "extra"
+  },
+  "cust20": {
+   "y": 6784,
+   "kind": "extra"
+  },
+  "cust21": {
+   "y": 6912,
+   "kind": "extra"
+  },
+  "cust22": {
+   "y": 7040,
+   "kind": "extra"
+  },
+  "cust23": {
+   "y": 7168,
+   "kind": "extra"
+  },
+  "cust24": {
+   "y": 7296,
+   "kind": "extra"
+  },
+  "cust25": {
+   "y": 7424,
+   "kind": "extra"
+  },
+  "cust26": {
+   "y": 7552,
+   "kind": "extra"
+  },
+  "cust27": {
+   "y": 7680,
+   "kind": "extra"
+  },
+  "cust28": {
+   "y": 7808,
+   "kind": "extra"
+  },
+  "courier": {
+   "y": 7936,
+   "kind": "extra"
+  }
+ }
+}

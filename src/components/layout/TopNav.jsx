@@ -1,8 +1,8 @@
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useApp } from '../../state'
 
-function Logo() {
+export function Logo() {
   return (
     <div className="logo">
       <div className="logo-cup" aria-hidden>
@@ -27,6 +27,54 @@ function Logo() {
         </svg>
       </div>
       <span className="logo-word">Brewmind</span>
+      <span className="logo-badge">AI for cosy cafés</span>
+    </div>
+  )
+}
+
+function UserChip() {
+  const { user, signOut, openAuth } = useApp()
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+  useEffect(() => {
+    if (!open) return
+    const off = (e) => !ref.current?.contains(e.target) && setOpen(false)
+    window.addEventListener('pointerdown', off)
+    return () => window.removeEventListener('pointerdown', off)
+  }, [open])
+
+  if (!user) {
+    return (
+      <button className="signin-chip" onClick={() => openAuth('plan', null, 'login')}>
+        Sign in
+      </button>
+    )
+  }
+  return (
+    <div className="user-chip-wrap" ref={ref}>
+      <button className="user-chip" onClick={() => setOpen((o) => !o)} aria-haspopup="menu" aria-expanded={open} title={user.cafeName}>
+        <span className="user-avatar">{(user.cafeName || user.username || '?').trim()[0]?.toUpperCase()}</span>
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            className="user-menu"
+            role="menu"
+            initial={{ opacity: 0, y: -8, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -6, scale: 0.97 }}
+            transition={{ type: 'spring', stiffness: 420, damping: 30 }}
+          >
+            <div className="user-menu-head">
+              <b>{user.cafeName}</b>
+              <span>@{user.username}</span>
+            </div>
+            <button role="menuitem" className="user-menu-item" onClick={() => { setOpen(false); signOut() }}>
+              👋 Sign out
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
@@ -35,8 +83,8 @@ export default function TopNav() {
   const { tab, setTab, selected, setOpenId } = useApp()
   const tabs = [
     { id: 'home', label: 'Home', icon: '☕' },
-    { id: 'marketplace', label: 'Marketplace', icon: '🛍️' },
-    { id: 'dashboard', label: 'Dashboard', icon: '📊' },
+    { id: 'dashboard', label: 'My Café Plan', icon: '📋' },
+    { id: 'marketplace', label: 'AI Pantry', icon: '🛍️' },
   ]
   return (
     <motion.header
@@ -101,6 +149,7 @@ export default function TopNav() {
             </AnimatePresence>
           </span>
         </button>
+        <UserChip />
       </div>
     </motion.header>
   )

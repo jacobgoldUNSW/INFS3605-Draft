@@ -1,35 +1,60 @@
 import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useApp } from '../../state'
+import { useApp, planKey } from '../../state'
+import { api } from '../../api'
+import { fallbackPersonalisation } from '../../../shared/personalise.js'
 
 const MESSAGES = [
   'Grinding your answers…',
   'Weighing up your tools…',
   'Steaming the numbers…',
-  'Mapping your rollout…',
+  'Writing your quiet-Tuesday steps…',
   'Adding a little latte art…',
+  'Nearly there — warming the cups…',
 ]
+const MIN_MS = 5800
+const MAX_MS = 11000
 
 export default function BrewLoader() {
-  const { setStep, survey } = useApp()
+  const { setStep, survey, selected, setGeminiPlan } = useApp()
   const [i, setI] = useState(0)
   const [pct, setPct] = useState(0)
 
   useEffect(() => {
+    // Personalise in the background while the cup fills, so the dashboard opens ready.
+    const ctrl = new AbortController()
+    const key = planKey(survey, selected)
+    let done = false
+    api.personalise({ survey, selected }, ctrl.signal)
+      .then((r) => { setGeminiPlan({ ...r.plan, key }); done = true })
+      .catch((e) => {
+        if (e.name === 'AbortError') return
+        setGeminiPlan({ ...fallbackPersonalisation(survey, selected), key })
+        done = true
+      })
     const m = setInterval(() => setI((x) => Math.min(x + 1, MESSAGES.length - 1)), 1150)
     const start = performance.now()
     let raf
     const tick = (t) => {
-      const p = Math.min((t - start) / 5800, 1)
-      setPct(p)
-      if (p < 1) raf = requestAnimationFrame(tick)
-      else setTimeout(() => setStep(3), 450)
+      const el = t - start
+      // the cup fills over ~6s; if Gemini is still writing we keep brewing (gently) up to ~11s
+      const p = done ? Math.min(el / MIN_MS, 1) : Math.min(el / MIN_MS, 0.92) + Math.min(0.06, Math.max(0, (el - MIN_MS) / (MAX_MS - MIN_MS)) * 0.06)
+      setPct(Math.min(p, 1))
+      if ((done && el >= MIN_MS) || el >= MAX_MS) {
+        if (!done) setGeminiPlan({ ...fallbackPersonalisation(survey, selected), key, pending: true })
+        setPct(1)
+        setTimeout(() => setStep(3), 450)
+        return
+      }
+      raf = requestAnimationFrame(tick)
     }
     raf = requestAnimationFrame(tick)
     return () => {
+      // a late Gemini answer still lands (and replaces the house version) after we move on
       clearInterval(m)
       cancelAnimationFrame(raf)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setStep])
 
   const fillY = 194 - pct * 92

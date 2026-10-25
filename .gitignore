@@ -54,3 +54,11 @@ Thumbs.db
 
 # Scratch & temporary
 scratch/
+
+# Brewmind V2 local data & secrets
+server/data/
+gemini_key.txt
+.env
+tools/cafe/preview.png
+tools/cafe/scene.png
+__pycache__/

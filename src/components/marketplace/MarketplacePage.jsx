@@ -28,7 +28,7 @@ export default function MarketplacePage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          Filter by your immediate problem or department. Tap the <span className="inline-plus">+</span> on any card for setup time, real costs, and pros & cons.
+          Twelve tools Aussie cafés actually use — each one a friendly team-mate. Filter by your headache, or tap the <span className="inline-plus">+</span> for costs, setup time and honest pros &amp; cons.
         </motion.p>
       </header>
 

@@ -1,0 +1,21 @@
+{
+  "_note": "Local test account used while building/verifying Brewmind V2 on http://localhost:5173. Not a real person or service. Delete server/data/brewmind.db to reset all accounts.",
+  "cafeName": "Little Fern Café",
+  "username": "fern_owner",
+  "email": "owner@littlefern.test",
+  "password": "flatwhite-2026",
+  "auditAccount": {
+    "_note": "Second local test account, used for the first-run audit walkthrough on http://127.0.0.1:5173 (a separate origin, so it never touches the Little Fern session).",
+    "cafeName": "Wattle & Crumb",
+    "username": "wattle_audit",
+    "email": "audit@wattlecrumb.test",
+    "password": "PsNlYiUfFricwE"
+  },
+  "beaAccount": {
+    "_note": "Third local test account, used to test Bea's chat check-up from a fresh start on http://127.0.0.1:5173.",
+    "cafeName": "Juniper Lane Bakery",
+    "username": "juniper_bea",
+    "email": "bea@juniperlane.test",
+    "password": "PxkMswDsFSSYeU"
+  }
+}

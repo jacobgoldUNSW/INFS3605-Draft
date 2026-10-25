@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useApp } from '../../state'
 import {
-  EMPLOYEE_OPTIONS, REVENUE_OPTIONS, CAFE_TYPES, PRIMARY_GOALS, PAIN_POINTS, TECH_LEVELS,
+  EMPLOYEE_OPTIONS, REVENUE_OPTIONS, CAFE_TYPES, PRIMARY_GOALS, PAIN_POINTS, TECH_LEVELS, RANT_CHIPS,
 } from '../../data/mockDashboard'
+import { PEOPLE, SURVEY_QUOTE, photo } from '../../data/people'
+import PlaceholderTag from '../ui/PlaceholderTag'
 
 const ease = [0.22, 1, 0.36, 1]
 
@@ -62,15 +64,68 @@ const QUESTIONS = [
   { id: 'goal', emoji: '🎯', title: 'What’s your #1 goal right now?', hint: 'Where would you love the biggest relief or boost?', valid: (s) => !!s.goal },
   { id: 'pains', emoji: '😮‍💨', title: 'What takes up the most of your time?', hint: 'Choose as many as you like.', valid: (s) => s.pains.length > 0 },
   { id: 'tech', emoji: '📱', title: 'How comfy are you with tech?', hint: 'No wrong answers — it helps us pace your rollout.', valid: (s) => !!s.tech },
+  {
+    id: 'rant', emoji: '☕', title: 'In your own words, what’s the biggest headache in your week?',
+    hint: 'Optional — type a sentence or tap a common headache below so we can tailor your café simulation.',
+    valid: () => true,
+  },
 ]
 
-export default function Survey() {
+function RantInput({ value, onChange }) {
+  const add = (chip) => {
+    if (value.toLowerCase().includes(chip.toLowerCase())) return
+    onChange(value.trim() ? `${value.trim().replace(/[.,;]$/, '')}, and ${chip.charAt(0).toLowerCase()}${chip.slice(1)}` : chip)
+  }
+  return (
+    <div className="rant">
+      <motion.div className="rant-chips" initial="hidden" animate="show" variants={{ show: { transition: { staggerChildren: 0.06, delayChildren: 0.1 } } }}>
+        {RANT_CHIPS.map((c) => {
+          const on = value.toLowerCase().includes(c.toLowerCase())
+          return (
+            <motion.button
+              key={c}
+              type="button"
+              className={`rant-chip ${on ? 'on' : ''}`}
+              variants={{ hidden: { opacity: 0, y: 14, scale: 0.92 }, show: { opacity: 1, y: 0, scale: 1 } }}
+              transition={{ type: 'spring', stiffness: 320, damping: 24 }}
+              whileHover={{ y: -3 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => add(c)}
+            >
+              {on ? '✓ ' : '+ '}{c}
+            </motion.button>
+          )
+        })}
+      </motion.div>
+      <div className="float-input rant-input">
+        <input value={value} onChange={(e) => onChange(e.target.value)} placeholder=" " maxLength={300} id="rant" autoFocus />
+        <label htmlFor="rant">Your biggest headache, in a sentence</label>
+        <motion.span className="input-underline" animate={{ scaleX: value ? 1 : 0 }} transition={{ duration: 0.4, ease }} />
+      </div>
+    </div>
+  )
+}
+
+export default function Survey({ onChat }) {
   const { survey, setSurvey, setStep } = useApp()
-  const [q, setQ] = useState(0)
+  // the café name was typed at sign-up a moment ago, so start at the next question (Back still reaches it)
+  const [q, setQ] = useState(() => (survey.name?.trim() ? 1 : 0))
   const [dir, setDir] = useState(1)
   const cur = QUESTIONS[q]
   const ok = cur.valid(survey)
   const set = (k) => (v) => setSurvey((s) => ({ ...s, [k]: v }))
+  // single-choice questions move on by themselves a beat after a tap
+  const auto = useRef(null)
+  useEffect(() => () => clearTimeout(auto.current), [])
+  const pickAndGo = (k) => (v) => {
+    set(k)(v)
+    clearTimeout(auto.current)
+    const from = q
+    auto.current = setTimeout(() => {
+      setDir(1)
+      setQ((cur) => (cur === from ? Math.min(cur + 1, QUESTIONS.length - 1) : cur))
+    }, 380)
+  }
 
   const next = () => {
     if (!ok) return
@@ -102,7 +157,7 @@ export default function Survey() {
       <motion.div className="survey-intro" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease }}>
         <span className="script-note big">let’s get to know you</span>
         <h1>Brew your <span className="script">personal</span> AI plan</h1>
-        <p>A few quick questions, then pick your tools — we’ll stir it all into a plan made for your café.</p>
+        <p>A few quick questions, then pick your tools — we’ll stir it all into a plan made for your café.{onChat && <> Rather chat? <button type="button" className="link-btn" onClick={onChat}>Talk it through with Bea</button></>}</p>
       </motion.div>
 
       <motion.div
@@ -152,12 +207,13 @@ export default function Survey() {
                   <motion.span className="input-underline" animate={{ scaleX: survey.name ? 1 : 0 }} transition={{ duration: 0.4, ease }} />
                 </div>
               )}
-              {cur.id === 'employees' && <Tiles options={EMPLOYEE_OPTIONS} value={survey.employees} onChange={set('employees')} />}
-              {cur.id === 'revenue' && <Tiles options={REVENUE_OPTIONS} value={survey.revenue} onChange={set('revenue')} />}
-              {cur.id === 'cafeType' && <Tiles options={CAFE_TYPES} value={survey.cafeType} onChange={set('cafeType')} />}
-              {cur.id === 'goal' && <Tiles options={PRIMARY_GOALS} value={survey.goal} onChange={set('goal')} cols={2} />}
+              {cur.id === 'employees' && <Tiles options={EMPLOYEE_OPTIONS} value={survey.employees} onChange={pickAndGo('employees')} />}
+              {cur.id === 'revenue' && <Tiles options={REVENUE_OPTIONS} value={survey.revenue} onChange={pickAndGo('revenue')} cols={REVENUE_OPTIONS.length > 4 ? 5 : 4} />}
+              {cur.id === 'cafeType' && <Tiles options={CAFE_TYPES} value={survey.cafeType} onChange={pickAndGo('cafeType')} />}
+              {cur.id === 'goal' && <Tiles options={PRIMARY_GOALS} value={survey.goal} onChange={pickAndGo('goal')} cols={2} />}
               {cur.id === 'pains' && <Tiles options={PAIN_POINTS} value={survey.pains} onChange={set('pains')} multi cols={3} />}
-              {cur.id === 'tech' && <Tiles options={TECH_LEVELS} value={survey.tech} onChange={set('tech')} />}
+              {cur.id === 'tech' && <Tiles options={TECH_LEVELS} value={survey.tech} onChange={pickAndGo('tech')} />}
+              {cur.id === 'rant' && <RantInput value={survey.rant || ''} onChange={set('rant')} />}
             </motion.div>
           </AnimatePresence>
         </div>
@@ -174,11 +230,20 @@ export default function Survey() {
             whileHover={ok ? { scale: 1.04 } : undefined}
             whileTap={ok ? { scale: 0.95 } : undefined}
           >
-            {q === QUESTIONS.length - 1 ? 'Choose my tools' : 'Continue'}
+            {q === QUESTIONS.length - 1 ? (survey.rant?.trim() ? 'Choose my tools' : 'Skip / Continue') : 'Continue'}
             <motion.span animate={{ x: ok ? [0, 4, 0] : 0 }} transition={{ repeat: Infinity, duration: 1.4 }}>→</motion.span>
           </motion.button>
         </div>
-        <div className="q-enter-hint">press <kbd>Enter ↵</kbd> to continue</div>
+        <div className="q-enter-hint">{['pains', 'rant', 'name'].includes(cur.id) ? <>press <kbd>Enter ↵</kbd> to continue</> : 'tap an answer and we’ll move on'}</div>
+      </motion.div>
+
+      <motion.div className="survey-quote" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 0.6, ease }}>
+        <img src={photo(SURVEY_QUOTE.person, 120, 120)} alt={PEOPLE[SURVEY_QUOTE.person].name} />
+        <p>
+          <PlaceholderTag />
+          <span className="script-note">“{SURVEY_QUOTE.quote}”</span>
+          <small>{PEOPLE[SURVEY_QUOTE.person].name} · {PEOPLE[SURVEY_QUOTE.person].cafe}, {PEOPLE[SURVEY_QUOTE.person].city}</small>
+        </p>
       </motion.div>
     </div>
   )

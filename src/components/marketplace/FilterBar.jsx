@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { USE_CASES, DEPARTMENTS } from '../../data/products'
+import { SORTS } from './ProductGrid'
 
 function ChipRow({ label, items, value, onChange, idp }) {
   return (
@@ -29,7 +30,7 @@ function ChipRow({ label, items, value, onChange, idp }) {
   )
 }
 
-export default function FilterBar({ query, setQuery, useCase, setUseCase, dept, setDept, count }) {
+export default function FilterBar({ query, setQuery, useCase, setUseCase, dept, setDept, sort, setSort, count }) {
   const [focus, setFocus] = useState(false)
   return (
     <div className="filterbar">
@@ -48,7 +49,7 @@ export default function FilterBar({ query, setQuery, useCase, setUseCase, dept, 
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => setFocus(true)}
             onBlur={() => setFocus(false)}
-            placeholder="Search tools…"
+            placeholder="Search a tool or a headache…"
           />
           <AnimatePresence>
             {query && (
@@ -65,15 +66,25 @@ export default function FilterBar({ query, setQuery, useCase, setUseCase, dept, 
             )}
           </AnimatePresence>
         </motion.label>
-        <div className="result-count">
-          <motion.span key={count} initial={{ y: 8, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
-            {count}
-          </motion.span>{' '}
-          tools brewing
+        <div className="filter-right">
+          {setSort && (
+            <label className="sort-pick">
+              <span>Sort</span>
+              <select value={sort} onChange={(e) => setSort(e.target.value)} aria-label="Sort tools">
+                {SORTS.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
+              </select>
+            </label>
+          )}
+          <div className="result-count">
+            <motion.span key={count} initial={{ y: 8, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
+              {count}
+            </motion.span>{' '}
+            tools brewing
+          </div>
         </div>
       </div>
       <ChipRow idp="uc" label="I need help with" items={USE_CASES} value={useCase} onChange={setUseCase} />
-      <ChipRow idp="dp" label="In my department" items={DEPARTMENTS} value={dept} onChange={setDept} />
+      <ChipRow idp="dp" label="Where in the café" items={DEPARTMENTS} value={dept} onChange={setDept} />
     </div>
   )
 }

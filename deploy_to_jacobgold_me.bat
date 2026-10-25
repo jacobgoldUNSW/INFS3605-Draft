@@ -3,12 +3,17 @@ setlocal
 title Deploy Brewmind to jacobgold.me/infs3605
 cd /d "%~dp0"
 
+rem Brewmind's pages go to Firebase Hosting (jacobgold.me/infs3605), its API to a Cloud Run function behind
+rem jacobgold.me/api, and accounts live in Firestore. One-time setup (Blaze plan, secrets, database): HOSTING.md.
+set "SITE=C:\Users\jtgol\OneDrive\Desktop\jacobgold.me"
+set "TARGET=%SITE%\public\infs3605"
+
 echo ==========================================================
 echo   Deploying Brewmind to https://jacobgold.me/infs3605
 echo ==========================================================
 echo.
 
-echo [1/3] Building Brewmind static distribution...
+echo [1/5] Building Brewmind...
 call npm run build
 if %ERRORLEVEL% neq 0 (
   echo [!] Brewmind build failed.
@@ -17,10 +22,11 @@ if %ERRORLEVEL% neq 0 (
 )
 
 echo.
-echo [2/3] Syncing dist to jacobgold.me/public/infs3605...
-set "TARGET=C:\Users\jtgol\OneDrive\Desktop\jacobgold.me\public\infs3605"
-if not exist "%TARGET%" mkdir "%TARGET%"
-xcopy /E /I /Y "dist\*" "%TARGET%\"
+echo [2/5] Copying the built app to jacobgold.me/public/infs3605...
+rem start clean, so files from older builds don't pile up on the site
+if exist "%TARGET%" rmdir /s /q "%TARGET%"
+mkdir "%TARGET%"
+xcopy /E /I /Y /Q "dist\*" "%TARGET%\"
 if %ERRORLEVEL% neq 0 (
   echo [!] Copy to jacobgold.me failed.
   pause
@@ -28,8 +34,26 @@ if %ERRORLEVEL% neq 0 (
 )
 
 echo.
-echo [3/3] Building and deploying jacobgold.me to Firebase...
-cd /d "C:\Users\jtgol\OneDrive\Desktop\jacobgold.me"
+echo [3/5] Copying the API into jacobgold.me/brewmind-api...
+call node tools\deploy\sync_api.mjs "%SITE%\brewmind-api"
+if %ERRORLEVEL% neq 0 (
+  echo [!] API sync failed.
+  pause
+  exit /b 1
+)
+pushd "%SITE%\brewmind-api"
+call npm install --no-audit --no-fund
+if %ERRORLEVEL% neq 0 (
+  popd
+  echo [!] Installing the API's packages failed.
+  pause
+  exit /b 1
+)
+popd
+
+echo.
+echo [4/5] Building jacobgold.me...
+cd /d "%SITE%"
 call npm run build
 if %ERRORLEVEL% neq 0 (
   echo [!] jacobgold.me build failed.
@@ -37,9 +61,11 @@ if %ERRORLEVEL% neq 0 (
   exit /b 1
 )
 
-call firebase deploy --only hosting
+echo.
+echo [5/5] Deploying the site, the API and the database rules to Firebase...
+call firebase deploy --only hosting,functions:brewmind,firestore:rules --project jacobgold-me
 if %ERRORLEVEL% neq 0 (
-  echo [!] Firebase deploy failed.
+  echo [!] Firebase deploy failed. If it mentions logging in, run "firebase login" and try again.
   pause
   exit /b 1
 )

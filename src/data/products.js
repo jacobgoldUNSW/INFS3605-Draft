@@ -1,4 +1,6 @@
-// Mock catalogue of AI products for SMB cafes. All numbers are illustrative only.
+// The AI pantry: 12 researched tools Australian cafés actually use.
+// Prices are rough AUD monthly figures for a single small café (check current plans before buying).
+// Every tool has a humanised worker who walks into the café simulation when it's on your plan.
 
 export const USE_CASES = [
   { id: 'ordering', label: 'Ordering & POS', icon: '🧾' },
@@ -10,192 +12,363 @@ export const USE_CASES = [
   { id: 'content', label: 'Content & Design', icon: '🎨' },
 ]
 
+// "where in the café" a tool helps (a four-person café doesn't have departments)
 export const DEPARTMENTS = [
-  { id: 'foh', label: 'Front of House', icon: '☕' },
+  { id: 'foh', label: 'Counter', icon: '☕' },
   { id: 'kitchen', label: 'Kitchen', icon: '🥐' },
-  { id: 'marketing', label: 'Marketing', icon: '📱' },
-  { id: 'finance', label: 'Finance', icon: '💰' },
-  { id: 'ops', label: 'Operations', icon: '⚙️' },
+  { id: 'ops', label: 'Back office', icon: '🗂️' },
+  { id: 'marketing', label: 'Socials', icon: '📱' },
+  { id: 'finance', label: 'Money', icon: '💰' },
 ]
+
+const ALL_TYPES = ['Specialty café', 'Bakery-café', 'Drive-thru / takeaway', 'Franchise-style']
 
 const P = (id, name, emoji, from, to, tagline, o) => ({
   id, name, emoji, from, to, tagline,
   price: '$$',
   metrics: { time: 70, setup: 70, cost: 60 },
   bestFor: ['Specialty café', 'Bakery-café'],
-  hrs: 3, cost: 40, waste: 0, rev: 0, wait: 0, weeks: 1, risk: 'Low',
+  hrs: 2, cost: 40, waste: 0, rev: 0, wait: 0, weeks: 1, risk: 'Low',
   ...o,
 })
 
 export const PRODUCTS = [
-  P('chatgpt', 'ChatGPT', '💬', '#10a37f', '#0b6b53', 'Your all-purpose digital assistant', {
-    description: 'Draft menus, reply to reviews, write staff rosters notes and brainstorm specials in seconds — like having a sharp intern on call.',
-    useCases: ['service', 'marketing', 'content'], departments: ['marketing', 'ops'],
-    useCaseItems: [{ i: '✍️', t: 'Menu copy' }, { i: '⭐', t: 'Review replies' }, { i: '📧', t: 'Supplier emails' }, { i: '💡', t: 'Special ideas' }],
-    pros: ['Does almost anything', 'Free tier available', 'Zero setup'], cons: ['Needs good prompts', 'Can make things up'],
-    metrics: { time: 80, setup: 95, cost: 90 }, price: '$', hrs: 4, cost: 30, rev: 150, weeks: 1,
+  P('copilot', 'Microsoft Copilot', '✨', '#2563EB', '#7C3AED', 'Your sharp admin assistant in Outlook, Excel & Word', {
+    vendor: 'Microsoft 365 Copilot Business', priceLabel: '~A$45/mo',
+    description: 'Drafts supplier emails in Outlook, checks your food-cost sheet in Excel, writes barista how-tos in Word and sums up handover notes — with business-grade privacy.',
+    useCases: ['bookkeeping', 'content', 'service'], departments: ['ops', 'finance'],
+    useCaseItems: [{ i: '✉️', t: 'Supplier emails' }, { i: '📊', t: 'Food-cost checks' }, { i: '📘', t: 'Staff how-tos' }, { i: '📝', t: 'Handover notes' }],
+    pros: ['Lives inside Outlook, Excel & Word', 'Your business data stays private', 'Brilliant first drafts'],
+    cons: ['Needs a Microsoft 365 plan', 'Double-check numbers before sending'],
+    metrics: { time: 80, setup: 75, cost: 60 }, price: '$$', hrs: 3, cost: 45, weeks: 1, bestFor: ALL_TYPES,
+    worker: { name: 'Jules', job: 'Drafts your supplier emails, checks food costs and writes staff how-tos.', role: 'Ops & Admin Coordinator', emoji: '🧑‍💼', outfit: 'cobalt-indigo jumper', station: 'Admin & Ops Laptop' },
+    testimonial: { person: 'kate', quote: 'I used to write supplier emails at 10pm. Now I read a draft over breakfast and hit send.' },
+    setup: {
+      phase: 'Week 1 · Quick win', minutes: 20, owner: 'You',
+      steps: ['Switch on Copilot in your Microsoft 365 admin page (2 clicks)', 'Open last week’s food-cost sheet and ask “where did margin slip?”', 'Save the supplier-email draft as a template'],
+      safety: 'Read every email before it goes out — Copilot drafts, you send.',
+    },
   }),
-  P('canva', 'Canva Magic', '🎨', '#7d2ae8', '#00c4cc', 'Beautiful designs without a designer', {
-    description: 'Create menus, Instagram posts and posters in minutes. AI resizes, writes captions and even turns a photo into a promo.',
-    useCases: ['content', 'marketing'], departments: ['marketing'],
-    useCaseItems: [{ i: '📋', t: 'Menus' }, { i: '📸', t: 'Social posts' }, { i: '🪧', t: 'Posters' }, { i: '🎟️', t: 'Loyalty cards' }],
-    pros: ['Super easy to use', 'Tons of cafe templates', 'Brand kit keeps you consistent'], cons: ['Pro features cost extra', 'Designs can look generic'],
-    metrics: { time: 70, setup: 95, cost: 85 }, price: '$', hrs: 3, cost: 20, rev: 250, weeks: 1,
-  }),
-  P('xero', 'Xero JAX', '📒', '#13b5ea', '#0a7ea8', 'Bookkeeping that nearly does itself', {
-    description: 'Automatically categorises transactions, chases invoices and flags oddities in your numbers before they become problems.',
+  P('xero', 'Xero', '📒', '#13B5EA', '#0A7EA8', 'Books that (almost) balance themselves', {
+    vendor: 'Xero with JAX AI', priceLabel: '~A$65/mo',
+    description: 'Australia’s favourite small-business ledger. Reconciles your bank feed, preps BAS/GST and Single Touch Payroll, and flags odd bill jumps before they bite.',
     useCases: ['bookkeeping'], departments: ['finance'],
-    useCaseItems: [{ i: '🏦', t: 'Bank feeds' }, { i: '🧾', t: 'Invoices' }, { i: '📊', t: 'Cash-flow view' }, { i: '🧮', t: 'GST/BAS prep' }],
-    pros: ['Cuts admin hours', 'Accountant-friendly', 'Real-time cash picture'], cons: ['Monthly subscription', 'Learning curve at first'],
-    metrics: { time: 85, setup: 55, cost: 50 }, price: '$$', hrs: 5, cost: 60, weeks: 2, risk: 'Medium',
+    useCaseItems: [{ i: '🏦', t: 'Bank reconciling' }, { i: '🧾', t: 'BAS & GST prep' }, { i: '💸', t: 'Single Touch Payroll' }, { i: '🚩', t: 'Bill-jump alerts' }],
+    pros: ['Your accountant already uses it', 'Live cash picture', 'ATO-ready BAS'],
+    cons: ['First setup takes an afternoon', 'Monthly subscription'],
+    metrics: { time: 85, setup: 55, cost: 55 }, price: '$$', hrs: 5, cost: 65, weeks: 2, risk: 'Medium', bestFor: ALL_TYPES,
+    worker: { name: 'Jax', job: 'Keeps your books: matches the bank feed, pays bills and preps BAS.', role: 'Back-Office Bookkeeper', emoji: '🧑‍💻', outfit: 'sky-blue Oxford shirt & tortoiseshell glasses', station: 'Timber Ledger Desk' },
+    testimonial: { person: 'daniel', quote: 'BAS used to eat two Sundays a quarter. Now my accountant just checks it.' },
+    setup: {
+      phase: 'Weeks 2–3 · Core habit', minutes: 45, owner: 'You + your accountant',
+      steps: ['Connect your business bank feed (5 mins)', 'Let JAX suggest matches for last month’s 40 transactions', 'Turn on bill-jump alerts for milk, beans & rent'],
+      safety: 'Keep your accountant as an advisor for the first BAS.',
+    },
   }),
-  P('square', 'Square AI', '🧾', '#1c1c1c', '#4a4a4a', 'Ask your sales data anything', {
-    description: 'Chat with your point-of-sale: “What sold best on rainy Tuesdays?” Get answers, charts and menu tweaks instantly.',
-    useCases: ['ordering', 'bookkeeping'], departments: ['foh', 'finance'],
-    useCaseItems: [{ i: '💳', t: 'Payments' }, { i: '📈', t: 'Sales insights' }, { i: '🍰', t: 'Menu tuning' }, { i: '🧑‍🤝‍🧑', t: 'Customer trends' }],
-    pros: ['Insights in plain English', 'Works with Square hardware', 'Fast checkout'], cons: ['Best if already on Square', 'Card fees apply'],
-    metrics: { time: 60, setup: 70, cost: 65 }, rev: 400, wait: 20, cost: 45, weeks: 2,
+  P('dext', 'Dext', '📸', '#FF5A1F', '#C83E0B', 'Snap the docket, skip the data entry', {
+    vendor: 'Dext Prepare', priceLabel: '~A$35/mo',
+    description: 'Photograph crumpled delivery dockets and invoices at the back door — Dext reads every line and pushes your costs straight into Xero.',
+    useCases: ['bookkeeping', 'inventory'], departments: ['finance', 'kitchen'],
+    useCaseItems: [{ i: '📸', t: 'Snap dockets' }, { i: '🔎', t: 'Reads every line' }, { i: '🔗', t: 'Syncs to Xero' }, { i: '🗄️', t: 'Bye, shoebox' }],
+    pros: ['Kills the receipt shoebox', 'Spots sneaky price rises', 'A win in week one'],
+    cons: ['Works best with Xero', 'One more subscription'],
+    metrics: { time: 75, setup: 85, cost: 70 }, price: '$', hrs: 3, cost: 35, weeks: 1, bestFor: ALL_TYPES,
+    worker: { name: 'Dex', job: 'Reads every docket and receipt, and catches sneaky price rises.', role: 'Delivery & Docket Clerk', emoji: '📦', outfit: 'sunset-orange apron over a charcoal tee', station: 'Delivery Crates & Scanner' },
+    testimonial: { person: 'sameer', quote: 'It caught our dairy supplier charging 14% over contract. Paid for itself in a week.' },
+    setup: {
+      phase: 'Week 1 · Quick win', minutes: 15, owner: 'Whoever takes deliveries',
+      steps: ['Install the Dext app on the back-door phone', 'Snap this week’s milk and produce dockets', 'Connect Dext to Xero (2 clicks)'],
+      safety: 'Glance at the weekly “price changes” list before paying bills.',
+    },
   }),
-  P('toast', 'Toast IQ', '🍞', '#ff6600', '#d94f00', 'Restaurant-grade smarts for your till', {
-    description: 'Suggests upsells at the counter, predicts rush hours and helps build menus that make more profit per cup.',
+  P('deputy', 'Deputy', '🗓️', '#2E7CF6', '#1B4FB8', 'Rosters that fill themselves — Award rules included', {
+    vendor: 'Deputy (Aussie-built)', priceLabel: '~A$45/mo',
+    description: 'Builds rosters around your sales and the weather, works out Hospitality Award penalty rates and fills a 5:30am sick call by SMS.',
+    useCases: ['scheduling'], departments: ['ops', 'foh'],
+    useCaseItems: [{ i: '🗓️', t: 'Auto-rosters' }, { i: '⚖️', t: 'Award penalty rates' }, { i: '📲', t: 'Shift-cover SMS' }, { i: '⏰', t: 'Timesheets' }],
+    pros: ['Award rates done for you', 'Staff swap shifts themselves', 'No overtime surprises'],
+    cons: ['The team has to use the app', 'Per-staff pricing adds up'],
+    metrics: { time: 85, setup: 70, cost: 65 }, price: '$$', hrs: 4, cost: 45, weeks: 2, bestFor: ALL_TYPES,
+    worker: { name: 'Dep', job: 'Builds the roster, fills sick shifts and checks timesheets.', role: 'Shift & Roster Captain', emoji: '📋', outfit: 'royal-blue utility vest & clipboard', station: 'Wall Roster Board' },
+    testimonial: { person: 'chloe', quote: 'A 5:30am sick text used to mean I worked a double. Now cover is sorted before I’m out of bed.' },
+    setup: {
+      phase: 'Weeks 2–3 · Core habit', minutes: 40, owner: 'You or your manager',
+      steps: ['Add your team’s mobile numbers', 'Copy last fortnight’s paper roster in', 'Turn on “offer open shifts by SMS”'],
+      safety: 'Approve every shift-cover message for the first fortnight.',
+    },
+  }),
+  P('square', 'Square', '🟦', '#1E293B', '#475569', 'Ask your till anything', {
+    vendor: 'Square for Restaurants + Square AI', priceLabel: '~A$45/mo',
+    description: 'A fast counter till with plain-English sales answers (“what sells on rainy Tuesdays?”), rush forecasts and 1-tap combo prompts.',
+    useCases: ['ordering'], departments: ['foh', 'finance'],
+    useCaseItems: [{ i: '💳', t: 'Tap & go' }, { i: '📈', t: 'Sales in plain English' }, { i: '⚡', t: '1-tap combos' }, { i: '☔', t: 'Rush forecasts' }],
+    pros: ['Learn it in an afternoon', 'Shorter queues', 'Insights without spreadsheets'],
+    cons: ['Card fees on every sale', 'Best if you switch fully'],
+    metrics: { time: 60, setup: 80, cost: 65 }, price: '$$', hrs: 2, cost: 45, rev: 400, wait: 35, weeks: 1, bestFor: ALL_TYPES,
+    worker: { name: 'Sienna', job: 'Runs the till: orders, payments and one-tap combo keys.', role: 'Front-Counter POS Lead', emoji: '🙋‍♀️', outfit: 'charcoal barista apron with a white tile pin', station: 'Front POS Register' },
+    testimonial: { person: 'tom', quote: 'I asked it what sells on rainy mornings. Chai lattes. Who knew? Now they’re a combo key.' },
+    setup: {
+      phase: 'Week 1 · Quick win', minutes: 30, owner: 'You or your head barista',
+      steps: ['Import your menu from a photo of the board', 'Set up three 1-tap combo keys', 'Ask Square AI: “what were my slowest hours last week?”'],
+      safety: 'Keep the old till for one week as a backup.',
+    },
+  }),
+  P('lightspeed', 'Lightspeed', '🔥', '#E21B22', '#991B1B', 'Kitchen screens that keep brunch moving', {
+    vendor: 'Lightspeed Restaurant', priceLabel: '~A$89/mo',
+    description: 'POS plus a kitchen display built for busy brunch cafés — paces coffee and kitchen tickets, turns tables faster and shows which dishes really make money.',
     useCases: ['ordering', 'inventory'], departments: ['foh', 'kitchen'],
-    useCaseItems: [{ i: '➕', t: 'Upsell prompts' }, { i: '⏱️', t: 'Rush forecasts' }, { i: '🍽️', t: 'Menu mix' }, { i: '📲', t: 'Online orders' }],
-    pros: ['Boosts average spend', 'Built for hospitality', 'Great support'], cons: ['Contracts can lock you in', 'Hardware costs'],
-    metrics: { time: 65, setup: 45, cost: 40 }, price: '$$$', rev: 550, wait: 30, cost: 90, weeks: 3, risk: 'Medium',
+    useCaseItems: [{ i: '🖥️', t: 'Kitchen display' }, { i: '🍳', t: 'Ticket pacing' }, { i: '🔄', t: 'Faster table turns' }, { i: '💰', t: 'Menu margins' }],
+    pros: ['Built for table service', 'Fewer forgotten orders', 'Great menu reports'],
+    cons: ['Pricier for tiny cafés', 'Takes a week to bed in'],
+    metrics: { time: 65, setup: 45, cost: 40 }, price: '$$$', hrs: 2, cost: 89, rev: 450, wait: 25, weeks: 3, risk: 'Medium', bestFor: ['Specialty café', 'Bakery-café', 'Franchise-style'],
+    worker: { name: 'Leo', job: 'Paces the coffee pass and runs orders out to tables.', role: 'Pass & Floor Expediter', emoji: '🛎️', outfit: 'crisp white shirt with crimson apron straps', station: 'Coffee Pickup Pass' },
+    testimonial: { person: 'nadia', quote: 'Sunday brunch used to end in cold eggs and walk-outs. Now the pass actually flows.' },
+    setup: {
+      phase: 'Month 2 · Upgrade', minutes: 60, owner: 'You + your chef',
+      steps: ['Mount the kitchen screen above the pass', 'Run one quiet Tuesday with paper tickets as backup', 'Check the “menu margins” report on Friday'],
+      safety: 'Switch over on a quiet weekday, never a weekend.',
+    },
   }),
-  P('deputy', 'Deputy', '🗓️', '#2e7cf6', '#1b4fb8', 'Rosters that build themselves', {
-    description: 'Auto-builds staff rosters around your busy periods, handles swaps and tracks hours so payroll is a breeze.',
-    useCases: ['scheduling'], departments: ['ops', 'foh'],
-    useCaseItems: [{ i: '🧑‍🍳', t: 'Auto-rosters' }, { i: '🔄', t: 'Shift swaps' }, { i: '⏰', t: 'Time clock' }, { i: '💸', t: 'Payroll export' }],
-    pros: ['Saves hours each week', 'Staff love the app', 'Reduces overtime'], cons: ['Staff must adopt the app', 'Per-user pricing'],
-    metrics: { time: 85, setup: 70, cost: 65 }, hrs: 4, cost: 50, weeks: 2,
-  }),
-  P('7shifts', '7shifts', '⏰', '#ff5a5f', '#d12f49', 'Scheduling made for hospitality', {
-    description: 'Forecasts labour needs from sales, keeps you inside budget and gets team messaging in one place.',
-    useCases: ['scheduling'], departments: ['ops', 'foh'],
-    useCaseItems: [{ i: '📆', t: 'Shift planning' }, { i: '💬', t: 'Team chat' }, { i: '📉', t: 'Labour budget' }, { i: '🔔', t: 'Alerts' }],
-    pros: ['Keeps labour costs on target', 'Simple team chat', 'Free tier for small teams'], cons: ['Less flexible than bigger tools'],
-    metrics: { time: 75, setup: 75, cost: 80 }, price: '$', hrs: 3, cost: 35, weeks: 1,
-  }),
-  P('marketman', 'MarketMan', '📦', '#f59e0b', '#c47a00', 'Know what to order, before you run out', {
-    description: 'Tracks stock, predicts what you will need and auto-drafts supplier orders so you stop over- and under-buying.',
+  P('marketman', 'MarketMan', '🥐', '#F59E0B', '#B45309', 'Know your stock to the gram', {
+    vendor: 'MarketMan inventory', priceLabel: '~A$119/mo',
+    description: 'Inventory and recipe costing down to the gram of coffee and millilitre of milk — matches sales against stock so fewer pastries end up in the bin.',
     useCases: ['inventory'], departments: ['kitchen', 'ops'],
-    useCaseItems: [{ i: '🥛', t: 'Stock counts' }, { i: '📝', t: 'Auto-orders' }, { i: '🏷️', t: 'Price alerts' }, { i: '📉', t: 'Waste tracking' }],
-    pros: ['Cuts over-ordering', 'Supplier price tracking', 'Saves food cost'], cons: ['Initial stock count is tedious', 'Overkill for tiny menus'],
-    metrics: { time: 70, setup: 40, cost: 55 }, price: '$$', hrs: 3, waste: 4, cost: 70, weeks: 3, risk: 'Medium',
+    useCaseItems: [{ i: '🥛', t: 'Stock counts' }, { i: '⚖️', t: 'Cost per cup' }, { i: '🗑️', t: 'Waste tracking' }, { i: '🏷️', t: 'Price alerts' }],
+    pros: ['Slashes pastry & dairy waste', 'True cost per cup', 'Flags supplier price creep'],
+    cons: ['The first stock count is a slog', 'Overkill for tiny menus'],
+    metrics: { time: 70, setup: 40, cost: 45 }, price: '$$$', hrs: 3, cost: 119, waste: 5, weeks: 3, risk: 'Medium', bestFor: ['Bakery-café', 'Specialty café', 'Franchise-style'],
+    worker: { name: 'Marco', job: 'Counts stock, tracks waste and keeps the pastry case full.', role: 'Larder & Waste Guardian', emoji: '🥐', outfit: 'ochre-amber baker’s apron', station: 'Pastry Case & Coolroom' },
+    testimonial: { person: 'sophie', quote: 'We were binning 20 croissants on wet days. Now we bake to the forecast and mark down by noon.' },
+    setup: {
+      phase: 'Month 2 · Upgrade', minutes: 60, owner: 'You + your kitchen lead',
+      steps: ['Do one full stock count on a quiet afternoon', 'Add your 10 best-selling recipes', 'Turn on the “likely waste” alert'],
+      safety: 'Spot-check one shelf a week against the app.',
+    },
   }),
-  P('winnow', 'Winnow Vision', '🥗', '#22c55e', '#15803d', 'A camera that spots wasted food', {
-    description: 'A smart bin camera identifies what gets thrown out so you can cut waste at the source and save real dollars.',
-    useCases: ['inventory'], departments: ['kitchen'],
-    useCaseItems: [{ i: '📷', t: 'Bin camera' }, { i: '🍞', t: 'Waste by item' }, { i: '🌍', t: 'Eco reporting' }, { i: '💵', t: 'Cost savings' }],
-    pros: ['Big waste reduction', 'Great for sustainability story', 'Hands-free'], cons: ['Hardware install', 'Better for busier kitchens'],
-    metrics: { time: 40, setup: 35, cost: 30 }, price: '$$$', waste: 6, cost: 110, weeks: 4, risk: 'Medium', bestFor: ['Bakery-café', 'Drive-thru'],
+  P('ordermentum', 'Ordermentum', '🧺', '#0D9488', '#0F766E', 'Beans & milk ordered before the 2pm cut-off', {
+    vendor: 'Ordermentum (Omni AI)', priceLabel: '~A$39/mo',
+    description: 'Australia’s café wholesale network — roasters, dairies and bakeries in one app — with demand forecasts and invoices that sync straight to Xero.',
+    useCases: ['inventory', 'ordering'], departments: ['ops', 'kitchen'],
+    useCaseItems: [{ i: '☕', t: 'Roaster orders' }, { i: '🥛', t: 'Dairy top-ups' }, { i: '⏰', t: 'Cut-off reminders' }, { i: '🔗', t: 'Xero invoices' }],
+    pros: ['Every supplier in one app', 'Never miss a cut-off', 'No more emergency milk runs'],
+    cons: ['Your suppliers need to be on it', 'Forecasts need a few weeks of data'],
+    metrics: { time: 70, setup: 75, cost: 75 }, price: '$', hrs: 2, cost: 39, waste: 2, weeks: 1, bestFor: ALL_TYPES,
+    worker: { name: 'Ollie', job: 'Orders beans, milk and bread from your suppliers on time.', role: 'Roaster & Dairy Buyer', emoji: '🧺', outfit: 'deep-teal work overshirt', station: 'Bean & Milk Shelving' },
+    testimonial: { person: 'ravi', quote: 'No more 1:58pm panic-ordering beans. I tap “approve” between coffees.' },
+    setup: {
+      phase: 'Week 1 · Quick win', minutes: 20, owner: 'You or your head barista',
+      steps: ['Invite your roaster and dairy (they may already be on it)', 'Set par levels for beans, milk & oat milk', 'Turn on the 1:30pm “order before cut-off” nudge'],
+      safety: 'Approve every order yourself for the first month.',
+    },
   }),
-  P('mailchimp', 'Mailchimp', '💌', '#ffe01b', '#e0a800', 'Newsletters your regulars actually open', {
-    description: 'Writes subject lines, segments your customers and sends the perfect “we miss you” offer at the perfect time.',
+  P('canva', 'Canva', '🎨', '#7D2AE8', '#00C4CC', 'Specials boards, menus & posts in minutes', {
+    vendor: 'Canva Magic Studio', priceLabel: '~A$20/mo',
+    description: 'The Aussie design favourite. Magic Design turns a photo and a sentence into a chalkboard special, brunch menu, loyalty card or Instagram post.',
+    useCases: ['content', 'marketing'], departments: ['marketing'],
+    useCaseItems: [{ i: '🪧', t: 'Specials boards' }, { i: '📋', t: 'Menus' }, { i: '📸', t: 'Instagram posts' }, { i: '🎟️', t: 'Loyalty cards' }],
+    pros: ['Ridiculously easy', 'Hundreds of café templates', 'Brand kit keeps you consistent'],
+    cons: ['Designs can look samey', 'Pro features cost extra'],
+    metrics: { time: 70, setup: 95, cost: 90 }, price: '$', hrs: 3, cost: 20, rev: 250, weeks: 1, bestFor: ALL_TYPES,
+    worker: { name: 'Cami', job: 'Designs your specials board, A-frame and social posts.', role: 'Creative & Promo Designer', emoji: '👩‍🎨', outfit: 'violet-to-teal gradient apron', station: 'Design Computer & A-frame' },
+    testimonial: { person: 'isabella', quote: 'Our A-frame finally looks like we meant it. Took ten minutes and a photo of a croissant.' },
+    setup: {
+      phase: 'Week 1 · Quick win', minutes: 20, owner: 'You or your most creative barista',
+      steps: ['Upload your logo and colours to a Brand Kit', 'Pick a chalkboard-special template', 'Make three posts for next week in one sitting'],
+      safety: 'Check prices and allergens on every design before it goes up.',
+    },
+  }),
+  P('podium', 'Podium', '⭐', '#4F46E5', '#312E81', 'More 5-star reviews, fewer missed messages', {
+    vendor: 'Podium AI Employee', priceLabel: '~A$75/mo',
+    description: 'Turns happy customers into Google reviews by SMS, texts back missed calls during the rush and drafts replies to reviews and DMs for you to approve.',
+    useCases: ['service', 'marketing'], departments: ['marketing', 'foh'],
+    useCaseItems: [{ i: '⭐', t: 'Review invites' }, { i: '💬', t: 'Missed-call text-back' }, { i: '↩️', t: 'Reply drafts' }, { i: '📥', t: 'One inbox' }],
+    pros: ['Lifts your Google rating', 'Never miss a DM again', 'You sign off sensitive replies'],
+    cons: ['Allergy questions always need a human', 'Mid-range pricing'],
+    metrics: { time: 60, setup: 75, cost: 55 }, price: '$$', hrs: 2, cost: 75, rev: 380, weeks: 1, bestFor: ALL_TYPES,
+    worker: { name: 'Pia', job: 'Answers reviews and DMs, and asks happy regulars for 5 stars.', role: 'Reputation & Review Host', emoji: '⭐', outfit: 'indigo cardigan & tablet', station: 'Guest Review Stand' },
+    testimonial: { person: 'emma', quote: 'We went from 4.3 to 4.7 stars in two months — and I still approve every allergy answer.' },
+    setup: {
+      phase: 'Weeks 2–3 · Core habit', minutes: 30, owner: 'You',
+      steps: ['Connect your Google Business profile', 'Turn on “ask for a review” after card payments', 'Set allergy questions to “always ask me first”'],
+      safety: 'Never let an allergy answer send without your OK.',
+    },
+  }),
+  P('slang', 'Slang.ai', '🎧', '#F43F5E', '#BE123C', 'Answers the café phone on the first ring', {
+    vendor: 'Slang.ai voice host', priceLabel: '~A$59/mo',
+    description: 'A friendly voice host that picks up every call — opening hours, dietary questions, table bookings and catering orders — so your barista never stops pulling shots.',
+    useCases: ['service', 'ordering'], departments: ['foh'],
+    useCaseItems: [{ i: '☎️', t: 'Answers every call' }, { i: '🕒', t: 'Hours & FAQs' }, { i: '📅', t: 'Bookings' }, { i: '🥪', t: 'Catering orders' }],
+    pros: ['Never miss a catering order', 'Frees your counter staff', 'Sounds friendly, not robotic'],
+    cons: ['Some regulars prefer a human', 'Best for phone-heavy cafés'],
+    metrics: { time: 55, setup: 70, cost: 55 }, price: '$$', hrs: 3, cost: 59, rev: 280, wait: 15, weeks: 1, bestFor: ['Specialty café', 'Bakery-café', 'Franchise-style'],
+    worker: { name: 'Sunny', job: 'Answers the phone, takes bookings and catering orders.', role: 'Phone & Catering Host', emoji: '🎧', outfit: 'coral-rose top & headset', station: 'Wall Phone & Booking Stand' },
+    testimonial: { person: 'jack', quote: 'The phone rang mid-rush and I didn’t flinch. It booked a $220 office catering order.' },
+    setup: {
+      phase: 'Weeks 2–3 · Core habit', minutes: 30, owner: 'You',
+      steps: ['Forward your café number after 3 rings', 'Teach it your hours, menu & dietary info', 'Send catering orders to your phone for a yes/no'],
+      safety: 'Every catering quote waits for your thumbs-up.',
+    },
+  }),
+  P('mailchimp', 'Mailchimp', '💌', '#EAB308', '#CA8A04', 'Bring your regulars back on quiet days', {
+    vendor: 'Mailchimp with Intuit Assist', priceLabel: '~A$25/mo',
+    description: 'Groups your regulars and the nearby office crowd, writes friendly “fresh scrolls just out” texts and emails, and sends them when they’ll actually fill seats.',
     useCases: ['marketing'], departments: ['marketing'],
-    useCaseItems: [{ i: '📧', t: 'Newsletters' }, { i: '🎯', t: 'Segments' }, { i: '🎁', t: 'Offers' }, { i: '📊', t: 'Open rates' }],
-    pros: ['Grows repeat visits', 'Easy templates', 'Free starter plan'], cons: ['List needs building', 'Costs rise with contacts'],
-    metrics: { time: 55, setup: 80, cost: 80 }, price: '$', rev: 350, hrs: 2, cost: 25, weeks: 1,
-  }),
-  P('later', 'Later', '📱', '#ff6f91', '#d6336c', 'Plan a month of posts in an afternoon', {
-    description: 'Schedules your Instagram and TikTok, suggests best posting times and writes captions in your cafe’s voice.',
-    useCases: ['marketing', 'content'], departments: ['marketing'],
-    useCaseItems: [{ i: '🗓️', t: 'Post planner' }, { i: '🕑', t: 'Best times' }, { i: '#️⃣', t: 'Hashtags' }, { i: '🖼️', t: 'Media library' }],
-    pros: ['Batch your content', 'Visual calendar', 'Consistent posting'], cons: ['Still need good photos', 'Reach not guaranteed'],
-    metrics: { time: 65, setup: 85, cost: 80 }, price: '$', hrs: 3, rev: 200, cost: 25, weeks: 1,
-  }),
-  P('jasper', 'Jasper', '✍️', '#ff7a59', '#c4421f', 'Your brand voice, on tap', {
-    description: 'Learns your café’s personality and writes menu blurbs, blog posts and promo emails that sound like you.',
-    useCases: ['content', 'marketing'], departments: ['marketing'],
-    useCaseItems: [{ i: '🍵', t: 'Menu blurbs' }, { i: '📰', t: 'Blog posts' }, { i: '📢', t: 'Ad copy' }, { i: '🗣️', t: 'Brand voice' }],
-    pros: ['Consistent voice', 'Great templates', 'Fast drafts'], cons: ['Pricier than alternatives', 'Needs editing'],
-    metrics: { time: 60, setup: 80, cost: 45 }, price: '$$', hrs: 2, rev: 100, cost: 55, weeks: 1,
-  }),
-  P('fin', 'Intercom Fin', '🤖', '#1f8ded', '#0c4a8a', 'An assistant that answers customers 24/7', {
-    description: 'Answers “are you open?”, “is it vegan?” and catering enquiries instantly on your website and socials.',
-    useCases: ['service'], departments: ['foh', 'marketing'],
-    useCaseItems: [{ i: '🕒', t: 'Opening hours' }, { i: '🌱', t: 'Dietary FAQs' }, { i: '🎂', t: 'Catering leads' }, { i: '📦', t: 'Order status' }],
-    pros: ['Answers instantly', 'Captures catering leads', 'Learns your FAQs'], cons: ['Overkill for small foot traffic', 'Per-resolution pricing'],
-    metrics: { time: 60, setup: 55, cost: 45 }, price: '$$', hrs: 2, rev: 300, cost: 65, weeks: 2,
-  }),
-  P('tidio', 'Tidio', '💭', '#0566ff', '#0a2ea8', 'Friendly chat widget for your website', {
-    description: 'A lightweight chat bot that takes bookings, answers questions and passes tricky ones to you.',
-    useCases: ['service'], departments: ['foh'],
-    useCaseItems: [{ i: '📅', t: 'Bookings' }, { i: '❓', t: 'FAQs' }, { i: '🔀', t: 'Hand-off' }, { i: '📱', t: 'Social inbox' }],
-    pros: ['Cheap and cheerful', 'Quick setup', 'Free plan'], cons: ['Limited depth', 'Basic reports'],
-    metrics: { time: 45, setup: 85, cost: 90 }, price: '$', hrs: 2, rev: 120, cost: 20, weeks: 1,
-  }),
-  P('gemini', 'Google Gemini', '✨', '#4285f4', '#9b59f5', 'Handy with Docs, Sheets & Gmail', {
-    description: 'Summarises supplier emails, builds spreadsheets from a sentence and helps you plan the week.',
-    useCases: ['content', 'bookkeeping'], departments: ['ops', 'finance'],
-    useCaseItems: [{ i: '📬', t: 'Inbox summaries' }, { i: '📊', t: 'Sheet formulas' }, { i: '📅', t: 'Planning' }, { i: '🌐', t: 'Translation' }],
-    pros: ['Fits Google Workspace', 'Strong summaries', 'Great for planning'], cons: ['Best if you use Google tools', 'Subscription'],
-    metrics: { time: 65, setup: 85, cost: 75 }, price: '$', hrs: 2, cost: 25, weeks: 1,
-  }),
-  P('notion', 'Notion AI', '📝', '#2b2b2b', '#6b6b6b', 'One tidy home for recipes & SOPs', {
-    description: 'Turns scribbled notes into training guides, recipes and opening/closing checklists your team will follow.',
-    useCases: ['content', 'scheduling'], departments: ['ops', 'kitchen'],
-    useCaseItems: [{ i: '📖', t: 'Recipe book' }, { i: '✅', t: 'Checklists' }, { i: '🎓', t: 'Training' }, { i: '🔎', t: 'Search' }],
-    pros: ['Better onboarding', 'Everything in one place', 'Flexible'], cons: ['Setup takes thought', 'Team needs buy-in'],
-    metrics: { time: 55, setup: 60, cost: 80 }, price: '$', hrs: 2, cost: 15, weeks: 2,
-  }),
-  P('quickbooks', 'QuickBooks AI', '💰', '#2ca01c', '#1a6911', 'Cash-flow forecasts in plain English', {
-    description: 'Intuit Assist drafts invoices, predicts cash shortfalls and answers “how much did I make last month?”',
-    useCases: ['bookkeeping'], departments: ['finance'],
-    useCaseItems: [{ i: '🧾', t: 'Invoices' }, { i: '🔮', t: 'Cash forecast' }, { i: '💹', t: 'Profit reports' }, { i: '🧑‍💼', t: 'Accountant access' }],
-    pros: ['Familiar to accountants', 'Smart forecasts', 'Strong reports'], cons: ['Can feel complex', 'Price hikes over time'],
-    metrics: { time: 80, setup: 55, cost: 50 }, price: '$$', hrs: 4, cost: 55, weeks: 2, risk: 'Medium',
-  }),
-  P('dext', 'Dext', '🧮', '#00b8a9', '#00726a', 'Snap a receipt, skip the data entry', {
-    description: 'Photograph receipts and invoices; AI reads them and files them straight into your accounting software.',
-    useCases: ['bookkeeping'], departments: ['finance'],
-    useCaseItems: [{ i: '📸', t: 'Snap receipts' }, { i: '🤖', t: 'Auto-read' }, { i: '🔗', t: 'Sync to Xero' }, { i: '🗄️', t: 'Digital archive' }],
-    pros: ['No more shoebox of receipts', 'Very accurate', 'Quick wins'], cons: ['Another subscription', 'Works best with accounting software'],
-    metrics: { time: 75, setup: 80, cost: 70 }, price: '$', hrs: 3, cost: 30, weeks: 1,
-  }),
-  P('lightspeed', 'Lightspeed', '⚡', '#e8442c', '#a82b19', 'Fast POS with built-in insights', {
-    description: 'Cloud till with smart reporting, table and order flows and inventory that updates as you sell.',
-    useCases: ['ordering', 'inventory'], departments: ['foh', 'kitchen'],
-    useCaseItems: [{ i: '🛎️', t: 'Orders' }, { i: '📦', t: 'Live stock' }, { i: '📊', t: 'Reports' }, { i: '🔌', t: 'Integrations' }],
-    pros: ['Powerful reporting', 'Lots of integrations', 'Scales with you'], cons: ['Pricey for tiny cafés', 'Takes time to learn'],
-    metrics: { time: 60, setup: 40, cost: 35 }, price: '$$$', rev: 450, wait: 25, cost: 100, weeks: 3, risk: 'Medium',
-  }),
-  P('slang', 'Slang.ai', '📞', '#6c5ce7', '#3d2fa8', 'A voice assistant that answers your phone', {
-    description: 'Picks up every call during the morning rush, answers questions and takes catering or table bookings.',
-    useCases: ['service'], departments: ['foh'],
-    useCaseItems: [{ i: '☎️', t: 'Answer calls' }, { i: '📅', t: 'Take bookings' }, { i: '📝', t: 'Call notes' }, { i: '🔁', t: 'Transfer to you' }],
-    pros: ['Never miss a call', 'Frees up counter staff', 'Sounds natural'], cons: ['Some customers prefer humans', 'Phone-heavy cafés benefit most'],
-    metrics: { time: 55, setup: 65, cost: 45 }, price: '$$', hrs: 3, rev: 280, cost: 80, weeks: 2, risk: 'Medium',
-  }),
-  P('birdeye', 'Birdeye', '⭐', '#ffb400', '#c27c00', 'Grow your 5-star reviews', {
-    description: 'Asks happy customers for reviews, drafts replies to every one and alerts you to problems fast.',
-    useCases: ['marketing', 'service'], departments: ['marketing', 'foh'],
-    useCaseItems: [{ i: '⭐', t: 'Review requests' }, { i: '↩️', t: 'Auto-replies' }, { i: '🔔', t: 'Alerts' }, { i: '📍', t: 'Local ranking' }],
-    pros: ['Boosts Google ranking', 'Saves reply time', 'Spots issues early'], cons: ['Reply tone needs checking', 'Mid-range pricing'],
-    metrics: { time: 55, setup: 75, cost: 60 }, price: '$$', hrs: 2, rev: 380, cost: 50, weeks: 1,
-  }),
-  P('capcut', 'CapCut', '🎬', '#111111', '#3a3a3a', 'Short videos your followers will love', {
-    description: 'AI auto-edits latte-art clips, adds captions and music, and exports ready for Reels and TikTok.',
-    useCases: ['content', 'marketing'], departments: ['marketing'],
-    useCaseItems: [{ i: '🎞️', t: 'Auto-edit' }, { i: '💬', t: 'Auto-captions' }, { i: '🎵', t: 'Music sync' }, { i: '📐', t: 'Resize' }],
-    pros: ['Free and fast', 'Trendy templates', 'Mobile-first'], cons: ['Watermark on some tools', 'Needs a bit of filming'],
-    metrics: { time: 55, setup: 90, cost: 95 }, price: '$', hrs: 2, rev: 220, cost: 10, weeks: 1,
-  }),
-  P('zapier', 'Zapier', '🔗', '#ff4f00', '#c23c00', 'Connect your tools and automate chores', {
-    description: 'When an order comes in, update the stock sheet and message the team — no code, just “if this, then that.”',
-    useCases: ['ordering', 'scheduling', 'bookkeeping'], departments: ['ops'],
-    useCaseItems: [{ i: '⚡', t: 'Auto-workflows' }, { i: '🔗', t: '6,000+ apps' }, { i: '🔔', t: 'Alerts' }, { i: '🗂️', t: 'Data sync' }],
-    pros: ['Eliminates copy-paste', 'Works with everything', 'Free starter plan'], cons: ['Can get fiddly', 'Breaks if apps change'],
-    metrics: { time: 70, setup: 50, cost: 70 }, price: '$$', hrs: 3, cost: 35, weeks: 2, risk: 'Medium',
-  }),
-  P('apicbase', 'Apicbase', '👨‍🍳', '#e84393', '#a8226c', 'Recipe costing & allergens, automated', {
-    description: 'Costs every recipe to the cent, tracks allergens and tells you which items are quietly losing you money.',
-    useCases: ['inventory', 'ordering'], departments: ['kitchen', 'finance'],
-    useCaseItems: [{ i: '📐', t: 'Recipe costing' }, { i: '⚠️', t: 'Allergens' }, { i: '💲', t: 'Margins' }, { i: '📏', t: 'Portions' }],
-    pros: ['Protects your margins', 'Allergen compliance', 'Consistent portions'], cons: ['Lots of data entry upfront', 'Built for bigger menus'],
-    metrics: { time: 55, setup: 35, cost: 35 }, price: '$$$', waste: 3, rev: 300, cost: 95, weeks: 4, risk: 'Medium', bestFor: ['Bakery-café', 'Franchise-style'],
+    useCaseItems: [{ i: '👥', t: 'Regulars lists' }, { i: '✍️', t: 'Friendly copy' }, { i: '⏰', t: 'Smart send times' }, { i: '🎁', t: 'Loyalty offers' }],
+    pros: ['Fills quiet afternoons', 'Free starter plan', 'Easy templates'],
+    cons: ['You need a contact list first', 'Costs rise with contacts'],
+    metrics: { time: 55, setup: 80, cost: 80 }, price: '$', hrs: 2, cost: 25, rev: 350, weeks: 1, bestFor: ALL_TYPES,
+    worker: { name: 'Milo', job: 'Brings regulars back with offers, emails and stamp cards.', role: 'Regulars & Loyalty Marketer', emoji: '💌', outfit: 'honey-gold shirt & stamp card', station: 'Loyalty & CRM Corner' },
+    testimonial: { person: 'lily', quote: 'One “wet Wednesday, $2 off your second coffee” text and the tables filled by eleven.' },
+    setup: {
+      phase: 'Week 1 · Quick win', minutes: 25, owner: 'You',
+      steps: ['Add a “join our regulars” QR code at the till', 'Import your loyalty-card emails', 'Schedule one quiet-afternoon offer'],
+      safety: 'Read every message before it sends — tone matters.',
+    },
   }),
 ]
 
 export const getProduct = (id) => PRODUCTS.find((p) => p.id === id)
+
+/** Tools that do the same job: an owner only needs one from each group. */
+export const OVERLAPS = [
+  { ids: ['square', 'lightspeed'], note: 'You only need one till. Square suits counter service; Lightspeed suits table service.' },
+]
+export const overlapsIn = (ids = []) => OVERLAPS.filter((o) => o.ids.every((id) => ids.includes(id)))
+
+/** Words in an owner's own description of their week, mapped to the tools that help. */
+export const RANT_KEYWORDS = [
+  { re: /invoice|docket|receipt|bill|9 ?pm|paperwork|accountant|bas|gst|books/i, tools: ['dext', 'xero', 'copilot'] },
+  { re: /sick|roster|shift|5[:.]?30|staff|overtime|award|casual/i, tools: ['deputy'] },
+  { re: /pastr|croissant|waste|bin|rain|stock|leftover|throw/i, tools: ['marketman', 'canva', 'mailchimp'] },
+  { re: /phone|call|ring|catering|booking/i, tools: ['slang', 'podium'] },
+  { re: /queue|rush|line|wait|slow|order/i, tools: ['square', 'lightspeed'] },
+  { re: /review|google|complain|allerg|dm|instagram message/i, tools: ['podium'] },
+  { re: /quiet|empty|regulars|marketing|instagram|social|post|promo|menu/i, tools: ['mailchimp', 'canva'] },
+  { re: /milk|beans|supplier|order|delivery|cut-?off/i, tools: ['ordermentum', 'dext'] },
+  { re: /email|spreadsheet|excel|word|admin|sop|handover/i, tools: ['copilot'] },
+]
+
+// ------------------------------------------------------------------------------------------
+// Prices, links and limits, checked against each vendor's own Australian pages (or, where a
+// vendor publishes no prices, reputable listings) in October 2026. Prices change: always check
+// the vendor's page before buying. `cost` is the monthly figure the dashboard adds up.
+export const PRICES_CHECKED = 'Oct 2026'
+
+const FACTS = {
+  copilot: {
+    cost: 35, priceLabel: '~A$35/mo per person', value: 62,
+    pricing: { plan: 'Microsoft 365 Business Standard with Copilot', note: 'per person, yearly commitment, ex GST (a reseller’s figure: Microsoft’s own AU price page wasn’t reachable)', trial: null, free: false },
+    url: 'https://www.microsoft.com/en-au/microsoft-365/copilot',
+    wont: 'It won’t send an email or change a spreadsheet on its own. It drafts; you decide.',
+  },
+  xero: {
+    cost: 107, priceLabel: 'from A$107/mo', value: 55,
+    pricing: { plan: 'Comprehensive', note: 'incl. GST; intro discounts for the first months', trial: 'First month free', free: false },
+    url: 'https://www.xero.com/au/pricing-plans/',
+    wont: 'It won’t lodge your BAS until you (or your accountant) have checked it.',
+  },
+  dext: {
+    cost: 34, priceLabel: 'A$34/mo', value: 82,
+    pricing: { plan: 'Prepare (250 documents a month)', note: 'ex GST', trial: '14-day free trial, no card needed', free: false },
+    url: 'https://dext.com/au/pricing/prepare-direct',
+    wont: 'Dext reads your bills; it doesn’t pay them.',
+  },
+  deputy: {
+    cost: 45, priceLabel: '~A$9/mo per staff member', value: 72,
+    pricing: { plan: 'Core', note: 'A$8.75 per staff member a month, minimum A$30, ex GST', trial: 'Free trial', free: false },
+    url: 'https://www.deputy.com/au/pricing',
+    wont: 'It won’t text someone to cover a shift until you say yes (unless you switch that on).',
+  },
+  square: {
+    cost: 0, priceLabel: 'Free plan + card fees', value: 90,
+    pricing: { plan: 'Free (Plus is A$129/mo)', note: '1.6% per in-person card payment', trial: 'Plus: 30-day free trial', free: true },
+    url: 'https://squareup.com/au/en/point-of-sale/restaurants/pricing',
+    wont: 'It speeds up ordering, not brewing: it won’t fix a slow espresso machine.',
+    cons: ['Card fees on every sale (1.6%)', 'Best if you switch fully'],
+  },
+  lightspeed: {
+    cost: 79, priceLabel: 'from A$79/mo', value: 52,
+    pricing: { plan: 'Starter', note: 'the kitchen display and inventory are paid add-ons', trial: 'Free trial on request', free: false },
+    url: 'https://www.lightspeedhq.com/au/pos/restaurant/pricing/',
+    wont: 'It won’t cook any faster. It paces tickets so nothing gets forgotten.',
+  },
+  marketman: {
+    cost: 380, priceLabel: 'from ~A$380/mo', value: 30,
+    pricing: { plan: 'Starter (US$249)', note: 'priced in US dollars; you book a demo first', trial: 'Demo only', free: false },
+    url: 'https://www.marketman.com/pricing',
+    wont: 'It won’t count your stock for you. Someone still does a quick weekly count.',
+    cons: ['Pricey for one small café (US$249/mo and up)', 'The first stock count is a slog'],
+  },
+  ordermentum: {
+    cost: 0, priceLabel: 'Free for cafés', value: 95,
+    pricing: { plan: 'Free (Pro is A$49/mo, optional)', note: 'ordering, invoices and payments are free for venues', trial: null, free: true },
+    url: 'https://ordermentum.com/pricing',
+    wont: 'It won’t place an order you haven’t approved (unless you set up repeat orders).',
+  },
+  canva: {
+    cost: 14, priceLabel: 'Free · Pro ~A$14/mo', value: 92,
+    pricing: { plan: 'Pro (A$165 a year)', note: 'the free plan covers the basics', trial: 'Pro: free trial', free: true },
+    url: 'https://www.canva.com/en_au/pricing/',
+    wont: 'It won’t post anything for you. You choose what goes up, and where.',
+  },
+  podium: {
+    cost: 399, priceLabel: '~A$399/mo', value: 32,
+    pricing: { plan: 'Essentials', note: 'quoted on a sales call, usually on a 12-month contract (a listing price; Podium doesn’t publish prices)', trial: 'Demo only', free: false },
+    url: 'https://www.podium.com.au/',
+    wont: 'It never answers an allergy question without you.',
+    cons: ['Pricey: around A$399/mo on a 12-month contract', 'Allergy questions always need a human'],
+  },
+  slang: {
+    cost: 399, priceLabel: 'from A$399/mo', value: 30,
+    pricing: { plan: 'Core', note: 'per location; you get a quote after a demo', trial: 'Demo only', free: false },
+    url: 'https://www.slang.ai/pricing',
+    wont: 'It won’t confirm a catering order without your thumbs-up.',
+    cons: ['From A$399/mo per location', 'Best for phone-heavy cafés'],
+  },
+  mailchimp: {
+    cost: 0, priceLabel: 'Free up to 250 contacts', value: 88,
+    pricing: { plan: 'Free (Essentials from ~A$20/mo)', note: 'paid plans grow with your contact list', trial: 'Essentials: 14-day free trial', free: true },
+    url: 'https://mailchimp.com/en-au/pricing/marketing/',
+    wont: 'It won’t send anything until you press send, or schedule it.',
+  },
+}
+
+for (const p of PRODUCTS) {
+  const f = FACTS[p.id]
+  if (!f) continue
+  const { value, ...rest } = f
+  Object.assign(p, rest)
+  if (value != null) p.metrics = { ...p.metrics, cost: value }
+}
+
+/** How the tools talk to each other: what flows from one to the other. */
+export const CONNECTIONS = [
+  { from: 'dext', to: 'xero', what: 'Snapped dockets arrive as bills, coded and ready to pay' },
+  { from: 'square', to: 'xero', what: 'Each day’s takings land in your books' },
+  { from: 'lightspeed', to: 'xero', what: 'Sales and payments sync every night' },
+  { from: 'deputy', to: 'xero', what: 'Approved timesheets flow into payroll' },
+  { from: 'ordermentum', to: 'xero', what: 'Supplier invoices sync on their own' },
+  { from: 'marketman', to: 'xero', what: 'Stock costs and invoices sync' },
+  { from: 'square', to: 'deputy', what: 'Sales forecasts shape next week’s roster' },
+  { from: 'lightspeed', to: 'deputy', what: 'Busy-hour sales shape the roster' },
+  { from: 'square', to: 'marketman', what: 'Every sale draws down your stock count' },
+  { from: 'lightspeed', to: 'marketman', what: 'Every sale draws down your stock count' },
+  { from: 'ordermentum', to: 'marketman', what: 'Orders update the stock you’re expecting' },
+  { from: 'square', to: 'mailchimp', what: 'Customers who opt in join your regulars list' },
+  { from: 'canva', to: 'mailchimp', what: 'Designs drop straight into your emails' },
+  { from: 'square', to: 'podium', what: 'Card payments can trigger a review request' },
+]
+// relative luminance (WCAG) of a #rrggbb colour
+const lum = (hex) => {
+  const c = hex.replace('#', '')
+  const [r, g, b] = [0, 2, 4].map((i) => parseInt(c.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4))
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b
+}
+/** The text colour that reads best on a tool's brand gradient: white, or espresso on the light brands (Xero, MarketMan, Mailchimp…). */
+export const brandInk = (p) => {
+  const L = (lum(p.from) + lum(p.to)) / 2
+  return (L + 0.05) / (lum('#2a170e') + 0.05) > 1.05 / (L + 0.05) ? '#2a170e' : '#ffffff'
+}
+
+export const connectionsFor = (id) => CONNECTIONS.filter((c) => c.from === id || c.to === id)
+export const connectionsAmong = (ids = []) => CONNECTIONS.filter((c) => ids.includes(c.from) && ids.includes(c.to))

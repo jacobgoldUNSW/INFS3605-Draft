@@ -33,7 +33,7 @@ export function BarChart({ days, before, after, mode }) {
             {/* ghost of 'before' when viewing after */}
             <motion.rect
               x={x} width={bw} rx="9" fill="rgba(139,94,60,0.1)"
-              initial={{ y: pt + ch, height: 0 }}
+              initial={{ y: pt + ch, height: 0, opacity: 0 }}
               animate={{ y: pt + ch - ghost, height: ghost, opacity: mode === 'after' ? 1 : 0 }}
               transition={{ ...spring, delay: i * 0.04 }}
             />
@@ -177,11 +177,12 @@ export function LineChart({ months, before, after, mode }) {
       <motion.path d={dArea} fill="url(#areaFill)" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} />
       <motion.path
         d={dGhost} fill="none" stroke="#8B5E3C" strokeWidth="2.5" strokeDasharray="2 7" strokeLinecap="round"
+        initial={{ opacity: 0 }}
         animate={{ opacity: mode === 'after' ? 0.55 : 0 }}
       />
       <motion.path
         d={dMain} fill="none" strokeWidth="4" strokeLinecap="round"
-        initial={{ pathLength: 0 }}
+        initial={{ pathLength: 0, d: dMain, stroke: color }}
         animate={{ d: dMain, pathLength: 1, stroke: color }}
         transition={{ d: { duration: 1.1, ease }, pathLength: { duration: 1.4, ease }, stroke: { duration: 0.6 } }}
       />

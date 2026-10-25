@@ -2,6 +2,8 @@ import React, { forwardRef, useRef } from 'react'
 import { motion } from 'framer-motion'
 import IconTile from '../ui/IconTile'
 import { useApp } from '../../state'
+import { Portrait } from '../cafe/WorkerInspector'
+import { useCafeImages } from '../../sim/useCafeImages'
 
 /**
  * Square app-style product card.
@@ -9,6 +11,7 @@ import { useApp } from '../../state'
  */
 const ProductCard = forwardRef(function ProductCard({ p, index = 0, mode = 'market', onPick, recommended = false }, slotRef) {
   const { setOpenId, selected } = useApp()
+  const images = useCafeImages()
   const isSel = selected.includes(p.id)
   const ref = useRef(null)
 
@@ -78,7 +81,7 @@ const ProductCard = forwardRef(function ProductCard({ p, index = 0, mode = 'mark
             </svg>
           </button>
 
-          {recommended && <span className="rec-badge">✨ Pick for you</span>}
+          {recommended && <span className="rec-badge">✨ For you</span>}
 
           <div className="pcard-icon">
             <IconTile p={p} size={72} radius={20} />
@@ -97,9 +100,13 @@ const ProductCard = forwardRef(function ProductCard({ p, index = 0, mode = 'mark
           </div>
           <div className="pcard-name">{p.name}</div>
           <p className="pcard-blurb">{p.tagline}</p>
+          <span className="worker-pill soft pcard-worker" style={{ '--a': p.from, '--b': p.to }}>
+            {images ? <Portrait images={images} sprite={p.id} size={18} /> : <span aria-hidden>{p.worker.emoji}</span>}
+            {mode === 'pick' ? `Unlocks ${p.worker.name} in your café` : `Meet ${p.worker.name}, your ${p.worker.role.split(' ')[0].toLowerCase()} help`}
+          </span>
 
           <div className="pcard-footer">
-            <span className="pcard-meta">⏱️ ~{p.hrs}h/wk</span>
+            <span className="pcard-meta">⏱️ ~{p.hrs}h/wk · {p.priceLabel}</span>
             <span className={`pcard-pill ${isSel ? 'on' : ''}`}>
               {mode === 'pick' ? (isSel ? '✓ Added' : '+ Add to plan') : 'Peek inside →'}
             </span>

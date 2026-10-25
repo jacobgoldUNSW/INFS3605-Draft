@@ -34,8 +34,8 @@ if not exist "node_modules" (
 
 echo   How would you like to start?
 echo.
-echo     [1] Dev mode           - instant start, hot reload  ^(default^)
-echo     [2] Production preview - builds the site into /dist first, then serves it
+echo     [1] Dev mode   - starts the API + web app with hot reload  ^(default^)
+echo     [2] Production - builds /dist, then one server runs the app + API
 echo.
 choice /c 12 /t 6 /d 1 /n /m "  Press 1 or 2 (auto-selects 1 in 6 seconds): "
 
@@ -44,8 +44,8 @@ goto dev
 
 :dev
 echo.
-echo   Starting Brewmind... your browser will open automatically.
-echo   Close this window ^(or press Ctrl+C^) to stop the server.
+echo   Starting Brewmind ^(API on :8787, app on :5173^)... your browser will open automatically.
+echo   Close this window ^(or press Ctrl+C^) to stop both servers.
 echo.
 call npm run dev
 goto end
@@ -61,10 +61,11 @@ if errorlevel 1 (
   exit /b 1
 )
 echo.
-echo   The static site is now in the "dist" folder - upload that folder to host it on any domain.
-echo   Starting preview server... your browser will open automatically.
+echo   Starting Brewmind on http://localhost:8787/infs3605/ ...
+echo   ^(Sign-in, saved plans and the live cafe need this Node server - a static host alone won't do.^)
 echo.
-call npm run preview
+start "" http://localhost:8787/infs3605/
+call npm start
 goto end
 
 :end

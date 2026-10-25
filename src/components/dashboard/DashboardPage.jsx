@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useApp } from '../../state'
 import Survey from './Survey'
+import CheckupChat from '../bea/CheckupChat'
 import Picker from './Picker'
 import BrewLoader from './BrewLoader'
 import DashboardResults from './DashboardResults'
@@ -14,6 +15,19 @@ const STEPS = [
 ]
 
 function ProgressSteps({ step, setStep }) {
+  // once the plan is brewed, the four steps shrink to a slim breadcrumb so the café sits higher
+  if (step === 3) {
+    return (
+      <nav className="steps-slim" aria-label="Plan progress">
+        {STEPS.map((s, i) => (
+          <React.Fragment key={s.label}>
+            <span className={`ss ${i < 3 ? 'done' : 'cur'}`}>{i < 3 ? '✓' : s.icon} {s.label}</span>
+            {i < STEPS.length - 1 && <i aria-hidden>›</i>}
+          </React.Fragment>
+        ))}
+      </nav>
+    )
+  }
   return (
     <div className="steps">
       {STEPS.map((s, i) => {
@@ -57,14 +71,19 @@ function ProgressSteps({ step, setStep }) {
 
 export default function DashboardPage() {
   const { step, setStep } = useApp()
-  const views = [<Survey />, <Picker />, <BrewLoader />, <DashboardResults />]
+  // the check-up is a chat with Bea; the tap-through form is always one click away
+  const [checkup, setCheckup] = useState('chat')
+  const views = [
+    checkup === 'chat' ? <CheckupChat onUseForm={() => setCheckup('form')} /> : <Survey onChat={() => setCheckup('chat')} />,
+    <Picker />, <BrewLoader />, <DashboardResults />,
+  ]
 
   return (
     <div className="dash-page">
       <ProgressSteps step={step} setStep={setStep} />
       <AnimatePresence mode="wait">
         <motion.div
-          key={step}
+          key={step === 0 ? `0-${checkup}` : step}
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -24 }}

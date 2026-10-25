@@ -1,20 +1,32 @@
 {
   "name": "brewmind",
   "private": true,
-  "version": "1.0.0",
+  "version": "2.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host --open",
+    "dev": "concurrently -k -n api,web -c yellow,cyan \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:api": "node server/index.js",
+    "dev:web": "vite --host --open",
     "build": "vite build",
-    "preview": "vite preview --host --open"
+    "start": "node server/index.js",
+    "preview": "vite preview --host --open",
+    "cafe:build": "python tools/cafe/build_map.py && python tools/cafe/build_chars.py && python tools/cafe/build_ui.py",
+    "dev:all": "concurrently -k -n api,web -c yellow,cyan \"npm:dev:api\" \"vite --host --port 5173 --strictPort\"",
+    "dev:api:watch": "node --watch-path=server server/index.js"
   },
   "dependencies": {
+    "@google/genai": "^2.30.0",
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^13.0.3",
+    "express": "^5.3.0",
     "framer-motion": "^11.11.17",
+    "jsonwebtoken": "^9.0.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^10.0.6",
     "vite": "^5.4.11"
   }
 }
