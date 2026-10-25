@@ -127,22 +127,8 @@ const personaliseSchema = {
       },
     },
     peerTip: { type: Type.STRING, description: 'one sentence of advice from a fellow café owner' },
-    risks: {
-      type: Type.ARRAY,
-      description: 'the 3 most relevant risks for THIS café and these tools',
-      items: {
-        type: Type.OBJECT,
-        properties: {
-          title: { type: Type.STRING, description: 'max 5 words' },
-          note: { type: Type.STRING, description: 'max 18 words' },
-          fix: { type: Type.STRING, description: 'practical fix, max 18 words' },
-          level: { type: Type.INTEGER, description: '1 (low) to 5 (high)' },
-        },
-        required: ['title', 'note', 'fix', 'level'],
-      },
-    },
   },
-  required: ['headline', 'summary', 'toolReasons', 'setupCards', 'risks'],
+  required: ['headline', 'summary', 'toolReasons', 'setupCards'],
 }
 
 export async function personaliseDashboard(survey, selected) {
@@ -168,8 +154,7 @@ Return:
   "Your kitchen lead" — never Jules/Jax/Dex/Dep/Sienna/Leo/Marco/Ollie/Cami/Pia/Sunny/Milo), and a week-1 safety check.
   Phase: quick, cheap tools are "Week 1 · Quick win"; tools touching money/rosters are "Weeks 2–3 · Core habit";
   hardware, stock counts or till changes are "Month 2 · Upgrade".
-- peerTip: one sentence.
-- risks: the 3 most relevant honest risks (privacy, staff buy-in, subscription creep, allergens, switch-over…) with a practical fix.`
+- peerTip: one sentence.`
   try {
     const { data, model, ms } = await generateJSON({
       system: `You personalise a small-café owner's technology plan for the Brewmind web app.\n${VOICE}`,
@@ -202,10 +187,6 @@ Return:
         toolReasons: reasons,
         setupCards: cards,
         peerTip: String(data.peerTip || fallback.peerTip).slice(0, 180),
-        risks: (data.risks || []).slice(0, 3).map((r) => ({
-          title: String(r.title || '').slice(0, 60), note: String(r.note || '').slice(0, 160),
-          fix: String(r.fix || '').slice(0, 160), level: Math.max(1, Math.min(5, Math.round(Number(r.level) || 3))),
-        })).filter((r) => r.title && r.note),
         source: 'gemini',
         model,
         tools: [...selected].sort(),

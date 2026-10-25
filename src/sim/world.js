@@ -116,7 +116,6 @@ export class CafeWorld {
     this.version = 0
     this.overlayVersion = 0
     this.uid = 0
-    this.mode = 'before'
     this.workers = new Set()
     this.queue = []
     this.tickets = []
@@ -157,10 +156,11 @@ export class CafeWorld {
     this.journal = []
     this.incidents = new Map()
     this.eventState = {}
-    this.stats = { before: newStats(), after: newStats() }
-    // each café day ends with a wrap-up of what happened (solo vs with the team)
+    // the day's running totals: what the team got done, and what that saved the owner
+    this.stats = newStats()
+    // each café day ends with a wrap-up of those totals
     this.day = 1
-    this.dayStart = { before: newStats(), after: newStats() }
+    this.dayStart = newStats()
     this.wrap = null
     this.wrappedDay = 0
     this.jobs = {}
@@ -315,7 +315,7 @@ export class CafeWorld {
 
   /** One line in the café log. */
   jot(entry) {
-    const e = { id: ++this.uid, t: this.t, clock: this.clock().short, mode: this.mode, tags: [], actors: [], ...entry }
+    const e = { id: ++this.uid, t: this.t, clock: this.clock().short, tags: [], actors: [], ...entry }
     this.journal.push(e)
     if (this.journal.length > 300) this.journal.shift()
     this.emit()
@@ -325,7 +325,7 @@ export class CafeWorld {
   /** An incident groups one event (or quiet-moment idea) with everything the team did about it. */
   openIncident(event, extra = {}) {
     const info = EVENT_INFO[event] || EVENT_INFO.tick
-    const inc = { id: `in${++this.uid}`, event, icon: info.icon, title: extra.title || info.label, status: extra.status || 'noticed', startedAt: this.t, clock: this.clock().short, mode: this.mode, steps: [], outcome: null, by: [] }
+    const inc = { id: `in${++this.uid}`, event, icon: info.icon, title: extra.title || info.label, status: extra.status || 'noticed', startedAt: this.t, clock: this.clock().short, steps: [], outcome: null, by: [] }
     this.incidents.set(inc.id, inc)
     if (event !== 'tick') this.eventState[event] = inc.id
     if (this.incidents.size > 80) this.incidents.delete(this.incidents.keys().next().value)
@@ -356,44 +356,27 @@ export class CafeWorld {
     this.emit()
   }
 
-  stat(key, n = 1) { const s = this.stats[this.mode]; if (s && key in s) s[key] += n }
+  stat(key, n = 1) { if (key in this.stats) this.stats[key] += n }
 
   /** every AI worker wears their name above their head, the whole time they're in the café */
   nameTag(w) { this.addOverlay({ id: `tag-${w.id}`, type: 'tag', actorId: w.id, text: w.name }) }
 
-  // =========================================================================== mode & team
+  // =========================================================================== the team
   presentWorkers() {
     return [...this.workers].filter((id) => this.actors.get(id)?.arrived)
   }
 
-  setMode(mode, { instant = false } = {}) {
-    if (mode === this.mode) return
-    this.mode = mode
-    if (mode === 'after') {
-      ;[...this.workers].forEach((id, i) => this.enterWorker(id, instant ? 0 : 0.6 + i * 0.85, instant))
-      // the owner steps out from behind the till to welcome the team in the lounge
-      if (!instant) this.welcomeUntil = this.t + 10 + this.workers.size * 0.9
-    } else {
-      for (const wf of this.workflows.values()) wf.cancelled = true
-      this.workflows.clear()
-      for (const id of [...this.workers]) this.exitWorker(id)
-      this.pending = 0
-    }
-    this.run(this.owner, (ctx) => this.ownerLoop(ctx))
-    this.emit()
-  }
-
+  /** Who's on the team. New hires walk in through the front door (or appear at once with `instant`). */
   setWorkers(ids, { instant = false } = {}) {
     const next = new Set(ids.filter((id) => AGENT_META[id]))
     const added = [...next].filter((id) => !this.workers.has(id))
     const removed = [...this.workers].filter((id) => !next.has(id))
     this.workers = next
-    if (this.mode === 'after') {
-      added.forEach((id, i) => this.enterWorker(id, instant ? 0 : 0.2 + i * 0.7, instant))
-      removed.forEach((id) => this.exitWorker(id))
-      // owner moves to the hub only once Sienna has the till
-      this.run(this.owner, (ctx) => this.ownerLoop(ctx))
-    }
+    added.forEach((id, i) => this.enterWorker(id, instant ? 0 : 0.2 + i * 0.7, instant))
+    removed.forEach((id) => this.exitWorker(id))
+    // the owner steps out to welcome new arrivals, and moves to the hub only once Sienna has the till
+    if (added.length && !instant) this.welcomeUntil = this.t + 8 + added.length * 0.9
+    this.run(this.owner, (ctx) => this.ownerLoop(ctx))
     this.emit()
   }
 
@@ -448,7 +431,7 @@ export class CafeWorld {
     w.arrived = false
     w.busy = false
     this.status[id] = 'Heading home'
-    if (this.mode === 'after') this.jot({ kind: 'leave', icon: '👋', text: `${AGENT_META[id]?.name || 'A worker'} headed home (taken off the team)`, actors: [id], tags: ['staff'] })
+    this.jot({ kind: 'leave', icon: '👋', text: `${AGENT_META[id]?.name || 'A worker'} headed home (taken off the team)`, actors: [id], tags: ['staff'] })
     this.run(w, async (ctx) => {
       this.say(w, pick(['See you tomorrow!', 'Catch you later!', 'Off I go — call me anytime!']), 1.8)
       await ctx.go([16, 5])
@@ -477,7 +460,7 @@ export class CafeWorld {
     this.phone.handler = null
     a.anim = 'phone'
     this.say(a, pick(['Hello? Sorry, can you hold—', 'Little café, hold on one sec…', 'Hi! Uh, can I call you back?']), 2.6)
-    this.jot({ kind: 'solo', icon: '☎️', text: 'You left the till to grab the phone — the queue waited', tags: ['customers'] })
+    this.jot({ kind: 'solo', icon: '☎️', text: 'You left the till to grab the phone and the queue waited (Sunny from Slang.ai would have answered)', tags: ['customers'] })
     await ctx.sleep(3)
     a.anim = 'idle'
   }
@@ -485,7 +468,6 @@ export class CafeWorld {
   async ownerLoop(ctx) {
     const o = this.owner
     o.anim = 'idle'
-    let lastDesk = this.t
     while (true) {
       if (this.approvals.size || this.ownerPinned) { await ctx.sleep(0.4); continue }
       if (this.phone.ringing && !this.hasWorker('slang') && (!this.phone.handler || this.phone.handler === 'owner')) {
@@ -493,29 +475,7 @@ export class CafeWorld {
         await this.answerPhone(o, ctx)
         continue
       }
-      if (this.mode === 'before') {
-        if (this.t - lastDesk > 26 && this.queue.length < 3) {
-          // the dreaded back-desk paperwork
-          const desk = MAP.spots.ownerDesk
-          await ctx.go(desk.tile, 2.6)
-          this.face(o, desk.face)
-          o.anim = 'book'
-          const worry = pick(['Invoices… at 9pm again 😩', 'Who’s free for 6am tomorrow?', 'Did we order oat milk?!', 'BAS is due… when?'])
-          this.think(o, worry, 3.4)
-          this.jot({ kind: 'solo', icon: '📎', text: `You slipped out back for paperwork (“${worry}”) — nobody on the till`, tags: ['money'] })
-          await ctx.sleep(4.2)
-          o.anim = 'idle'
-          lastDesk = this.t
-          continue
-        }
-        const pos = MAP.spots.ownerPos
-        await ctx.go(pos.tile, 2.6)
-        this.face(o, pos.face)
-        if (this.queue.length >= 4 && Math.random() < 0.35) this.emote(o, pick(['💦', '😵‍💫', '😰']), 1.8)
-        await ctx.sleep(1.2)
-        continue
-      }
-      // after: put your feet up in the lounge once Sienna runs the till, otherwise keep serving
+      // put your feet up in the lounge once Sienna runs the till (or while welcoming new arrivals), otherwise keep serving
       if (this.hasWorker('square') || this.t < (this.welcomeUntil || 0)) {
         const hub = MAP.spots.ownerHub
         const [hc, hr] = this.tileOf(o)
@@ -626,7 +586,7 @@ export class CafeWorld {
 
   posServer() {
     const s = this.actors.get('square')
-    if (this.mode === 'after' && s && s.arrived && !s.busy && !s.path) return { actor: s, dur: this.rushUntil > this.t ? 1.6 : 2.1 }
+    if (s && s.arrived && !s.busy && !s.path) return { actor: s, dur: this.rushUntil > this.t ? 1.6 : 2.1 }
     if (this.ownerAtPos() && !this.approvals.size) return { actor: this.owner, dur: this.rushUntil > this.t ? 3.4 : 4.2 }
     return null
   }
@@ -648,8 +608,8 @@ export class CafeWorld {
       if (c) { c.state = 'ordered'; this.tickets.push(c.id) }
       this.impact.served++
       this.stat('served')
-      const served = this.stats[this.mode].served
-      if (served % 10 === 0) this.jot({ kind: 'served', icon: '☕', text: `${served} coffees out the door ${this.mode === 'after' ? 'with the team' : 'on your own'} today`, tags: ['customers'] })
+      const served = this.stats.served
+      if (served % 10 === 0) this.jot({ kind: 'served', icon: '☕', text: `${served} coffees out the door today`, tags: ['customers'] })
       this.sfx('cash')
       this.pos = null
       this.emit()
@@ -693,8 +653,8 @@ export class CafeWorld {
     if (c.promo) this.emote(c, pick(['✨', '😍', '🥐']), 1.5)
     await ctx.go([doorCol, 5])
     this.sfx('bell')
-    // a long queue and nobody serving? some people just turn around
-    if (this.mode === 'before' && this.queue.length >= 5 && Math.random() < 0.5) return this.walkout(c, ctx)
+    // a long queue with you alone on the till? some people just turn around (Sienna from Square keeps it moving)
+    if (!this.hasWorker('square') && this.queue.length >= 5 && Math.random() < 0.5) return this.walkout(c, ctx)
     this.queue.push(c.id)
     c.state = 'queue'
     c.queuedAt = this.t
@@ -705,8 +665,8 @@ export class CafeWorld {
       await ctx.go(this.queueTile(idx))
       this.face(c, idx === 0 ? 'up' : idx >= 8 ? 'up' : 'left')
       if (idx === 0) { c.state = c.state === 'queue' ? 'front' : c.state; break }
-      await ctx.until(() => this.queue.indexOf(c.id) !== idx || (this.mode === 'before' && this.t - c.queuedAt > 30))
-      if (this.mode === 'before' && this.t - c.queuedAt > 30 && this.queue.indexOf(c.id) > 0) {
+      await ctx.until(() => this.queue.indexOf(c.id) !== idx || (!this.hasWorker('square') && this.t - c.queuedAt > 30))
+      if (!this.hasWorker('square') && this.t - c.queuedAt > 30 && this.queue.indexOf(c.id) > 0) {
         this.queue = this.queue.filter((id) => id !== c.id)
         return this.walkout(c, ctx)
       }
@@ -742,7 +702,7 @@ export class CafeWorld {
   async walkout(c, ctx) {
     this.impact.walkouts++
     this.stat('walkouts')
-    this.jot({ kind: 'walkout', icon: '😤', text: `A customer gave up on the queue and walked out${this.mode === 'before' ? ' (about $6 gone)' : ''}`, tags: ['customers', 'money'] })
+    this.jot({ kind: 'walkout', icon: '😤', text: 'A customer gave up on the queue and walked out (about $6 gone). You’re on the till alone; Sienna from Square would keep it moving', tags: ['customers', 'money'] })
     c.mood = { kind: 'angry', until: this.t + 2.2 }
     this.emit()
     await this.leave(c, ctx)
@@ -888,15 +848,15 @@ export class CafeWorld {
     this.nextTick = Math.max(this.nextTick, this.t + 22)
     const respond = async () => {
       if (this.destroyed) return
-      // in "After", a team that's still walking in gets a moment to arrive — until someone who can
-      // actually handle this curveball is on shift (or everyone is) — before you're left on your own
+      // a team that's still walking in gets a moment to arrive — until someone who can actually handle
+      // this curveball is on shift (or everyone is) — before you're left on your own
       const covered = () => {
         const present = this.presentWorkers()
-        return this.mode !== 'after' || present.length >= this.workers.size || applicableTemplates(ev, present).length > 0
+        return present.length >= this.workers.size || applicableTemplates(ev, present).length > 0
       }
-      if (this.mode === 'after' && this.workers.size && !covered()) await this.waitFor(covered, null, 30)
+      if (this.workers.size && !covered()) await this.waitFor(covered, null, 30)
       if (this.destroyed) return
-      if (this.mode === 'before' || !this.presentWorkers().length) return this.ownerAlone(ev, inc)
+      if (!this.presentWorkers().length) return this.ownerAlone(ev, inc)
       this.requestAndRun(ev, inc)
     }
     if (ev === 'delivery') this.courier(respond)
@@ -940,15 +900,14 @@ export class CafeWorld {
     const info = OWNER_ALONE[ev] || OWNER_ALONE.tick
     this.think(this.owner, info.thought, 4.6)
     this.emote(this.owner, '💦', 2)
-    this.opts.onTip?.(this.mode === 'before' ? `${info.tip} Flip to “After” to see it happen.` : info.tip)
+    this.opts.onTip?.(info.tip)
     if (inc) {
-      this.stepIncident(inc, 'solo', { kind: 'solo', icon: '😮‍💨', text: `You’re on your own: “${info.thought}”`, tags: ['needs'] })
+      this.stepIncident(inc, 'solo', { kind: 'solo', icon: '😮‍💨', text: `Nobody on your team covers this, so it’s on you: “${info.thought}”`, tags: ['needs'] })
       this.closeIncident(inc, { solo: true }, 'solo')
     }
   }
 
   async requestAndRun(event, inc = null) {
-    if (this.mode !== 'after') return
     const active = this.presentWorkers()
     const busy = active.filter((id) => this.actors.get(id)?.busy)
     if (!active.length) return
@@ -966,7 +925,7 @@ export class CafeWorld {
       this.pending = Math.max(0, this.pending - 1)
       this.emit()
     }
-    if (this.destroyed || this.mode !== 'after') { if (inc) this.closeIncident(inc, { stopped: true }, 'stopped'); return }
+    if (this.destroyed) { if (inc) this.closeIncident(inc, { stopped: true }, 'stopped'); return }
     if (!step) {
       if (event !== 'tick') this.ownerAlone(event, inc)
       return
@@ -990,8 +949,8 @@ export class CafeWorld {
       // never drop a request on the floor: wait for them to finish their current job
       this.say(P, pick(['One sec — finishing this first!', 'On it right after this!', 'Got it, coming up next!']), 2.2, 'say', 2)
       if (inc) inc.status = 'queued'
-      const ok = await this.waitFor(() => !P.busy || !this.actors.has(P.id) || this.mode !== 'after', null, 25)
-      if (!ok || !this.actors.has(P.id) || P.busy || !P.arrived || this.mode !== 'after') { this.closeIncident(inc, { stopped: true }, 'stopped'); return }
+      const ok = await this.waitFor(() => !P.busy || !this.actors.has(P.id), null, 25)
+      if (!ok || !this.actors.has(P.id) || P.busy || !P.arrived) { this.closeIncident(inc, { stopped: true }, 'stopped'); return }
     }
     let C = step.collaboratorAgentId ? this.actors.get(step.collaboratorAgentId) : null
     if (C && (!C.arrived || C.busy || C === P)) C = null
@@ -1006,7 +965,7 @@ export class CafeWorld {
     const pm = AGENT_META[P.id]
     const cm = C ? AGENT_META[C.id] : null
     const aframeSpot = MAP.spots.aframe
-    const alive = () => !wf.cancelled && this.workflows.has(wf.id) && this.mode === 'after' && this.actors.has(P.id)
+    const alive = () => !wf.cancelled && this.workflows.has(wf.id) && this.actors.has(P.id)
     const go = async (a, tile) => { const ok = await this.walk(a, tile); if (!ok || !alive()) throw new Cancelled(); }
     const wait = async (s) => { await this.sleep(s); if (!alive()) throw new Cancelled() }
     try {
@@ -1183,7 +1142,7 @@ export class CafeWorld {
       const n2 = Math.round(v)
       this.impact[k] += n2
       gained[k] = n2
-      if (k in this.stats.after) this.stat(k, n2)
+      if (k in this.stats) this.stat(k, n2)
     }
     add('customers', imp.customers ?? n)
     add('dollars', imp.dollars)
@@ -1274,7 +1233,7 @@ export class CafeWorld {
       const busy = this.rushUntil > this.t
       if (!busy) this.spawnCustomer()
       const base = this.rain > 0.3 ? 15 : 8
-      this.nextSpawn = this.t + rand(base, base * 1.5) * (this.mode === 'before' ? 0.8 : 1) * this.style().pace
+      this.nextSpawn = this.t + rand(base, base * 1.5) * this.style().pace
     }
     if (this.t >= this.nextPedestrian) {
       this.spawnPedestrian()
@@ -1310,8 +1269,8 @@ export class CafeWorld {
     if (changed) this.bumpOverlays()
     for (const ap of [...this.approvals.values()]) if (this.t - ap.start >= ap.dur) this.approve(ap.id, 'auto')
 
-    // the agentic heartbeat (only while watching the "After" café)
-    if (this.mode === 'after' && this.t >= this.nextTick && !this.opts.clip) {
+    // the agentic heartbeat (only while someone is watching the café)
+    if (this.t >= this.nextTick && !this.opts.clip) {
       if (this.opts.isLive() && this.pending === 0 && this.workflows.size < 2 && this.presentWorkers().length) {
         this.requestAndRun('tick')
         this.nextTick = this.t + (this.opts.teaser ? rand(7, 10) : rand(18, 22))
@@ -1319,29 +1278,29 @@ export class CafeWorld {
         this.nextTick = this.t + 3
       }
     }
-    if (this.opts.teaser && !this.opts.clip && this.t >= this.nextTeaserEvent && this.mode === 'after') {
+    if (this.opts.teaser && !this.opts.clip && this.t >= this.nextTeaserEvent) {
       const ev = pick(['rain', 'rush', 'review', 'rain'])
       if (ev !== 'rain' || !this.rainTarget) this.triggerEvent(ev)
       this.nextTeaserEvent = this.t + rand(22, 30)
     }
-    if (this.mode === 'after' && this.t >= this.nextRoutine) {
+    if (this.t >= this.nextRoutine) {
       this.routineChatter()
       this.nextRoutine = this.t + rand(6, 10)
     }
   }
 
-  /** Closing time: total up the day (solo and with the team) for the wrap-up; next morning starts a fresh tally. */
+  /** Closing time: total up what the team did today for the wrap-up; next morning starts a fresh tally. */
   updateDay() {
     const ph = this.dayPhase()
     if (ph >= CLOSE_AT && this.wrappedDay < this.day) {
       this.wrappedDay = this.day
-      const diff = (m) => Object.fromEntries(Object.keys(this.stats[m]).map((k) => [k, this.stats[m][k] - (this.dayStart[m][k] || 0)]))
-      this.wrap = { day: this.day, before: diff('before'), after: diff('after') }
+      const today = Object.fromEntries(Object.keys(this.stats).map((k) => [k, this.stats[k] - (this.dayStart[k] || 0)]))
+      this.wrap = { day: this.day, today }
       this.jot({ kind: 'served', icon: '🌙', text: `Closing time: day ${this.day} wrapped up`, tags: ['customers'] })
       this.emit()
     } else if (ph < CLOSE_AT && this.wrappedDay === this.day) {
       this.day++
-      this.dayStart = { before: { ...this.stats.before }, after: { ...this.stats.after } }
+      this.dayStart = { ...this.stats }
       this.emit()
     }
   }
@@ -1377,18 +1336,18 @@ export class CafeWorld {
       const ap = this.approvalFor(id)
       workers[id] = {
         here: !!a?.arrived && !a?.leaving, busy: !!a?.busy, needsYou: !!ap, jobs: this.jobs[id] || 0,
-        status: this.mode === 'before' ? 'Off today — you’re running solo' : ap ? 'Waiting for your OK' : !a ? 'Heading in…' : this.status[id] || 'Walking in…',
+        status: ap ? 'Waiting for your OK' : !a ? 'Heading in…' : this.status[id] || 'Walking in…',
       }
     }
     const events = {}
     for (const [ev, incId] of Object.entries(this.eventState)) {
       const inc = this.incidents.get(incId)
-      if (inc) events[ev] = { status: inc.status, by: inc.by.slice(), startedAt: inc.startedAt, endedAt: inc.endedAt || null }
+      if (inc) events[ev] = { status: inc.status, by: inc.by.slice(), startedAt: inc.startedAt, endedAt: inc.endedAt || null, outcome: inc.outcome }
     }
     return {
-      v: this.version, t: this.t, mode: this.mode, present: this.presentWorkers(), queue: this.queue.length,
+      v: this.version, t: this.t, present: this.presentWorkers(), queue: this.queue.length,
       thinking: this.pending > 0, rain: this.rainTarget > 0, approvals: this.approvals.size,
-      impact: { ...this.impact }, stats: { before: { ...this.stats.before }, after: { ...this.stats.after } },
+      impact: { ...this.impact }, stats: { ...this.stats },
       clock: this.clock(), phase: this.dayPhase(), workers, events, journalN: this.journal.length, wrap: this.wrap, day: this.day,
     }
   }
@@ -1403,7 +1362,7 @@ export class CafeWorld {
       id, ...meta,
       present: !!a?.arrived,
       onTeam: this.workers.has(id),
-      status: this.mode === 'before' ? (this.workers.has(id) ? 'Off today — you’re running solo (flip to “After”)' : 'Not on your team yet') : this.status[id] || 'On their way',
+      status: this.workers.has(id) ? this.status[id] || 'On their way' : 'Not on your team yet',
       busy: !!a?.busy,
       artifact: this.artifacts[id] || null,
       approvalId: ap?.id || null,

@@ -6,15 +6,16 @@ const ease = [0.22, 1, 0.36, 1]
 const spring = { type: 'spring', stiffness: 120, damping: 20 }
 
 /* ---------------------------------- Bar chart --------------------------------- */
-export function BarChart({ days, before, after, mode }) {
+/** Admin hours by day: today as a pale ghost bar, with your team as the solid bar in front. */
+export function BarChart({ days, before, after }) {
   const W = 480, H = 250, pl = 34, pb = 34, pt = 16
-  const data = mode === 'after' ? after : before
+  const data = after
   const max = Math.max(...before) * 1.2
   const bw = 30
   const step = (W - pl - 10) / days.length
   const ch = H - pb - pt
   const [hover, setHover] = useState(null)
-  const color = mode === 'after' ? '#D9772B' : '#8B5E3C'
+  const color = '#D9772B'
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="chart-svg" onMouseLeave={() => setHover(null)}>
@@ -30,11 +31,11 @@ export function BarChart({ days, before, after, mode }) {
         const ghost = (before[i] / max) * ch
         return (
           <g key={d} onMouseEnter={() => setHover(i)}>
-            {/* ghost of 'before' when viewing after */}
+            {/* today, as a ghost behind the bar */}
             <motion.rect
-              x={x} width={bw} rx="9" fill="rgba(139,94,60,0.1)"
+              x={x} width={bw} rx="9" fill="rgba(139,94,60,0.14)"
               initial={{ y: pt + ch, height: 0, opacity: 0 }}
-              animate={{ y: pt + ch - ghost, height: ghost, opacity: mode === 'after' ? 1 : 0 }}
+              animate={{ y: pt + ch - ghost, height: ghost, opacity: 1 }}
               transition={{ ...spring, delay: i * 0.04 }}
             />
             <motion.rect
@@ -48,8 +49,8 @@ export function BarChart({ days, before, after, mode }) {
             <text x={x + bw / 2} y={H - 12} textAnchor="middle" className="axis">{d}</text>
             {hover === i && (
               <motion.g initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}>
-                <rect x={x + bw / 2 - 28} y={pt + ch - h - 32} width="56" height="24" rx="12" fill="#3B2416" />
-                <text x={x + bw / 2} y={pt + ch - h - 16} textAnchor="middle" fill="#fff" fontSize="12" fontWeight="700">{data[i]}h</text>
+                <rect x={x + bw / 2 - 46} y={pt + ch - h - 32} width="92" height="24" rx="12" fill="#3B2416" />
+                <text x={x + bw / 2} y={pt + ch - h - 16} textAnchor="middle" fill="#fff" fontSize="12" fontWeight="700">{data[i]}h · now {before[i]}h</text>
               </motion.g>
             )}
           </g>
@@ -60,8 +61,10 @@ export function BarChart({ days, before, after, mode }) {
 }
 
 /* ---------------------------------- Donut chart --------------------------------- */
-export function Donut({ before, after, mode }) {
-  const data = mode === 'after' ? after : before
+/** What fills the admin week with your team, and how many hours it was before. */
+export function Donut({ before, after }) {
+  const data = after
+  const was = before.reduce((s, d) => s + d.hours, 0)
   const r = 66
   const C = 2 * Math.PI * r
   const total = data.reduce((s, d) => s + d.hours, 0)
@@ -96,7 +99,7 @@ export function Donut({ before, after, mode }) {
         </svg>
         <div className="donut-center">
           <div className="donut-num"><AnimatedNumber value={hover !== null ? data[hover].hours : total} duration={0.8} /></div>
-          <div className="donut-lab">{hover !== null ? 'hrs · ' + data[hover].label.split(' ')[0] : 'admin hrs / wk'}</div>
+          <div className="donut-lab">{hover !== null ? `hrs · ${data[hover].label.split(' ')[0]} (now ${before[hover].hours})` : `admin hrs / wk (now ${was})`}</div>
         </div>
       </div>
       <ul className="legend">
@@ -128,7 +131,8 @@ function smooth(points) {
   return d
 }
 
-export function LineChart({ months, before, after, mode }) {
+/** Profit over the next year: with your team (solid, ramping up as tools bed in) against nothing changing (dashed). */
+export function LineChart({ months, before, after }) {
   const W = 620, H = 270, pl = 52, pr = 16, pt = 20, pb = 34
   const all = [...before, ...after]
   const lo = Math.min(...all) * 0.8
@@ -136,13 +140,13 @@ export function LineChart({ months, before, after, mode }) {
   const x = (i) => pl + (i * (W - pl - pr)) / (months.length - 1)
   const y = (v) => pt + (1 - (v - lo) / (hi - lo)) * (H - pt - pb)
   const pts = (arr) => arr.map((v, i) => [x(i), y(v)])
-  const cur = mode === 'after' ? after : before
+  const cur = after
   const dMain = smooth(pts(cur))
   const dGhost = smooth(pts(before))
   const dArea = `${dMain} L${x(months.length - 1)},${H - pb} L${x(0)},${H - pb} Z`
   const [hover, setHover] = useState(null)
   const svgRef = useRef(null)
-  const color = mode === 'after' ? '#D9772B' : '#8B5E3C'
+  const color = '#D9772B'
   const fmt = (v) => `$${Math.round(v).toLocaleString()}`
 
   const onMove = (e) => {
@@ -178,7 +182,7 @@ export function LineChart({ months, before, after, mode }) {
       <motion.path
         d={dGhost} fill="none" stroke="#8B5E3C" strokeWidth="2.5" strokeDasharray="2 7" strokeLinecap="round"
         initial={{ opacity: 0 }}
-        animate={{ opacity: mode === 'after' ? 0.55 : 0 }}
+        animate={{ opacity: 0.55 }}
       />
       <motion.path
         d={dMain} fill="none" strokeWidth="4" strokeLinecap="round"
@@ -197,8 +201,8 @@ export function LineChart({ months, before, after, mode }) {
       {hover !== null && (
         <g>
           <line x1={x(hover)} x2={x(hover)} y1={pt} y2={H - pb} stroke={color} strokeOpacity="0.3" />
-          <rect x={Math.min(Math.max(x(hover) - 44, pl), W - pr - 88)} y={y(cur[hover]) - 42} width="88" height="26" rx="13" fill="#3B2416" />
-          <text x={Math.min(Math.max(x(hover), pl + 44), W - pr - 44)} y={y(cur[hover]) - 24} textAnchor="middle" fill="#fff" fontSize="12.5" fontWeight="700">{fmt(cur[hover])}</text>
+          <rect x={Math.min(Math.max(x(hover) - 78, pl), W - pr - 156)} y={y(cur[hover]) - 42} width="156" height="26" rx="13" fill="#3B2416" />
+          <text x={Math.min(Math.max(x(hover), pl + 78), W - pr - 78)} y={y(cur[hover]) - 24} textAnchor="middle" fill="#fff" fontSize="12.5" fontWeight="700">{fmt(cur[hover])} · now {fmt(before[hover])}</text>
         </g>
       )}
     </svg>

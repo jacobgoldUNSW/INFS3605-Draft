@@ -1,12 +1,12 @@
 // One café per signed-in owner, kept alive across tab switches. Leaving the dashboard simply stops
 // the animation loop (so the clock, Gemini calls and sound all stop); coming back picks up exactly
-// where you left it — same customers, same mode, same log.
+// where you left it — same customers, same team, same log.
 const sessions = new Map()
 
 export function getCafeSession(key, make) {
   let s = sessions.get(key)
   if (!s) {
-    s = { world: make(), ui: { mode: 'before', seenJournal: 0, tour: null } }
+    s = { world: make(), ui: { seenJournal: 0, tour: null } }
     sessions.set(key, s)
   }
   return s

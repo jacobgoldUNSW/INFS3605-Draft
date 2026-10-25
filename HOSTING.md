@@ -74,7 +74,7 @@ pass stops working, and they'll see the password page again.
 ## Keeping the Gemini bill small
 
 - Each signed-in account gets at most about 860 Gemini calls a day. Calls only happen while someone is
-  actually watching the **After** café, when they throw a curveball, or when they brew a plan.
+  actually watching the café, when they throw a curveball, or when they brew a plan.
 - For a hard ceiling, give the hosted server its own Gemini key and cap that key's daily requests:
   1. In Google AI Studio, make a new key.
   2. In the Google Cloud console for that key's project, go to **APIs & Services → Generative Language

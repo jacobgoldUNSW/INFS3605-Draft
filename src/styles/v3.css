@@ -178,8 +178,6 @@
 .wiring-list b { color: var(--espresso); margin-right: 4px; }
 
 /* ---------- dashboard: one order everywhere, and a safe "start over" ---------- */
-.rb-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
-.rb-phase { padding: 3px 9px; border-radius: 99px; font-size: 0.7rem; font-weight: 800; background: var(--espresso); color: #fff; }
 .reset-confirm { display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 10px; padding: 8px 12px; border-radius: 18px; background: #fff1e6; border: 1.5px solid #f2c39b; }
 .reset-confirm > span { font-size: 0.84rem; font-weight: 700; color: var(--orange-d); }
 

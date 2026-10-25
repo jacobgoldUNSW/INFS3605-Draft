@@ -31,8 +31,6 @@ export function AppProvider({ children }) {
   const [step, setStep] = useState(0)
   const [toast, setToast] = useState(null)
   const [geminiPlan, setGeminiPlan] = useState(null)
-  // Before/After for the live café — lives here so it survives switching tabs
-  const [cafeMode, setCafeMode] = useState('before')
   const [beaChat, setBeaChat] = useState(EMPTY_CHAT)
 
   // ---------------- auth ----------------
@@ -105,7 +103,6 @@ export function AppProvider({ children }) {
     tokenStore.set(null)
     lastSynced.current = null
     dropCafeSessions()
-    setCafeMode('before')
     setUser(null)
     setSurvey(DEFAULT_SURVEY)
     setSelected([])
@@ -155,18 +152,17 @@ export function AppProvider({ children }) {
     setBeaChat(EMPTY_CHAT)
     setStep(0)
     dropCafeSessions()
-    setCafeMode('before')
   }, [user])
 
   const value = useMemo(
     () => ({
       tab, setTab, selected, setSelected, toggle, openId, setOpenId, openShared,
       survey, setSurvey, step, setStep, toast, showToast, restart,
-      geminiPlan, setGeminiPlan, cafeMode, setCafeMode, beaChat, setBeaChat,
+      geminiPlan, setGeminiPlan, beaChat, setBeaChat,
       user, authReady, auth, openAuth, closeAuth, completeAuth, signOut, guard, syncState,
     }),
     [tab, setTab, selected, toggle, openId, setOpenId, openShared, survey, step, toast, showToast, restart,
-      geminiPlan, cafeMode, beaChat, user, authReady, auth, openAuth, closeAuth, completeAuth, signOut, guard, syncState]
+      geminiPlan, beaChat, user, authReady, auth, openAuth, closeAuth, completeAuth, signOut, guard, syncState]
   )
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>
 }

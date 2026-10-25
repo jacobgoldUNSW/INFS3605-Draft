@@ -150,7 +150,7 @@ export function useCafeStats(userKey) {
   useEffect(() => {
     const read = () => {
       const s = peekCafeSession(userKey)?.world?.stats
-      if (s) setStats({ before: { ...s.before }, after: { ...s.after } })
+      if (s) setStats({ ...s })
     }
     read()
     const id = setInterval(read, 3000)
@@ -160,25 +160,21 @@ export function useCafeStats(userKey) {
 }
 
 export function cafeWaitLine(stats) {
-  if (!stats) return null
-  const avg = (s) => (s.waitN ? s.waitSum / s.waitN : null)
-  const solo = avg(stats.before)
-  const team = avg(stats.after)
-  if (solo == null && team == null) return null
-  if (solo != null && team != null) return `In your café today: ${mmss(team)} with the team vs ${mmss(solo)} on your own`
-  return team != null ? `In your café today: ${mmss(team)} with the team` : `In your café today: ${mmss(solo)} on your own`
+  if (!stats?.waitN) return null
+  return `In your café simulation today: ${mmss(stats.waitSum / stats.waitN)} with your team`
 }
 
 export function LiveCafeLine({ stats }) {
-  if (!stats) return null
-  const b = stats.before
-  const a = stats.after
-  if (!(b.served || a.served)) return null
+  if (!stats?.served) return null
+  const money = (stats.dollars || 0) + (stats.waste || 0)
+  const bits = [`${stats.served} served`]
+  if (stats.minutes) bits.push(`${stats.minutes} minutes of your time back`)
+  if (money) bits.push(`$${money} kept or earned`)
+  if (stats.calls) bits.push(`${stats.calls} call${stats.calls === 1 ? '' : 's'} answered`)
+  if (stats.walkouts) bits.push(`${stats.walkouts} walked out`)
   return (
     <p className="live-line">
-      <span className="live-dot" aria-hidden /> <b>Live from your café simulation:</b>{' '}
-      {b.served > 0 && <>on your own, {b.served} served and {b.walkouts} walked out. </>}
-      {a.served > 0 && <>With the team, {a.served} served and {a.walkouts} walked out{a.minutes ? `, with ${a.minutes} minutes of your time back` : ''}.</>}
+      <span className="live-dot" aria-hidden /> <b>Live from your café simulation:</b> {bits.join(', ')}.
     </p>
   )
 }

@@ -175,11 +175,7 @@ body.auth-open .overlay.auth-overlay, body.product-open .overlay.product-overlay
 @keyframes youBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
 
 /* ---------- Dashboard: café stage ---------- */
-.ba-sticky { position: sticky; top: 86px; z-index: 40; padding: 14px 0 12px; }
-.ba-hint.pulse { animation: hintPulse 1.6s ease-in-out infinite; }
-@keyframes hintPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
-.stage { position: relative; background: #fff; border-radius: 30px; border: 1.5px solid var(--line); box-shadow: var(--shadow-md); overflow: hidden; }
-.stage.after { box-shadow: 0 0 0 3px rgba(200, 90, 36, 0.14), var(--shadow-md); }
+.stage { position: relative; background: #fff; border-radius: 30px; border: 1.5px solid var(--line); box-shadow: 0 0 0 3px rgba(200, 90, 36, 0.14), var(--shadow-md); overflow: hidden; }
 .stage-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; background: var(--espresso); color: #FAF6F0; flex-wrap: wrap; }
 .stage-title { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
 .stage-title b { font-family: var(--f-display); font-size: 1.05rem; white-space: nowrap; }
@@ -365,7 +361,6 @@ body.auth-open .overlay.auth-overlay, body.product-open .overlay.product-overlay
 .setup-safety { font-size: 0.76rem; line-height: 1.4; padding: 8px 10px; border-radius: 12px; background: #f1f7ec; color: #3f6232; }
 .peer-tip { margin-top: 18px; padding: 14px 18px; border-radius: 18px; background: #fffaf0; border: 1.5px dashed var(--caramel); color: var(--mocha); font-weight: 600; }
 .peer-tip .script-note { font-size: 1.3rem; margin-right: 6px; }
-.rb-why { font-size: 0.82rem; color: var(--mocha); line-height: 1.4; font-weight: 500; }
 
 /* ---------- Peer stories ---------- */
 .story-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
@@ -431,7 +426,6 @@ body.auth-open .overlay.auth-overlay, body.product-open .overlay.product-overlay
   .home-quote-card.with-photo { grid-template-columns: 1fr; }
   .quote-photo { width: 140px; height: 140px; }
   .hero-float.f2 { display: none; }
-  .ba-sticky { top: 74px; }
   .qe-row { flex-direction: column; gap: 6px; }
   .stage-pills { justify-content: flex-start; }
   .inspector { left: 10px; width: auto; }
@@ -445,11 +439,11 @@ body.auth-open .overlay.auth-overlay, body.product-open .overlay.product-overlay
   .user-avatar { width: 34px; height: 34px; }
 }
 @media print {
-  .topnav, .ambient, .stage, .ba-sticky, .res-actions, .toast-host, .site-foot, .quick-edit, .steps, body::after { display: none !important; }
-  .kpi, .card, .setup-card, .rec-big, .risk { break-inside: avoid; box-shadow: none; }
+  .topnav, .ambient, .stage, .res-actions, .toast-host, .site-foot, .quick-edit, .steps, body::after { display: none !important; }
+  .kpi, .card, .setup-card, .risk { break-inside: avoid; box-shadow: none; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .seal-spin, .live-dot, .cb-tag.you > span, .ba-hint.pulse { animation: none; }
+  .seal-spin, .live-dot, .cb-tag.you > span { animation: none; }
 }
 
 /* the Home teaser is drawn small, so its bubbles shrink to match */
@@ -462,13 +456,7 @@ body.auth-open .overlay.auth-overlay, body.product-open .overlay.product-overlay
 .teaser .cb-badge > span { font-size: 0.6rem; }
 .teaser .cb-tag > span { font-size: 0.52rem; padding: 1px 6px; }
 
-/* keep the "flip me" pointer visible on smaller screens (V1 hid it below 1100px) */
-@media (max-width: 1100px) {
-  .ba-sticky .ba-bar { flex-direction: column; gap: 6px; }
-  .ba-sticky .ba-hint { display: flex; position: static; margin-left: 0; font-size: 1.2rem; background: rgba(250, 246, 240, 0.92); padding: 2px 12px; border-radius: 99px; }
-}
-
-/* phones: keep the nav on one tidy line so the sticky Before/After toggle stays visible */
+/* phones: keep the nav on one tidy line so the café bar stays visible */
 @media (max-width: 560px) {
   .topnav { padding: 7px 7px 7px 9px; gap: 6px; top: 8px; margin-top: 8px; width: calc(100% - 16px); border-radius: 20px; }
   .logo-cup svg { width: 30px; height: 30px; }
@@ -481,9 +469,5 @@ body.auth-open .overlay.auth-overlay, body.product-open .overlay.product-overlay
   .plan-count-wrap { width: 26px; height: 26px; }
   .signin-chip { padding: 7px 10px; font-size: 0.76rem; }
   .user-avatar { width: 32px; height: 32px; font-size: 1rem; }
-  .ba-sticky { top: 62px; padding: 8px 0; }
-  .ba-opt { padding: 8px 12px 8px 10px; }
-  .ba-text b { font-size: 0.95rem; }
-  .ba-emoji { font-size: 1.15rem; }
   .main { width: calc(100% - 20px); }
 }

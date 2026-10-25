@@ -1,16 +1,19 @@
 # ☕ Brewmind V2 — AI for cosy cafés
 
 A warm, animation-first web app for UNSW INFS3605 (Stream 3: *The Last-Mile AI Clinic*).
-Café owners who don't trust AI can **watch** a pixel-art café run with and without a team of
-humanised AI "workers" — each one a real tool Australian cafés use — and approve everything that matters.
+Café owners who don't trust AI can **watch** a pixel-art café run with a team of humanised AI "workers" — each one
+a real tool Australian cafés use — approve everything that matters, and see what each one saves them.
 
 V1's look and feel is kept intact (fonts, palette, floating beans, Framer Motion physics, survey,
-picker, brew loader, before/after dashboard and charts). V2 adds sign-in with SQLite, Gemini
+picker, brew loader, dashboard and charts). V2 adds sign-in with SQLite, Gemini
 personalisation and the live agentic café. The V3 polish round (October 2026) folds the café's controls into one
 pixel-art menu, explains what the simulation is, shows the working behind every number (and makes the numbers
 more conservative), re-checks every tool's price, and labels all testimonials as placeholders. The hosted group
 preview at **jacobgold.me/infs3605** sits behind a password page, with its API on Cloud Run and accounts in Firestore
-(see [HOSTING.md](HOSTING.md)).
+(see [HOSTING.md](HOSTING.md)). After user testing (late October 2026), the Before/After switch gave way to one café
+that always runs with the team: what it saves you is signposted in the café bar ("Saved today"), on every curveball,
+in the log and wrap-up, and next to every number on the plan. The plan's risks became honest "reality checks", and
+every tool card now lists that tool's real risks and limitations.
 
 ---
 
@@ -58,7 +61,9 @@ setup, and how to change the password are all in [HOSTING.md](HOSTING.md).
 | Deterministic agent workflows (offline fallback + Home teaser) | `shared/agentScenarios.js` |
 | Plain-English plan fallback | `shared/personalise.js` |
 | Australian spelling pass over every AI and fallback text | `shared/auEnglish.js` |
-| 12 researched tools (prices and links checked Oct 2026), workers, how tools connect and overlap, placeholder testimonials, setup templates | `src/data/products.js` |
+| 12 researched tools (prices and links checked Oct 2026), workers, how tools connect and overlap, each tool's honest risks and limitations, placeholder testimonials, setup templates | `src/data/products.js` |
+| Reality checks: a hand-written register of the bigger risks of bringing AI tools in (data, accuracy, control, the law, customers, staff, lock-in, cost, outages, skills), ranked for each plan | `src/data/risks.js` |
+| What the team saves you: the "Saved today" chips and the "without your team" estimates, built only from what the team did | `src/sim/savings.js` |
 | Plan estimates: hours, money, payback, all shown with their working (see below) | `src/data/mockDashboard.js` |
 | Real café owners (Unsplash photos, each checked against name & role) | `src/data/people.js` |
 | Café simulation engine (customers, owner, human crew sized to the café, workers, approvals, events, customer moods, café log & totals, 6-minute day with a closing-time wrap-up; café type changes the pace and the A-frame) | `src/sim/world.js` |
@@ -66,7 +71,7 @@ setup, and how to change the password are all in [HOSTING.md](HOSTING.md).
 | One café per signed-in owner, kept alive (paused) across tab switches | `src/sim/session.js` |
 | Procedural Web Audio (steam, door bell, marimba, chime, phone, rain) | `src/sim/soundEngine.js` |
 | Background music: shuffled, crossfading playlist that plays while the café runs (the 🔊 pop-up turns café sounds and music on or off separately) | `src/sim/music.js`, tracks in `src/assets/music/` |
-| Café menu with pixel-art pop-ups (What is this?, Team, Log, Today, Curveballs, Sound; bottom sheets on phones), closing-time wrap-up, first-run tour, inspector, Home teaser, 16-second tool clips | `src/components/cafe/` |
+| Café bar with the "Saved today" strip (opens Today) and a pixel-art menu (What is this?, Team, Log, Curveballs, Sound; bottom sheets on phones), closing-time wrap-up, first-run tour, inspector, Home teaser, 16-second tool clips | `src/components/cafe/` |
 | The group password page in front of the whole app | `src/components/gate/Gate.jsx` |
 | Bea’s chat check-up (default first step; the tap-through form is one click away), “Ask Bea” drawer, change and schedule dockets, setup calendar, her pixel portrait | `src/components/bea/` |
 | Plan extras: How we worked this out, the monthly bill, how your tools connect, the live café line, section nav | `src/components/dashboard/PlanExtras.jsx` |
@@ -86,14 +91,14 @@ With the gate on, every route below `/api/gate` needs the pass in an `x-brewmind
 | POST | `/api/auth/login` | username **or** email + password |
 | GET | `/api/auth/me` | restore session + saved plan |
 | PUT | `/api/plan` | save `survey`, `selected`, `geminiPlan` (auto, in the background) |
-| POST | `/api/gemini/personalise-dashboard` | headline, summary, tool reasons, risks, Quiet Tuesday setup cards |
+| POST | `/api/gemini/personalise-dashboard` | headline, summary, tool reasons, Quiet Tuesday setup cards, a peer tip |
 | POST | `/api/gemini/agent-step` | one café workflow: who notices, hand-off, artifact, owner check-in, world effect |
 | POST | `/api/bea/checkup` | one turn of the chat check-up: records the café profile, asks the next question, or proposes a shortlist |
 | POST | `/api/bea/plan` | one turn of “Ask Bea”: compares tools, explains numbers, or proposes a tool change or a setup schedule |
 
 ### Cost & lifecycle guardrails
 - Gemini is only called when brewing a plan, when you click a café event, or every ~18–22 s while you
-  are actually watching the **After** café (dashboard open, tab visible, not paused, stage on screen).
+  are actually watching the café (dashboard open, tab visible, not paused, stage on screen).
 - Pausing, hiding the tab or leaving the dashboard stops the simulation clock and aborts in-flight calls.
   Coming back resumes the same café where you left it.
 - The Home-page café is always scripted: it has no AI hook at all and makes no network calls.

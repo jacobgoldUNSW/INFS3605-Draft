@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { AGENT_META } from '../../../shared/agentScenarios.js'
 import { getProduct } from '../../data/products'
 import { BrandLogo } from '../ui/IconTile'
+import { withoutLines } from '../../sim/savings'
 
 const FILTERS = [
   { id: 'all', label: 'All' },
@@ -99,41 +100,42 @@ function Timeline({ world, version }) {
 }
 
 function Totals({ snap }) {
-  const b = snap.stats?.before || {}
-  const a = snap.stats?.after || {}
-  const wait = (s) => (s.waitN ? mmss(s.waitSum / s.waitN) : '—')
+  const a = snap.stats || {}
+  const wait = a.waitN ? mmss(a.waitSum / a.waitN) : '—'
   const rows = [
-    { k: 'Coffees served', b: b.served, a: a.served, good: 'up' },
-    { k: 'Walked out of the queue', b: b.walkouts, a: a.walkouts, good: 'down' },
-    { k: 'Average wait to order', b: wait(b), a: wait(a), raw: [b.waitN ? b.waitSum / b.waitN : null, a.waitN ? a.waitSum / a.waitN : null], good: 'down' },
-    { k: 'Calls answered / missed', b: `${b.calls || 0} / ${b.missed || 0}`, a: `${a.calls || 0} / ${a.missed || 0}` },
-    { k: 'Extra customers brought in', b: b.customers || 0, a: a.customers || 0, good: 'up' },
-    { k: 'Extra takings & savings', b: `$${(b.dollars || 0) + (b.waste || 0)}`, a: `$${(a.dollars || 0) + (a.waste || 0)}`, raw: [(b.dollars || 0) + (b.waste || 0), (a.dollars || 0) + (a.waste || 0)], good: 'up' },
-    { k: 'Your time back', b: `${b.minutes || 0} min`, a: `${a.minutes || 0} min`, raw: [b.minutes || 0, a.minutes || 0], good: 'up' },
-    { k: 'Things you approved', b: '—', a: `${a.approvalsYou || 0} you · ${a.approvalsAuto || 0} auto` },
+    { k: 'Coffees served', v: a.served || 0 },
+    { k: 'Average wait to order', v: wait },
+    { k: 'Calls answered', v: a.calls || 0 },
+    { k: 'Extra customers brought in', v: a.customers || 0 },
+    { k: 'Extra takings & savings', v: `$${(a.dollars || 0) + (a.waste || 0)}` },
+    { k: 'Your time back', v: `${a.minutes || 0} min` },
+    { k: 'Things they asked you first', v: `${a.approvalsYou || 0} you · ${a.approvalsAuto || 0} auto` },
   ]
+  if (a.walkouts) rows.push({ k: 'Walked out of the queue', v: a.walkouts, bad: true })
+  if (a.missed) rows.push({ k: 'Missed calls', v: a.missed, bad: true })
+  const without = withoutLines(a)
   const jobs = Object.entries(snap.workers || {}).map(([id, w]) => ({ id, n: w.jobs || 0 })).sort((x, y) => y.n - x.n)
   const max = Math.max(1, ...jobs.map((j) => j.n))
   return (
     <div className="lg-totals">
-      <p className="lg-note">Same café, two ways: everything counted since you opened it today.</p>
+      <p className="lg-note">Everything counted since you opened the café today.</p>
       <table className="lg-table">
-        <thead><tr><th /><th>😮‍💨 Solo</th><th>😌 With team</th></tr></thead>
+        <thead><tr><th /><th>😌 With your team</th></tr></thead>
         <tbody>
-          {rows.map((r) => {
-            const nb = r.raw ? r.raw[0] : Number(r.b)
-            const na = r.raw ? r.raw[1] : Number(r.a)
-            const better = r.good && Number.isFinite(nb) && Number.isFinite(na) && nb !== na && (r.good === 'up' ? na > nb : na < nb)
-            return (
-              <tr key={r.k}>
-                <th>{r.k}</th>
-                <td>{r.b ?? 0}</td>
-                <td className={better ? 'better' : ''}>{r.a ?? 0}</td>
-              </tr>
-            )
-          })}
+          {rows.map((r) => (
+            <tr key={r.k}>
+              <th>{r.k}</th>
+              <td className={r.bad ? 'worse' : ''}>{r.v}</td>
+            </tr>
+          ))}
         </tbody>
       </table>
+      {without.length > 0 && (
+        <div className="lg-without">
+          <b>Without your team, today would have meant</b>
+          <ul>{without.map((l) => <li key={l.text}><span aria-hidden>{l.icon}</span> {l.text}</li>)}</ul>
+        </div>
+      )}
       <div className="lg-jobs">
         <div className="lg-jobs-head">Jobs done by your team</div>
         {jobs.length ? jobs.map((j) => (

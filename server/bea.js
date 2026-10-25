@@ -325,7 +325,7 @@ const planTools = [
   },
   {
     name: 'compare_tools',
-    description: 'Look up the details of 1–3 tools side by side: price, plan, trial, pros, cons, what they won’t do.',
+    description: 'Look up the details of 1–3 tools side by side: price, plan, trial, pros, cons, what they won’t do, and their real risks.',
     parameters: { type: Type.OBJECT, properties: { toolIds: { type: Type.ARRAY, items: { type: Type.STRING } } }, required: ['toolIds'] },
   },
   {
@@ -434,7 +434,7 @@ export async function beaPlan({ transcript = [], message = '', survey = {}, sele
     compare_tools: (a) => ({
       tools: validIds(a.toolIds).slice(0, 3).map((id) => {
         const p = getProduct(id)
-        return { id, name: p.name, price: p.priceLabel, plan: p.pricing?.plan, trial: p.pricing?.trial, freeOption: !!p.pricing?.free, job: p.worker.job, pros: p.pros, cons: p.cons, wontDo: p.wont, hoursBackPerWeek: p.hrs, setupWeeks: p.weeks, bestFor: p.bestFor }
+        return { id, name: p.name, price: p.priceLabel, plan: p.pricing?.plan, trial: p.pricing?.trial, freeOption: !!p.pricing?.free, job: p.worker.job, pros: p.pros, cons: p.cons, wontDo: p.wont, risks: (p.risks || []).map((r) => `${r.title}: ${r.detail}`), hoursBackPerWeek: p.hrs, setupWeeks: p.weeks, bestFor: p.bestFor }
       }),
     }),
     explain_numbers: (a) => {

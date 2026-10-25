@@ -17,66 +17,55 @@ import { auDeep } from '../../../shared/auEnglish.js'
 import { HowWeWorked, ToolBill, TeamWiring, useCafeStats, cafeWaitLine, LiveCafeLine, SectionNav } from './PlanExtras'
 import { createPortal } from 'react-dom'
 import AskBea, { SetupCalendar } from '../bea/AskBea'
+import { planRisks } from '../../data/risks'
 
 const ease = [0.22, 1, 0.36, 1]
 const money = (n) => `$${Math.round(n).toLocaleString()}`
 const mmss = (s) => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`
 
-/* ------------------------------ KPI card ------------------------------ */
-function Kpi({ k, mode, index }) {
-  const val = mode === 'after' ? k.after : k.before
+/* ------------------------------ KPI card: now → with your team ------------------------------ */
+function Kpi({ k, index }) {
   const diff = k.after - k.before
   const good = k.lowerBetter ? diff < 0 : diff > 0
   const maxV = Math.max(k.before, k.after, 1)
+  const grow = (v, delay) => ({ initial: { width: 0 }, whileInView: { width: `${(v / maxV) * 100}%` }, viewport: { once: true }, transition: { duration: 1, ease, delay } })
   return (
-    <Reveal delay={index * 0.06} className={`kpi ${mode}`}>
+    <Reveal delay={index * 0.06} className="kpi">
       <div className="kpi-top">
         <span className="kpi-ico">{k.icon}</span>
         <span className="kpi-label">{k.label}</span>
       </div>
       <div className="kpi-val">
-        <AnimatedNumber value={val} format={k.format} duration={1.1} />
+        <AnimatedNumber value={k.after} format={k.format} duration={1.1} />
         <small>{k.unit}</small>
       </div>
-      <div className="kpi-bar">
-        <motion.div className="kpi-bar-fill" animate={{ width: `${(val / maxV) * 100}%` }} transition={{ duration: 1, ease }} />
+      <div className="kpi-was">now {k.format(k.before)}{k.unit}</div>
+      <div className="kpi-bars" aria-hidden>
+        <span className="kpi-bar now"><motion.i {...grow(k.before, 0)} /></span>
+        <span className="kpi-bar team"><motion.i {...grow(k.after, 0.15)} /></span>
       </div>
       <div className="kpi-foot">
-        <AnimatePresence mode="wait" initial={false}>
-          {mode === 'after' && diff !== 0 ? (
-            <motion.span
-              key="d"
-              className={`delta ${good ? 'good' : 'bad'}`}
-              initial={{ opacity: 0, y: 10, scale: 0.8 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 22 }}
-            >
-              {diff < 0 ? '▼' : '▲'} {k.deltaFmt(Math.abs(diff))}
-            </motion.span>
-          ) : (
-            <motion.span key="b" className="delta neutral" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              {mode === 'after' ? 'No change' : k.note}
-            </motion.span>
-          )}
-        </AnimatePresence>
+        {diff !== 0
+          ? <span className={`delta ${good ? 'good' : 'bad'}`}>{diff < 0 ? '▼' : '▲'} {k.deltaFmt(Math.abs(diff))}</span>
+          : <span className="delta neutral">No change</span>}
+        <span className="kpi-note">{k.note}</span>
       </div>
       {k.live && <div className="kpi-live"><span className="live-dot" aria-hidden /> {k.live}</div>}
     </Reveal>
   )
 }
 
-/* ------------------------------ Risk card ------------------------------ */
-function RiskCard({ r, index }) {
+/* ------------------------------ Reality check (one risk theme) ------------------------------ */
+function RiskCard({ r, index, onTool }) {
   const [open, setOpen] = useState(false)
   const label = ['', 'Low', 'Low', 'Moderate', 'Elevated', 'High'][r.level]
   return (
-    <Reveal delay={index * 0.07} className={`risk lvl-${r.level} ${open ? 'open' : ''}`} onClick={() => setOpen((o) => !o)}>
-      <div className="risk-head">
+    <Reveal delay={(index % 6) * 0.06} className={`risk lvl-${r.level} ${open ? 'open' : ''}`}>
+      <button type="button" className="risk-head" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
         <span className="risk-ico">{r.icon}</span>
-        <div className="risk-title">
+        <span className="risk-title">
           <h4>{r.title}</h4>
-          <div className="risk-meter">
+          <span className="risk-meter">
             {[1, 2, 3, 4, 5].map((n) => (
               <motion.span
                 key={n}
@@ -88,23 +77,37 @@ function RiskCard({ r, index }) {
               />
             ))}
             <em>{label}</em>
-          </div>
-        </div>
+          </span>
+        </span>
         <motion.span className="chev" animate={{ rotate: open ? 180 : 0 }}>⌄</motion.span>
-      </div>
+      </button>
       <p className="risk-note">{r.note}</p>
+      {r.inPlan.length > 0 && !open && <p className="risk-touch">Touches {r.inPlan.map((t) => t.name).filter((n, i, a) => a.indexOf(n) === i).join(', ')}</p>}
+      {r.general && !open && <p className="risk-touch quiet">None of your tools flags this one, but it’s worth knowing</p>}
       <AnimatePresence initial={false}>
         {open && (
           <motion.div className="risk-fix" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.35, ease }}>
-            <div className="risk-fix-inner"><b>💡 How to stay safe:</b> {r.fix}</div>
+            <div className="risk-fix-inner">
+              {r.inPlan.length > 0 && (
+                <div className="risk-tools">
+                  <b>In your plan</b>
+                  <ul>
+                    {r.inPlan.map((t) => (
+                      <li key={t.id + t.title}>
+                        <button type="button" className="risk-tool" onClick={() => onTool(t.id)}>{t.name}</button> {t.title}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <p><b>💡 What you can do:</b> {r.fix}</p>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
     </Reveal>
   )
 }
-
-const riskIcon = (t = '') => (/privacy|data/i.test(t) ? '🔒' : /staff|team|train|buy-in/i.test(t) ? '🎓' : /cost|subscri|price|money/i.test(t) ? '💸' : /allerg/i.test(t) ? '⚠️' : /switch|till|hardware|downtime/i.test(t) ? '🔌' : '🧑‍⚖️')
 
 /* ------------------------------ Quick-edit drawer ------------------------------ */
 function ChipPick({ label, options, value, onChange, multi }) {
@@ -202,19 +205,19 @@ function SetupCard({ c, index, personalised }) {
 
 /* ------------------------------ Main ------------------------------ */
 export default function DashboardResults() {
-  const { survey, setSurvey, selected, toggle, setStep, restart, setOpenId, showToast, geminiPlan, setGeminiPlan, syncState, user, cafeMode: mode, setCafeMode } = useApp()
+  const { survey, setSurvey, selected, toggle, setStep, restart, setOpenId, showToast, geminiPlan, setGeminiPlan, syncState, user } = useApp()
   const [editing, setEditing] = useState(false)
   const [rebrewing, setRebrewing] = useState(false)
   const [popRequest, setPopRequest] = useState(null)
   const [hourly, setHourly] = useState(DEFAULT_HOURLY)
   const [ownTime, setOwnTime] = useState(false)
   const [confirmReset, setConfirmReset] = useState(false)
+  const [allRisks, setAllRisks] = useState(false)
   const d = useMemo(() => buildDashboard(survey, selected, { hourly, countOwnTime: ownTime }), [survey, selected, hourly, ownTime])
   const userKey = String(user?.id ?? user?.username ?? 'guest')
   const cafeStats = useCafeStats(userKey)
   const emp = EMPLOYEE_OPTIONS.find((e) => e.id === survey.employees)
   const type = CAFE_TYPES.find((c) => c.id === survey.cafeType)
-  const after = mode === 'after'
   const name = survey.name || user?.cafeName || 'your café'
 
   const key = planKey(survey, selected)
@@ -228,13 +231,6 @@ export default function DashboardResults() {
     cards.sort((a, b) => order.indexOf(a.phase) - order.indexOf(b.phase))
     return auDeep({ ...fb, ...geminiPlan, toolReasons: { ...fb.toolReasons, ...(geminiPlan.toolReasons || {}) }, setupCards: cards })
   }, [geminiPlan, survey, selected])
-
-  // one order everywhere: quick wins first (matching the setup cards), then the biggest impact
-  const phaseOf = (id) => {
-    const i = PHASES.findIndex((ph) => ph.id === plan.setupCards.find((c) => c.toolId === id)?.phase)
-    return i < 0 ? 9 : i
-  }
-  const recs = [...d.recs].sort((a, b) => phaseOf(a.product.id) - phaseOf(b.product.id) || b.impact - a.impact)
 
   const rebrew = async () => {
     if (!selected.length) return
@@ -251,11 +247,6 @@ export default function DashboardResults() {
     }
   }
 
-  const flip = (m) => {
-    setCafeMode(m)
-    if (m === 'after' && !selected.length) showToast('Hire a worker in “Your team” to bring them into the café', '👉')
-  }
-
   const kpis = [
     { id: 'hrs', icon: '⏱️', label: 'Admin time', unit: ' hrs/wk', before: d.before.adminHours, after: d.after.adminHours, lowerBetter: true, format: (n) => Math.round(n), deltaFmt: (n) => `${Math.round(n)} hrs`, note: 'Spent on paperwork each week' },
     { id: 'labour', icon: '🧑‍🍳', label: 'Labour cost', unit: '% of sales', before: d.before.labourPct, after: d.after.labourPct, lowerBetter: true, format: (n) => Math.round(n), deltaFmt: (n) => `${Math.round(n)} pts`, note: 'Industry average ≈ 33%' },
@@ -265,9 +256,9 @@ export default function DashboardResults() {
     { id: 'profit', icon: '🏆', label: 'Monthly profit', unit: '', before: d.before.profit, after: d.after.profit, lowerBetter: false, format: money, deltaFmt: (n) => money(n), note: 'After all costs' },
   ]
 
-  const risks = plan.risks?.length
-    ? plan.risks.map((r, i) => ({ id: `g${i}`, icon: riskIcon(`${r.title} ${r.note}`), ...r }))
-    : d.risks
+  // honest, big-picture reality checks for the tools in this plan (written by us, not by the AI)
+  const risks = planRisks(survey, selected)
+  const shownRisks = allRisks ? risks : risks.slice(0, 6)
 
   const stories = useMemo(() => {
     const score = (s) => s.tools.filter((t) => selected.includes(t)).length * 2 + (s.type === survey.cafeType ? 1 : 0)
@@ -275,9 +266,8 @@ export default function DashboardResults() {
   }, [selected, survey.cafeType])
 
   return (
-    <div className={`page results ${mode}`} data-mode={mode}>
-      {/* ambient background shift */}
-      <motion.div className="results-glow" animate={{ opacity: after ? 1 : 0 }} transition={{ duration: 1 }} />
+    <div className="page results">
+      <div className="results-glow" aria-hidden />
 
       {/* 1 · header + quick edit */}
       <motion.header className="res-head" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease }}>
@@ -306,11 +296,9 @@ export default function DashboardResults() {
         )}
       </AnimatePresence>
 
-      {/* 2 · the live café (Before/After lives in its sticky bar) */}
+      {/* 2 · the live café, with what the team saves you in its sticky bar */}
       <div id="plan-cafe" className="plan-anchor" />
       <CafeStage
-        mode={mode}
-        onMode={flip}
         selected={selected}
         cafeName={name}
         userKey={userKey}
@@ -320,7 +308,7 @@ export default function DashboardResults() {
           const p = getProduct(id)
           const adding = !selected.includes(id)
           toggle(id)
-          showToast(adding ? `${p.worker.name} (${p.name}) is walking in${mode === 'before' ? ' — flip to “After” to meet them' : '…'}` : `${p.worker.name} heads home`, adding ? '🚪' : '👋')
+          showToast(adding ? `${p.worker.name} (${p.name}) is walking in…` : `${p.worker.name} heads home`, adding ? '🚪' : '👋')
         }}
       />
 
@@ -329,54 +317,42 @@ export default function DashboardResults() {
         { id: 'plan-numbers', icon: '📈', label: 'Numbers' },
         { id: 'plan-bill', icon: '🧾', label: 'Costs' },
         { id: 'plan-setup', icon: '🗓️', label: 'Setup' },
-        { id: 'plan-risks', icon: '⚠️', label: 'Watch-outs' },
+        { id: 'plan-risks', icon: '⚠️', label: 'Reality checks' },
       ]} />
 
-      {/* 3 · hero summary */}
+      {/* 3 · hero summary: with your team, and where you are today */}
       <section className="summary-wrap" id="plan-numbers">
-        <AnimatePresence>
-          <motion.div key={mode + '-sweep'} className="sweep" initial={{ x: '-120%' }} animate={{ x: '120%' }} transition={{ duration: 1.1, ease: 'easeInOut' }} />
-        </AnimatePresence>
-        <motion.div className={`summary ${mode}`} layout transition={{ duration: 0.6, ease }}>
+        <motion.div className="summary" layout transition={{ duration: 0.6, ease }}>
           <div className="summary-copy">
-            <AnimatePresence mode="wait">
-              <motion.div key={mode + (fresh ? 'g' : 'f')} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -18 }} transition={{ duration: 0.35 }}>
-                <div className="summary-kicker">{after ? '☀️ With your AI team' : '🌧️ Right now'}</div>
-                <h2>
-                  {after ? (
-                    <>{plan.headline} <span className="script">— ~{d.hoursSaved || 0} hrs a week back</span></>
-                  ) : (
-                    <><span className="script">{d.before.adminHours} hours</span> a week lost to admin</>
-                  )}
-                </h2>
-                <p>
-                  {after
-                    ? d.netGain > 0
-                      ? `${plan.summary} Worth roughly ${money(d.range[0])}–${money(d.range[1])} a month after subscriptions, plus about ${d.ownerHours} hours of your own time each week.`
-                      : `${plan.summary} In cash terms the tools about pay for themselves; the real win is about ${d.ownerHours} hours of your own time each week.`
-                    : `That’s about ${(d.before.adminHours / 8).toFixed(1)} full working days of behind-the-scenes work — time that could go to your customers (or a well-earned flat white).`}
-                </p>
-                {after && plan.source === 'gemini' && <span className="summary-ai">✨ personalised for {name}</span>}
-              </motion.div>
-            </AnimatePresence>
+            <motion.div key={fresh ? 'g' : 'f'} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
+              <div className="summary-kicker">☀️ With your AI team</div>
+              <h2>{plan.headline} <span className="script">— ~{d.hoursSaved || 0} hrs a week back</span></h2>
+              <p>
+                {d.netGain > 0
+                  ? `${plan.summary} Worth roughly ${money(d.range[0])}–${money(d.range[1])} a month after subscriptions, plus about ${d.ownerHours} hours of your own time each week.`
+                  : `${plan.summary} In cash terms the tools about pay for themselves; the real win is about ${d.ownerHours} hours of your own time each week.`}
+              </p>
+              <p className="summary-now">🌧️ <b>Today, without the tools:</b> about {d.before.adminHours} hours a week of admin, or {(d.before.adminHours / 8).toFixed(1)} full working days.</p>
+              {plan.source === 'gemini' && <span className="summary-ai">✨ personalised for {name}</span>}
+            </motion.div>
           </div>
 
           <div className="summary-stats">
             <div className="big-stat">
-              <div className="bs-val"><AnimatedNumber value={after ? d.hoursSaved : 0} format={(n) => Math.round(n)} /><small> hrs</small></div>
+              <div className="bs-val"><AnimatedNumber value={d.hoursSaved} format={(n) => Math.round(n)} /><small> hrs</small></div>
               <div className="bs-lab">saved every week</div>
-              {after && <div className="bs-range">{d.ownerHours} of them yours</div>}
+              <div className="bs-range">{d.ownerHours} of them yours</div>
             </div>
             <div className="big-stat">
-              <div className="bs-val"><AnimatedNumber value={after ? d.netGain : 0} format={(n) => (n < 0 ? '-' : '+') + money(Math.abs(n))} /></div>
+              <div className="bs-val"><AnimatedNumber value={d.netGain} format={(n) => (n < 0 ? '-' : '+') + money(Math.abs(n))} /></div>
               <div className="bs-lab">extra profit / month</div>
-              {after && d.netGain > 0 && <div className="bs-range">likely {money(d.range[0])}–{money(d.range[1])}</div>}
+              {d.netGain > 0 && <div className="bs-range">likely {money(d.range[0])}–{money(d.range[1])}</div>}
             </div>
             <div className="big-stat">
-              {after && d.paybackMonths == null
+              {d.paybackMonths == null
                 ? <div className="bs-val">—</div>
-                : <div className="bs-val"><AnimatedNumber value={after ? (d.paybackMonths ?? 0) : 0} format={(n) => Math.round(n)} /><small> mo</small></div>}
-              <div className="bs-lab">{after && d.paybackMonths == null ? 'time is the payoff' : 'to pay itself back'}</div>
+                : <div className="bs-val"><AnimatedNumber value={d.paybackMonths ?? 0} format={(n) => Math.round(n)} /><small> mo</small></div>}
+              <div className="bs-lab">{d.paybackMonths == null ? 'time is the payoff' : 'to pay itself back'}</div>
             </div>
           </div>
         </motion.div>
@@ -386,9 +362,10 @@ export default function DashboardResults() {
       {/* 4 · KPIs & charts */}
       <section className="sec">
         <Reveal className="sec-head"><span className="script-note">the numbers</span><h3>How your café changes</h3></Reveal>
+        <div className="kpi-legend" aria-hidden><span className="now">Today</span><span className="team">With your team</span></div>
         <LiveCafeLine stats={cafeStats} />
         <div className="kpi-grid">
-          {kpis.map((k, i) => <Kpi key={k.id} k={k} mode={mode} index={i} />)}
+          {kpis.map((k, i) => <Kpi key={k.id} k={k} index={i} />)}
         </div>
       </section>
 
@@ -396,16 +373,16 @@ export default function DashboardResults() {
         <Reveal className="sec-head"><span className="script-note">picture it</span><h3>Where your time goes</h3></Reveal>
         <div className="chart-grid">
           <Reveal className="card chart-card wide" delay={0.05}>
-            <div className="card-head"><h4>Profit over the next 12 months</h4><span className="card-sub">{after ? 'with rollout ramp-up' : 'if nothing changes'}</span></div>
-            <LineChart months={d.months} before={d.profitBefore} after={d.profitAfter} mode={mode} />
+            <div className="card-head"><h4>Profit over the next 12 months</h4><span className="card-sub"><i className="key team" /> with your team, ramping up · <i className="key now dashed" /> if nothing changes</span></div>
+            <LineChart months={d.months} before={d.profitBefore} after={d.profitAfter} />
           </Reveal>
           <Reveal className="card chart-card" delay={0.12}>
-            <div className="card-head"><h4>Admin hours by day</h4><span className="card-sub">hover a bar</span></div>
-            <BarChart days={d.days} before={d.weekBefore} after={d.weekAfter} mode={mode} />
+            <div className="card-head"><h4>Admin hours by day</h4><span className="card-sub"><i className="key now" /> today · <i className="key team" /> with your team</span></div>
+            <BarChart days={d.days} before={d.weekBefore} after={d.weekAfter} />
           </Reveal>
           <Reveal className="card chart-card" delay={0.18}>
-            <div className="card-head"><h4>What fills your week</h4><span className="card-sub">hover a slice</span></div>
-            <Donut before={d.allocBefore} after={d.allocAfter} mode={mode} />
+            <div className="card-head"><h4>What fills your week</h4><span className="card-sub">with your team · hover a slice</span></div>
+            <Donut before={d.allocBefore} after={d.allocAfter} />
           </Reveal>
         </div>
       </section>
@@ -452,45 +429,22 @@ export default function DashboardResults() {
         </section>
       )}
 
-      {/* 6 · recommendations, risks, stories, extras */}
-      {recs.length > 0 && (
-        <section className="sec">
-          <Reveal className="sec-head"><span className="script-note">our recommendations</span><h3>Start here, in this order</h3></Reveal>
-          <div className="rec-grid">
-            {recs.map((r, i) => (
-              <Reveal key={r.product.id} delay={(i % 3) * 0.08} className="rec-big">
-                <div className="rb-top">
-                  <IconTile p={r.product} size={56} />
-                  <div className="rb-name">
-                    <h4>{r.product.name}</h4>
-                    <span>{r.product.worker.emoji} {r.product.worker.name} · {r.product.worker.role}</span>
-                  </div>
-                  <span className="rank">#{i + 1}</span>
-                </div>
-                <div className="rb-tags">
-                  {PHASES[phaseOf(r.product.id)] && <span className="rb-phase">{PHASES[phaseOf(r.product.id)].short}</span>}
-                  <div className={`prio ${r.priority.replace(/[^a-z]/gi, '').toLowerCase()}`}>{r.priority === 'High' ? '🔥 ' : ''}{r.priority} priority</div>
-                </div>
-                <div className="rb-headline">{r.headline}</div>
-                {plan.toolReasons?.[r.product.id] && <p className="rb-why">{plan.toolReasons[r.product.id]}</p>}
-                <div className="rb-metrics">
-                  <div><b>{r.product.weeks}</b><span>wk setup</span></div>
-                  <div><b>{r.product.cost ? `~${money(r.product.cost)}` : 'Free'}</b><span>per month</span></div>
-                  <div><b>{r.product.risk}</b><span>risk</span></div>
-                </div>
-                <button className="link-btn" onClick={() => setOpenId(r.product.id, false)}>See full details →</button>
-              </Reveal>
-            ))}
-          </div>
-        </section>
-      )}
-
+      {/* 6 · reality checks, stories, extras */}
       <section className="sec" id="plan-risks">
-        <Reveal className="sec-head"><span className="script-note">no sugar-coating</span><h3>Risks & limitations to watch</h3></Reveal>
+        <Reveal className="sec-head"><span className="script-note">no sugar-coating</span><h3>Reality checks before you sign up</h3></Reveal>
+        <Reveal className="risk-intro">
+          These tools can genuinely help, and they come with real trade-offs. {selected.length ? 'Here are the big ones, starting with those that touch the tools in your plan.' : 'Here are the big ones for café tools like these, most serious first.'}
+          Tap one to see which of your tools it touches and what you can do about it.
+        </Reveal>
         <div className="risk-grid">
-          {risks.map((r, i) => <RiskCard key={r.id || r.title} r={r} index={i} />)}
+          {shownRisks.map((r, i) => <RiskCard key={r.id} r={r} index={i} onTool={(id) => setOpenId(id, false)} />)}
         </div>
-        <Reveal className="disclaimer">⚠️ Projections are illustrative estimates for this prototype — real results will vary by café.</Reveal>
+        {risks.length > 6 && (
+          <button type="button" className="link-btn risk-more" onClick={() => setAllRisks((v) => !v)}>
+            {allRisks ? 'Show fewer' : `Show all ${risks.length} reality checks`}
+          </button>
+        )}
+        <Reveal className="disclaimer">⚠️ Projections are illustrative estimates for this prototype, and real results will vary by café. This isn’t legal or financial advice: check the details with each vendor and your accountant.</Reveal>
       </section>
 
       <PeerStories stories={stories} title="Owners who started where you are" note="from one café owner to another" />
@@ -509,7 +463,6 @@ export default function DashboardResults() {
                   onClick={() => {
                     toggle(p.id)
                     showToast(`${p.worker.name} (${p.name}) is walking into your café`, '🚪')
-                    if (mode === 'before') flip('after')
                     window.scrollTo({ top: document.querySelector('.stage')?.offsetTop - 140 || 0, behavior: 'smooth' })
                   }}
                 >

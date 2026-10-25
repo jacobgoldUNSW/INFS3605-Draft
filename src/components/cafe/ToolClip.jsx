@@ -21,7 +21,6 @@ export default function ToolClip({ id }) {
   if (!worldRef.current) {
     const w = new CafeWorld({ teaser: true, clip: true, cafeName: 'Your café', fixedPhase: 0.42, requestStep: null })
     w.setWorkers([id], { instant: true })
-    w.setMode('after', { instant: true })
     w.setProfile({ employees: '1-2', cafeType: 'specialty' })
     worldRef.current = w
   }

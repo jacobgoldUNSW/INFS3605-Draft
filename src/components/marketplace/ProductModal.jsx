@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { DEPARTMENTS, USE_CASES, PRICES_CHECKED, getProduct, connectionsFor, brandInk } from '../../data/products'
+import { RISK_THEMES } from '../../data/risks'
 import { useApp } from '../../state'
 import IconTile, { BrandLogo } from '../ui/IconTile'
 import AnimatedNumber from '../ui/AnimatedNumber'
@@ -314,6 +315,27 @@ function Panel({ p, onClose }) {
             </div>
             {p.wont && <p className="wont"><b>What it won’t do:</b> {p.wont}</p>}
           </motion.section>
+
+          {p.risks?.length > 0 && (
+            <motion.section variants={rise} className="m-sec">
+              <h4 className="m-title"><span className="script-note">the honest version</span></h4>
+              <div className="reality">
+                <p className="reality-lede"><b>Risks &amp; limitations</b> worth knowing before you sign up. Not reasons to avoid {p.name}, just the questions to ask.</p>
+                <ul className="reality-list">
+                  {p.risks.map((r) => (
+                    <motion.li key={r.title} variants={pop} className="reality-item">
+                      <span className="reality-ico" aria-hidden>{RISK_THEMES[r.theme]?.icon}</span>
+                      <div>
+                        <b>{r.title}</b>
+                        <span className="reality-theme">{RISK_THEMES[r.theme]?.title}</span>
+                        <p>{r.detail}</p>
+                      </div>
+                    </motion.li>
+                  ))}
+                </ul>
+              </div>
+            </motion.section>
+          )}
         </div>
       </motion.div>
     </motion.div>

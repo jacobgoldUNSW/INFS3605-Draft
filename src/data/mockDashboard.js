@@ -253,15 +253,8 @@ export function buildDashboard(survey, selectedIds, { hourly = DEFAULT_HOURLY, c
   const unpicked = recommendProducts(survey).filter((p) => !selectedIds.includes(p.id)).slice(0, 3)
 
   // ---- Risks
-  const risks = []
-  risks.push({ id: 'privacy', icon: '🔒', title: 'Customer data & privacy', level: 3, note: 'Tools store customer & sales info. Check privacy settings and let customers know.', fix: 'Review each tool’s privacy page; never paste customer details into free chatbots.' })
-  if (emp >= 4 || (survey.tech ?? 3) <= 2) risks.push({ id: 'training', icon: '🎓', title: 'Staff training & buy-in', level: (survey.tech ?? 3) <= 2 ? 4 : 3, note: 'New tools only help if the team actually uses them.', fix: 'Run two 15-minute huddles and nominate one “tech champion”.' })
-  risks.push({ id: 'cost', icon: '💸', title: 'Stacking subscriptions', level: toolCost > 250 ? 4 : 2, note: `Your tools total roughly $${toolCost}/mo — small bills add up.`, fix: 'Start with free trials and review every 3 months.' })
-  risks.push({ id: 'overreliance', icon: '🧑‍⚖️', title: 'Letting tools answer for you', level: 3, note: 'Software can be confidently wrong, especially with numbers and allergens.', fix: 'Keep a human “yes” on invoices, allergen replies and anything public.' })
-  if (picked.some((p) => p.risk === 'Medium' && p.weeks >= 3)) risks.push({ id: 'integration', icon: '🔌', title: 'Switch-over hiccups', level: 3, note: 'Till and stock changes can disrupt trade during switch-over.', fix: 'Switch on a quiet Tuesday and keep a paper backup for a week.' })
-
   return {
-    picked, recs, unpicked, risks,
+    picked, recs, unpicked,
     before, after, hoursSaved, wasteCut, revBoost, waitCut, toolCost, labourSaving, wasteSaving, netGain,
     allocBefore, allocAfter, weekBefore, weekAfter, profitBefore, profitAfter,
     days: DAYS, months,

@@ -18,7 +18,6 @@ export default function CafeTeaser({ className = '', cafeName = 'Little Fern', t
   if (!worldRef.current) {
     const w = new CafeWorld({ teaser: true, cafeName, fixedPhase: 0.62, requestStep: null, onMoment: (m) => momentRef.current?.(m) })
     w.setWorkers(team.length ? team : TEASER_TEAM, { instant: true })
-    w.setMode('after', { instant: true })
     w.setProfile({ employees: profile?.employees || '3-5', cafeType: profile?.cafeType || 'specialty' })
     worldRef.current = w
   }

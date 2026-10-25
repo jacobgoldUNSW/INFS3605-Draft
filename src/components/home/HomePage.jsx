@@ -268,9 +268,9 @@ export default function HomePage() {
 
           <Reveal delay={0.24} className="step-card">
             <div className="step-num-pill">Step 3</div>
-            <div className="step-card-ico">🔁</div>
-            <h3>See your before &amp; after</h3>
-            <p>Watch your café run with and without them, then see the hours, dollars and quiet-Tuesday setup steps.</p>
+            <div className="step-card-ico">☕</div>
+            <h3>Watch them work</h3>
+            <p>See your café run with your new team and what each one saves you, then get the hours, dollars, honest risks and quiet-Tuesday setup steps.</p>
           </Reveal>
         </div>
       </section>

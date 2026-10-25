@@ -1,5 +1,6 @@
 import React from 'react'
-import { TEMPLATES, AGENT_META } from '../../../shared/agentScenarios.js'
+import { TEMPLATES, AGENT_META, OWNER_ALONE } from '../../../shared/agentScenarios.js'
+import { outcomeText } from '../../sim/savings'
 import { getProduct } from '../../data/products'
 import { BrandLogo } from '../ui/IconTile'
 
@@ -32,7 +33,7 @@ const STEPS = [
   { id: 'done', label: 'Done' },
 ]
 export const stepIndex = (s) => ({ noticed: 0, thinking: 0, queued: 1, working: 1, 'needs-you': 2, done: 3 }[s] ?? -1)
-export const stepLabel = (s) => (s === 'solo' ? 'You’re on your own' : STEPS[stepIndex(s)]?.label || 'On it')
+export const stepLabel = (s) => (s === 'solo' ? 'You handled it alone' : STEPS[stepIndex(s)]?.label || 'On it')
 
 function Face({ id }) {
   const p = getProduct(id)
@@ -43,20 +44,19 @@ function Face({ id }) {
   )
 }
 
-function Docket({ c, ev, mode, present, hired, cooling, onFire }) {
+function Docket({ c, ev, present, hired, cooling, onFire }) {
   const can = RESPONDERS[c.id].filter((id) => present.includes(id))
   const coming = RESPONDERS[c.id].filter((id) => hired.includes(id) && !present.includes(id))
   const live = ev && !['done', 'solo', 'stopped'].includes(ev.status)
   const solo = ev?.status === 'solo'
   const idx = stepIndex(ev?.status)
   const disabled = live || cooling
-  const who = mode === 'before'
-    ? <em>You’d handle it alone</em>
-    : can.length
-      ? <>{can.slice(0, 3).map((id) => <Face key={id} id={id} />)}<em>{can.length === 1 ? `${AGENT_META[can[0]].name} steps in` : `${AGENT_META[can[0]].name} + ${can.length - 1} more`}</em></>
-      : coming.length
-        ? <><Face id={coming[0]} /><em>{AGENT_META[coming[0]].name}’s on the way in</em></>
-        : <em className="hire">Hire {AGENT_META[NATURAL[c.id]].name} ({AGENT_META[NATURAL[c.id]].tool}) for this</em>
+  const won = ev?.status === 'done' ? outcomeText(ev.outcome || {}) : ''
+  const who = can.length
+    ? <>{can.slice(0, 3).map((id) => <Face key={id} id={id} />)}<em>{can.length === 1 ? `${AGENT_META[can[0]].name} steps in` : `${AGENT_META[can[0]].name} + ${can.length - 1} more`}</em></>
+    : coming.length
+      ? <><Face id={coming[0]} /><em>{AGENT_META[coming[0]].name}’s on the way in</em></>
+      : <em className="hire">Nobody on your team covers this yet: {AGENT_META[NATURAL[c.id]].name} ({AGENT_META[NATURAL[c.id]].tool}) would</em>
   return (
     <button
       type="button"
@@ -71,10 +71,13 @@ function Docket({ c, ev, mode, present, hired, cooling, onFire }) {
         <b>{c.title}</b>
         <span className="docket-what">{c.what}</span>
         {ev && (solo || idx >= 0) ? (
-          solo ? <span className="docket-state solo">😮‍💨 You’re on your own</span> : (
-            <span className="docket-steps">
-              {STEPS.map((s, i) => <span key={s.id} className={`dstep ${i < idx ? 'past' : i === idx ? 'now' : ''}`}>{s.label}</span>)}
-            </span>
+          solo ? <span className="docket-state solo">😮‍💨 You handled it alone. {AGENT_META[NATURAL[c.id]].name} ({AGENT_META[NATURAL[c.id]].tool}) would have</span> : (
+            <>
+              <span className="docket-steps">
+                {STEPS.map((s, i) => <span key={s.id} className={`dstep ${i < idx ? 'past' : i === idx ? 'now' : ''}`}>{s.label}</span>)}
+              </span>
+              {ev.status === 'done' && <span className="docket-won">{won ? `✨ ${won}. ` : '✨ '}Without your team: {OWNER_ALONE[c.id]?.without}</span>}
+            </>
           )
         ) : <span className="docket-who">{who}</span>}
       </span>
@@ -84,13 +87,13 @@ function Docket({ c, ev, mode, present, hired, cooling, onFire }) {
 }
 
 /** The five curveballs you can throw at the café; each docket tracks who responds and how far they've got. */
-export default function CurveballMenu({ snap, mode, hired = [], cool, onFire }) {
+export default function CurveballMenu({ snap, hired = [], cool, onFire }) {
   return (
     <div className="curveballs">
-      <p className="px-sub">{mode === 'before' ? 'See how a normal day goes when it’s just you.' : 'Pick one, then watch who notices it, who they hand it to, and when they check with you.'}</p>
+      <p className="px-sub">Pick one, then watch who notices it, who they hand it to, and when they check with you.</p>
       <div className="docket-list">
         {CURVEBALLS.map((c) => (
-          <Docket key={c.id} c={c} ev={snap.events?.[c.id]} mode={mode} present={snap.present || []} hired={hired} cooling={!!cool[c.id]} onFire={onFire} />
+          <Docket key={c.id} c={c} ev={snap.events?.[c.id]} present={snap.present || []} hired={hired} cooling={!!cool[c.id]} onFire={onFire} />
         ))}
       </div>
     </div>

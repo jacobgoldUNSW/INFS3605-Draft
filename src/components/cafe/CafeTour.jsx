@@ -4,19 +4,13 @@ import { WORLD_W } from '../../sim/assets'
 
 /**
  * First-run tour of the café: a spotlight walks you through the six things that matter.
- * Some steps wait for you to actually do the thing (flip to After, throw a curveball, approve).
+ * Some steps wait for you to actually do the thing (throw a curveball, approve).
  */
 export const TOUR = [
   {
     id: 'owner', target: { actor: 'owner' },
-    title: 'This is your café, simulated — just you for now',
-    body: 'The café and its customers are pretend, but the AI team you’re about to meet makes real decisions using Google Gemini. Right now you’re on the till, the phone and the paperwork. When the queue gets long, people walk out.',
-  },
-  {
-    id: 'flip', target: { sel: '[data-tour="after"]' }, wait: (s) => s.mode === 'after',
-    title: 'Bring in your AI team',
-    body: 'Tap “After”. Each worker walks in the front door, says hello, and heads to their station.',
-    hint: 'Tap “After” to continue',
+    title: 'This is your café, simulated, with your AI team',
+    body: 'That’s you. The café and its customers are pretend, but the team walking in makes real decisions using Google Gemini. Each of them takes on a job that usually eats your day: the till, the phone, the paperwork.',
   },
   {
     id: 'worker', target: { worker: true }, minWait: 3,
@@ -37,9 +31,14 @@ export const TOUR = [
     hint: 'Waiting for a worker to ask you something…',
   },
   {
+    id: 'saved', target: { sel: '[data-tour="saved"]' },
+    title: 'See what they save you',
+    body: 'Every job your team finishes adds up here: your time back, money kept or earned, calls answered. Tap it to see what the same day would have looked like without them.',
+  },
+  {
     id: 'log', target: { sel: '[data-tour="log"]' },
     title: 'See everything they did',
-    body: 'Open “Log” in the café menu. Every hand-off, decision and result is there, with running totals for solo vs. with your team.',
+    body: 'Open “Log” in the café menu. Every hand-off, decision and result is there, with the day’s running totals.',
     last: true,
   },
 ]

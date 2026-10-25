@@ -15,7 +15,7 @@ shift. Everything else is sent word for word.
 | Feature | What Gemini does | Where | Style | Runs when |
 | --- | --- | --- | --- | --- |
 | [The house voice](#1-the-house-voice) | Sets the tone for everything below | `server/gemini.js` → `VOICE` | Shared text | Inside every prompt |
-| [Live café moments](#2-live-café-moments) | Decides what the AI team does when something happens | `server/gemini.js` → `agentStep` | Fills in a fixed form (JSON schema) | A curveball is thrown, or about every 20 s while the "After" café runs |
+| [Live café moments](#2-live-café-moments) | Decides what the AI team does when something happens | `server/gemini.js` → `agentStep` | Fills in a fixed form (JSON schema) | A curveball is thrown, or about every 20 s while the café is on screen |
 | [The personalised plan](#3-the-personalised-plan) | Writes the words of the owner's plan | `server/gemini.js` → `personaliseDashboard` | Fills in a fixed form (JSON schema) | The plan brews, "re-brew" is pressed, or the owner accepts a change from Bea |
 | [Bea: the check-up chat](#43-the-check-up-chat) | Gets to know the café, then suggests tools | `server/bea.js` → `beaCheckup` | Calls our functions (function calling) | Each message in the step 1 chat |
 | [Bea: "Ask Bea" on the plan](#44-ask-bea-on-the-plan) | Compares tools, explains numbers, proposes changes or a setup timetable | `server/bea.js` → `beaPlan` | Calls our functions (function calling) | Each message in the Ask Bea drawer |
@@ -56,7 +56,7 @@ review, or just a quiet moment), Gemini decides which AI worker notices, who the
 make (a promo, an email, a roster…), whether they must ask the owner first, and the effect on the café.
 
 **When it runs:** when the owner throws a curveball, and about every 18–22 seconds while someone is watching the
-"After" café. It is only called when the tab is visible and not paused.
+café. It is only called when the tab is visible and not paused.
 
 **How it works:**
 
@@ -157,8 +157,11 @@ one is needed, `sanitizeStep` adds a sensible default. A question is required wh
 - a headline and a short summary;
 - why each tool suits them;
 - a setup card per tool (steps, minutes, who runs it, a week-1 safety check);
-- a tip from a fellow owner;
-- the three most relevant risks, each with a fix.
+- a tip from a fellow owner.
+
+The plan's risks ("reality checks") are not written by Gemini. They come from a fixed, hand-written register
+(`src/data/risks.js`) and each tool's own risks (`src/data/products.js`), ranked for the owner's tools by our code, so
+they stay honest and say the same thing to everyone.
 
 **When it runs:** when the plan brews (the coffee-cup loading screen), when the owner presses "re-brew", and when they
 accept a tool change from Bea (the plan is rewritten for the new set of tools).
@@ -209,7 +212,6 @@ Return:
   Phase: quick, cheap tools are "Week 1 · Quick win"; tools touching money/rosters are "Weeks 2–3 · Core habit";
   hardware, stock counts or till changes are "Month 2 · Upgrade".
 - peerTip: one sentence.
-- risks: the 3 most relevant honest risks (privacy, staff buy-in, subscription creep, allergens, switch-over…) with a practical fix.
 ```
 
 The list of worker names tells Gemini that a real person on the café team does the setup, never one of the pixel
@@ -224,7 +226,6 @@ characters.
 | `toolReasons[]` | `{ id, reason }`, reason max 16 words and referencing their answers |
 | `setupCards[]` | `{ toolId, phase, steps[3], minutes, owner, safetyCheck, whyNow }`; phase must be one of the three |
 | `peerTip` | one sentence |
-| `risks[]` | `{ title (5 words), note (18 words), fix (18 words), level 1–5 }` |
 
 **Settings:** temperature 0.7 (steadier than the café), up to 3,200 output tokens, minimal thinking, a 15-second limit.
 
@@ -382,7 +383,7 @@ HOW TO WORK (always through functions):
 | --- | --- | --- |
 | `estimate` | Work out the monthly bill, hours back and likely monthly gain for any set of tools, using our formulas. | Our formulas for any set of tools |
 | `list_tools` | All 12 Brewmind tools with their job, price and fit for this café (inPlan marks the ones already chosen). | Returns all 12, with which are in the plan and how well each fits |
-| `compare_tools` | Look up the details of 1–3 tools side by side: price, plan, trial, pros, cons, what they won’t do. | Returns those details from `src/data/products.js` |
+| `compare_tools` | Look up the details of 1–3 tools side by side: price, plan, trial, pros, cons, what they won’t do, and their real risks. | Returns those details, including each tool's risks, from `src/data/products.js` |
 | `explain_numbers` | Get the working behind one of the plan’s numbers. (`topic`: hours, money or payback) | Returns the same working the plan page shows |
 | `propose_tool_change` *(ends turn)* | Propose adding and/or removing tools. The owner sees the before-and-after and decides. This ends your turn. | Checks the change (see 4.5), recalculates before and after with our formulas, and shows the change card |
 | `propose_schedule` *(ends turn)* | Plan setup sessions for the tools in the plan around the owner’s free days. The owner sees it and decides. This ends your turn. | Builds the timetable itself: Week 1 tools first, only on the free days given, no session longer than they can spare |

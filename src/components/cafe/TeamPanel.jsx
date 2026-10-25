@@ -6,20 +6,17 @@ import { Portrait } from './WorkerInspector'
 
 const ease = [0.22, 1, 0.36, 1]
 
-function stateOf(on, w, mode) {
+function stateOf(on, w) {
   if (!on) return 'off'
-  if (mode === 'before') return 'resting'
   if (w?.needsYou) return 'needs'
   if (w?.busy) return 'busy'
   return w?.here ? 'here' : 'arriving'
 }
 
 /** One worker: a single tidy row. Tap it for what they do and what they cost. */
-function Row({ p, on, w, images, mode, open, onOpen, onToggle, onInspect, onDetails, onHover }) {
-  const state = stateOf(on, w, mode)
-  const status = !on
-    ? p.worker.job
-    : w?.status || (mode === 'before' ? 'Off today, you’re running solo' : 'Heading in…')
+function Row({ p, on, w, images, open, onOpen, onToggle, onInspect, onDetails, onHover }) {
+  const state = stateOf(on, w)
+  const status = !on ? p.worker.job : w?.status || 'Heading in…'
   return (
     <li
       className={`tm-row ${on ? 'on' : 'off'} st-${state} ${open ? 'open' : ''}`}
@@ -85,7 +82,7 @@ function Row({ p, on, w, images, mode, open, onOpen, onToggle, onInspect, onDeta
 }
 
 /** "Your team": who's on shift and what they're doing, then who you could still hire. */
-export default function TeamPanel({ selected, snap, images, mode, onToggle, onInspect, onDetails, onHover }) {
+export default function TeamPanel({ selected, snap, images, onToggle, onInspect, onDetails, onHover }) {
   const [open, setOpen] = useState(null)
   const hired = PRODUCTS.filter((p) => selected.includes(p.id))
   const rest = PRODUCTS.filter((p) => !selected.includes(p.id))
@@ -93,7 +90,7 @@ export default function TeamPanel({ selected, snap, images, mode, onToggle, onIn
   const needs = hired.filter((p) => snap.workers?.[p.id]?.needsYou).length
   const row = (p) => (
     <Row
-      key={p.id} p={p} on={selected.includes(p.id)} w={snap.workers?.[p.id]} images={images} mode={mode}
+      key={p.id} p={p} on={selected.includes(p.id)} w={snap.workers?.[p.id]} images={images}
       open={open === p.id} onOpen={setOpen} onToggle={onToggle} onInspect={onInspect} onDetails={onDetails} onHover={onHover}
     />
   )
@@ -104,7 +101,6 @@ export default function TeamPanel({ selected, snap, images, mode, onToggle, onIn
         {hired.length > 0 && <span>about ${bill}/mo</span>}
         {needs > 0 && <em>{needs} waiting for you</em>}
       </div>
-      {mode === 'before' && hired.length > 0 && <p className="tm-hint">Flip to <b>After</b> to bring them in.</p>}
       {hired.length > 0 && (
         <section className="tm-group" aria-label="On your team">
           <h5>On shift</h5>

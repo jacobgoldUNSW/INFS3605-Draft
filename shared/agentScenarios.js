@@ -672,14 +672,17 @@ export function fallbackAgentStep({ event, active = [], cafeName = 'your café',
   return step
 }
 
-/** What the owner thinks when nobody on the team can help (and in "Before" mode). */
+/**
+ * Each curveball without a team: what the owner thinks when nobody on the team can help, the tool that would, and
+ * `without`, what the day looks like on their own (shown beside every job the team finishes, so the difference is clear).
+ */
 export const OWNER_ALONE = {
-  rain: { thought: 'Rain… that’s 18 croissants in the bin by 3pm. No time to make a sign.', tip: 'Hire Marco (MarketMan) + Cami (Canva) and they’ll turn the rain into a promo.' },
-  rush: { thought: 'Phone’s ringing, queue’s out the door, and I’m the only one on the till!', tip: 'Sienna (Square) speeds up the till and Sunny (Slang.ai) answers the phone.' },
-  sick: { thought: 'A 5:30am sick text… guess I’m working a double today.', tip: 'Dep (Deputy) finds cover without overtime while you sleep in.' },
-  delivery: { thought: 'Another crumpled docket for the shoebox. I’ll check it… tonight. Maybe.', tip: 'Dex (Dext) reads every docket and catches price hikes.' },
-  review: { thought: 'A review AND an allergy question in my DMs. I’ll reply after close…', tip: 'Pia (Podium) drafts replies — and always asks you before answering allergy questions.' },
-  tick: { thought: 'Invoices, rosters, orders… when do I actually make coffee?', tip: 'Flip to “After” to hand these chores to your AI team.' },
+  rain: { thought: 'Rain… that’s 18 croissants in the bin by 3pm. No time to make a sign.', tip: 'Hire Marco (MarketMan) + Cami (Canva) and they’ll turn the rain into a promo.', without: 'a tray of pastries in the bin and nothing on the A-frame' },
+  rush: { thought: 'Phone’s ringing, queue’s out the door, and I’m the only one on the till!', tip: 'Sienna (Square) speeds up the till and Sunny (Slang.ai) answers the phone.', without: 'people walking out of the queue while the phone rings out' },
+  sick: { thought: 'A 5:30am sick text… guess I’m working a double today.', tip: 'Dep (Deputy) finds cover without overtime while you sleep in.', without: 'a 5:30am scramble for cover, or working a double yourself' },
+  delivery: { thought: 'Another crumpled docket for the shoebox. I’ll check it… tonight. Maybe.', tip: 'Dex (Dext) reads every docket and catches price hikes.', without: 'the docket in the shoebox, overcharge and all, until tonight' },
+  review: { thought: 'A review AND an allergy question in my DMs. I’ll reply after close…', tip: 'Pia (Podium) drafts replies — and always asks you before answering allergy questions.', without: 'the review and the allergy question waiting until after close' },
+  tick: { thought: 'Invoices, rosters, orders… when do I actually make coffee?', tip: 'Add a tool to your team and they’ll take these chores off your plate.', without: 'one more job on tonight’s to-do list' },
 }
 
 // Anything that spends money, publishes, messages people or answers allergens needs the owner's yes.
