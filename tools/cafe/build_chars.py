@@ -1,4 +1,4 @@
-"""Compose Brewmind's café characters from LimeZu Character Generator parts.
+"""Compose Cafinity's café characters from LimeZu Character Generator parts.
 
 Layering order (from LimeZu's CHARACTER_GENERATOR.txt): body -> eyes -> outfit -> hairstyle -> accessory.
 Every AI worker is a *human* café employee whose outfit is retinted to their tool's brand colour.
@@ -188,7 +188,7 @@ STAFF = {
                         colors={'apron': ['#3b2a1f', '#4e3829', '#634836'], 'detail': '#d9a066', 'pants': '#2f2b33'}),
     'floor':       dict(body=7, eyes=1, outfit=(9, 2), hair=(24, 5),
                         colors={'apron': ['#5b6b4a', '#6f8559', '#86a06b'], 'detail': '#f3e7d7', 'pants': '#3a3530'}),
-    # Bea, Brewmind's host in the chat (not in the café): auburn buns, terracotta apron
+    # Bea, Cafinity's advisor in the chat (not in the café): auburn buns, terracotta apron
     'bea':         dict(body=2, eyes=2, outfit=(9, 1), hair=(11, 3),
                         colors={'apron': ['#8f3e17', '#c85a24', '#e07a45'], 'detail': '#fce9c8', 'pants': '#3d2a20'}),
     'copilot':     dict(body=4, eyes=3, outfit=(1, 1), hair=(17, 7),

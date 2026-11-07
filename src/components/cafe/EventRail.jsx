@@ -3,13 +3,14 @@ import { TEMPLATES, AGENT_META, OWNER_ALONE } from '../../../shared/agentScenari
 import { outcomeText } from '../../sim/savings'
 import { getProduct } from '../../data/products'
 import { BrandLogo } from '../ui/IconTile'
+import Icon from '../ui/Icon'
 
 export const CURVEBALLS = [
-  { id: 'rain', icon: '🌧️', title: 'Rain', what: 'It’s pouring and walk-ins drop off.' },
-  { id: 'rush', icon: '🏃', title: 'Morning rush', what: 'Six people at once, and the phone rings.' },
-  { id: 'sick', icon: '🤒', title: 'Sick call-in', what: 'Josh can’t make his 6am shift.' },
-  { id: 'delivery', icon: '📦', title: 'Delivery drop', what: 'Dairy arrives with a paper docket.' },
-  { id: 'review', icon: '⭐', title: 'New review', what: 'A review lands, with an allergy question.' },
+  { id: 'rain', icon: '🌧️', ico: 'rain', title: 'Rain', what: 'It’s pouring and walk-ins drop off.' },
+  { id: 'rush', icon: '🏃', ico: 'people', title: 'Morning rush', what: 'Six people at once, and the phone rings.' },
+  { id: 'sick', icon: '🤒', ico: 'phone', title: 'Sick call-in', what: 'Josh can’t make his 6am shift.' },
+  { id: 'delivery', icon: '📦', ico: 'truck', title: 'Delivery drop', what: 'Dairy arrives with a paper docket.' },
+  { id: 'review', icon: '⭐', ico: 'star', title: 'New review', what: 'A review lands, with an allergy question.' },
 ]
 
 // the person an owner would expect to handle each one (suggested when nobody on the team fits)
@@ -66,17 +67,17 @@ function Docket({ c, ev, present, hired, cooling, onFire }) {
       data-docket={c.id}
       aria-label={`${c.title}: ${c.what}`}
     >
-      <span className="docket-ico" aria-hidden>{c.icon}</span>
+      <span className="docket-ico" aria-hidden><Icon name={c.ico} size={20} /></span>
       <span className="docket-text">
         <b>{c.title}</b>
         <span className="docket-what">{c.what}</span>
         {ev && (solo || idx >= 0) ? (
-          solo ? <span className="docket-state solo">😮‍💨 You handled it alone. {AGENT_META[NATURAL[c.id]].name} ({AGENT_META[NATURAL[c.id]].tool}) would have</span> : (
+          solo ? <span className="docket-state solo">You handled it alone. {AGENT_META[NATURAL[c.id]].name} ({AGENT_META[NATURAL[c.id]].tool}) would have</span> : (
             <>
               <span className="docket-steps">
                 {STEPS.map((s, i) => <span key={s.id} className={`dstep ${i < idx ? 'past' : i === idx ? 'now' : ''}`}>{s.label}</span>)}
               </span>
-              {ev.status === 'done' && <span className="docket-won">{won ? `✨ ${won}. ` : '✨ '}Without your team: {OWNER_ALONE[c.id]?.without}</span>}
+              {ev.status === 'done' && <span className="docket-won">{won ? `${won}. ` : ''}Without these tools: {OWNER_ALONE[c.id]?.without}</span>}
             </>
           )
         ) : <span className="docket-who">{who}</span>}

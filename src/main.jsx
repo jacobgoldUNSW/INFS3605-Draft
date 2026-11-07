@@ -11,6 +11,7 @@ import './styles/cafinity/pantry.css'
 import './styles/cafinity/checkup.css'
 import './styles/cafinity/gate.css'
 import './styles/cafinity/legacy-vars.css'
-import './styles/cafe.css'
+import './styles/cafinity/sim-base.css'
+import './styles/cafinity/cafe-theme.css'
 
 createRoot(document.getElementById('root')).render(<App />)

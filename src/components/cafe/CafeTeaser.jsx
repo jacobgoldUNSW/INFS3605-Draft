@@ -39,7 +39,7 @@ export default function CafeTeaser({ className = '', cafeName = 'Little Fern', t
   return (
     <div className={`teaser ${className}`} aria-hidden>
       <CafeCanvas world={worldRef.current} images={images} running={visible} interactive={false} />
-      {!images && <div className="teaser-loading">☕</div>}
+      {!images && <div className="teaser-loading">Opening up…</div>}
     </div>
   )
 }

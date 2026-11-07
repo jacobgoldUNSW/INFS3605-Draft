@@ -1,4 +1,4 @@
-"""Brewmind café map compiler.
+"""Cafinity café map compiler.
 
 Builds (from the LimeZu sheets in ../Assets):
   src/assets/cafe/cafe_ground.png   static ground: street, walls, floors, rugs, wall decor, partition

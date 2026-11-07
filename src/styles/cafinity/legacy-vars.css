@@ -9,4 +9,10 @@
   --f-display: var(--f-serif);
   --f-body: var(--f-sans);
   --f-pixel: var(--f-sans);
+  --f-hand: var(--f-serif);
+  --f-script: var(--f-serif);
+  --cream: var(--almond);
+  --orange: var(--caramel);
+  --orange-d: var(--caramel-2);
+  --espresso-2: var(--forest-800);
 }

@@ -9,36 +9,36 @@ import { WORLD_W } from '../../sim/assets'
 export const TOUR = [
   {
     id: 'owner', target: { actor: 'owner' },
-    title: 'This is your café, simulated, with your AI team',
-    body: 'That’s you. The café and its customers are pretend, but the team walking in makes real decisions using Google Gemini. Each of them takes on a job that usually eats your day: the till, the phone, the paperwork.',
+    title: 'This is a day at your café, with your tools',
+    body: 'That’s you. The customers are pretend; it’s a moving picture of what your plan would do. Each tool takes on a job that usually eats your day: the till, the phone, the paperwork.',
   },
   {
     id: 'worker', target: { worker: true }, minWait: 3,
-    title: 'Every worker is a real tool',
-    body: 'A coloured outline means AI. Tap anyone, here or under “Team” in the café menu, to see what they’re working on and what the tool costs.',
+    title: 'Green means a tool',
+    body: 'Each person with a green ring at their feet stands for a real tool on your plan. Tap one to see what it’s working on. Add or remove tools in your toolkit, beside the café.',
   },
   {
     // the Rain docket once the Curveballs menu is open, the menu button until then
     id: 'event', target: { sel: ['[data-docket="rain"]', '[data-tour="events"]'] }, wait: (s) => Object.keys(s.events || {}).length > 0,
     title: 'Throw them a curveball',
-    body: 'Open “Curveballs” in the café menu and throw Rain. Then watch who notices, who they hand it to, and what they make.',
+    body: 'Open “Curveballs” and throw Rain. Then watch which tool notices, who it hands the job to, and what it makes.',
     hint: 'Open Curveballs, then tap Rain',
   },
   {
     id: 'ask', target: { sel: '.cb-ask' }, wait: (s, st) => st.sawAsk && s.approvals === 0, fallbackAfter: 35,
     title: 'You’re still the boss',
-    body: 'Anything that spends money or talks to customers waits for your OK. Approve it, inspect it first — or if you’re flat out, it auto-approves after 15 seconds.',
-    hint: 'Waiting for a worker to ask you something…',
+    body: 'Anything that spends money or talks to customers waits for your OK: the ring turns brass. Approve it, or inspect it first. If you’re flat out, it auto-approves after 15 seconds.',
+    hint: 'Waiting for a tool to ask you something…',
   },
   {
     id: 'saved', target: { sel: '[data-tour="saved"]' },
     title: 'See what they save you',
-    body: 'Every job your team finishes adds up here: your time back, money kept or earned, calls answered. Tap it to see what the same day would have looked like without them.',
+    body: 'Every job your tools finish adds up here: your time back, money kept or earned, calls answered. Tap it to see what the same day would have looked like without them.',
   },
   {
     id: 'log', target: { sel: '[data-tour="log"]' },
     title: 'See everything they did',
-    body: 'Open “Log” in the café menu. Every hand-off, decision and result is there, with the day’s running totals.',
+    body: 'Open “Log” for every hand-off, decision and result, with the day’s running totals.',
     last: true,
   },
 ]
@@ -191,7 +191,7 @@ export default function CafeTour({ step, setStep, onClose, snap, stageRef, canva
             <div className="tour-actions">
               <button className="tour-skip" onClick={onClose}>{s.last ? 'Close' : 'Skip tour'}</button>
               {canNext ? (
-                <button className="tour-next" onClick={() => (s.last ? onClose() : setStep(step + 1))}>{s.last ? 'Got it ✓' : 'Next →'}</button>
+                <button className="tour-next" onClick={() => (s.last ? onClose() : setStep(step + 1))}>{s.last ? 'Got it' : 'Next'}</button>
               ) : (
                 <span className="tour-hint"><i className="dots"><b /><b /><b /></i> {s.hint || 'Have a look around…'}</span>
               )}

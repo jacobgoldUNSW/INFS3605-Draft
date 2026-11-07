@@ -1,5 +1,5 @@
 {
-  "_note": "Local test account used while building/verifying Brewmind V2 on http://localhost:5173. Not a real person or service. Delete server/data/brewmind.db to reset all accounts.",
+  "_note": "Local test account used while building/verifying Cafinity on http://localhost:5173. Not a real person or service. Delete server/data/brewmind.db to reset all accounts.",
   "cafeName": "Little Fern Café",
   "username": "fern_owner",
   "email": "owner@littlefern.test",

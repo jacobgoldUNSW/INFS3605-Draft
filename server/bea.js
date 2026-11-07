@@ -1,4 +1,4 @@
-// Bea, Brewmind's host: a Gemini agent that acts through our own functions.
+// Bea, Cafinity's café advisor: a Gemini agent that acts through our own functions.
 // Two jobs: the chat check-up (get to know the café, then propose a shortlist of tools) and "Ask Bea"
 // on the plan page (compare tools, explain numbers, propose changes to the plan or a setup schedule).
 // Gemini only ever *proposes*: every change waits for the owner's Accept in the browser.
@@ -17,11 +17,11 @@ const TOOL_IDS = PRODUCTS.map((p) => p.id)
 const PHASES = ['Week 1 · Quick win', 'Weeks 2–3 · Core habit', 'Month 2 · Upgrade']
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
-const PERSONA = `You are Bea, the host at Brewmind: a warm, down-to-earth Australian barista who has helped lots of
-small cafés get their paperwork under control. You are chatting with a café owner inside the Brewmind web app.
+const PERSONA = `You are Bea, Cafinity's café advisor: a warm, down-to-earth Australian ex-barista who has helped lots of
+small cafés get their paperwork under control. You are chatting with a café owner inside the Cafinity web app.
 ${VOICE}
 Talk like a friendly text message: 1 to 3 short sentences, no lists, no headings, no emoji spam (one is fine).
-Call the software "tools" or "helpers". Be honest about costs and limits; never oversell.
+Call each tool by its product name (Dext, Xero, Square…) or simply "tools"; never give them people's names. Be honest about costs and limits; never oversell.
 Never say you have signed anyone up, paid, emailed, messaged or contacted anyone: you only suggest, the owner decides.
 When you propose something, word it as a suggestion ("How about…", "I'd swap…"), never as done ("I've swapped…"):
 nothing changes until the owner presses Accept.`
@@ -220,7 +220,7 @@ const checkupTools = [
   },
   {
     name: 'recommend_tools',
-    description: 'Look up which of the 12 Brewmind tools best fit this café, best first, using our matching rules.',
+    description: 'Look up which of the 12 Cafinity tools best fit this café, best first, using our matching rules.',
     parameters: { type: Type.OBJECT, properties: {} },
   },
   {
@@ -320,7 +320,7 @@ const planTools = [
   },
   {
     name: 'list_tools',
-    description: 'All 12 Brewmind tools with their job, price and fit for this café (inPlan marks the ones already chosen).',
+    description: 'All 12 Cafinity tools with their job, price and fit for this café (inPlan marks the ones already chosen).',
     parameters: { type: Type.OBJECT, properties: {} },
   },
   {
@@ -368,7 +368,7 @@ function planSystem(survey, selected) {
   const tools = selected.map((id) => getProduct(id)).filter(Boolean)
   return `${PERSONA}
 
-YOUR JOB RIGHT NOW: you are sitting beside the owner on their Brewmind plan page, helping them fine-tune it.
+YOUR JOB RIGHT NOW: you are sitting beside the owner on their Cafinity plan page, helping them fine-tune it.
 You can look things up and PROPOSE changes; nothing changes unless the owner presses Accept.
 THEIR CAFÉ:
 ${describeProfile(survey)}

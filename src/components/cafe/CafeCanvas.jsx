@@ -227,8 +227,8 @@ function Bubble({ o, refFn, onApprove, onInspect, interactive, lifted, hovered }
           </div>
           {interactive && (
             <div className="ask-actions">
-              <button className="ask-btn yes" onClick={(e) => { e.stopPropagation(); onApprove?.(o.approvalId) }}>✓ Approve</button>
-              <button className="ask-btn peek" onClick={(e) => { e.stopPropagation(); onInspect?.(o.actorId) }}>👁️ Inspect</button>
+              <button className="ask-btn yes" onClick={(e) => { e.stopPropagation(); onApprove?.(o.approvalId) }}>Approve</button>
+              <button className="ask-btn peek" onClick={(e) => { e.stopPropagation(); onInspect?.(o.actorId) }}>Look first</button>
             </div>
           )}
         </div>

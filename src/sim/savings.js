@@ -10,23 +10,23 @@ export function savedChips(s = {}) {
   const money = (s.dollars || 0) + (s.waste || 0)
   const asked = (s.approvalsYou || 0) + (s.approvalsAuto || 0)
   return [
-    { k: 'time', icon: '🕒', v: fmtMins(s.minutes || 0), label: 'of your time back', on: (s.minutes || 0) > 0 },
-    { k: 'money', icon: '💰', v: `$${money}`, label: 'kept or earned', on: money > 0 },
-    { k: 'customers', icon: '🚶', v: `+${s.customers || 0}`, label: 'extra customers', on: (s.customers || 0) > 0 },
-    { k: 'calls', icon: '📞', v: s.calls || 0, label: 'calls answered', on: (s.calls || 0) > 0 },
-    { k: 'asked', icon: '✅', v: asked, label: 'asked you first', on: asked > 0 },
+    { k: 'time', ico: 'clock', icon: '🕒', v: fmtMins(s.minutes || 0), label: 'of your time back', on: (s.minutes || 0) > 0 },
+    { k: 'money', ico: 'coins', icon: '💰', v: `$${money}`, label: 'kept or earned', on: money > 0 },
+    { k: 'customers', ico: 'people', icon: '🚶', v: `+${s.customers || 0}`, label: 'extra customers', on: (s.customers || 0) > 0 },
+    { k: 'calls', ico: 'phone', icon: '📞', v: s.calls || 0, label: 'calls answered', on: (s.calls || 0) > 0 },
+    { k: 'asked', ico: 'check', icon: '✅', v: asked, label: 'asked you first', on: asked > 0 },
   ]
 }
 
 /** The same day on your own: one line per kind of work the team took on. */
 export function withoutLines(s = {}) {
   const lines = []
-  if (s.minutes) lines.push({ icon: '🕒', text: `${fmtMins(s.minutes)} more of your day on admin and chores` })
-  if (s.waste) lines.push({ icon: '🗑️', text: `about $${s.waste} of stock in the bin` })
-  if (s.dollars) lines.push({ icon: '💵', text: `about $${s.dollars} less in the till` })
-  if (s.customers) lines.push({ icon: '🚶', text: `${plural(s.customers, 'customer')} fewer through the door` })
-  if (s.calls) lines.push({ icon: '📞', text: `${plural(s.calls, 'call')} to answer yourself, or miss` })
-  if (s.jobs) lines.push({ icon: '🧾', text: `${plural(s.jobs, 'job')} still on your to-do list tonight` })
+  if (s.minutes) lines.push({ ico: 'clock', icon: '🕒', text: `${fmtMins(s.minutes)} more of your day on admin and chores` })
+  if (s.waste) lines.push({ ico: 'bin', icon: '🗑️', text: `about $${s.waste} of stock in the bin` })
+  if (s.dollars) lines.push({ ico: 'dollar', icon: '💵', text: `about $${s.dollars} less in the till` })
+  if (s.customers) lines.push({ ico: 'people', icon: '🚶', text: `${plural(s.customers, 'customer')} fewer through the door` })
+  if (s.calls) lines.push({ ico: 'phone', icon: '📞', text: `${plural(s.calls, 'call')} to answer yourself, or miss` })
+  if (s.jobs) lines.push({ ico: 'receipt', icon: '🧾', text: `${plural(s.jobs, 'job')} still on your to-do list tonight` })
   return lines
 }
 

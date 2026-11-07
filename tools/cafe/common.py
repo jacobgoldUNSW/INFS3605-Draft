@@ -1,4 +1,4 @@
-"""Shared helpers for the Brewmind café asset compiler.
+"""Shared helpers for the Cafinity café asset compiler.
 
 Everything here works on LimeZu "Modern Interiors" 32x32 sheets. Coordinates are in
 tiles unless a name ends in `_px`. Nothing is guessed at runtime: the compiler bakes

@@ -15,11 +15,11 @@ const ZONES = MAP.zones || { street: [0, 0, WORLD_W, 96], front: [0, 96, 656, WO
 const SIT_DY = -4
 const rainState = new WeakMap()
 
-// a bright, readable outline per AI worker, in their tool's brand colour
-export const OUTLINE = {
-  copilot: '#7b8bff', xero: '#29c4f2', dext: '#ff7a3d', deputy: '#4d97ff', square: '#c2cede', lightspeed: '#ff5a62',
-  marketman: '#ffbb33', ordermentum: '#2ad1b5', canva: '#bd78ff', podium: '#8a83ff', slang: '#ff6e8a', mailchimp: '#ffd84d',
-}
+// Every AI tool wears the same green: a crisp outline and a ring at their feet, so tools never blend in with
+// customers or staff (who have neither). The ring turns brass while a tool waits for the owner's OK.
+export const TOOL_GREEN = '#8BD88F'
+export const TOOL_ASK = '#F2C14E'
+export const OUTLINE = Object.fromEntries(['copilot', 'xero', 'dext', 'deputy', 'square', 'lightspeed', 'marketman', 'ordermentum', 'canva', 'podium', 'slang', 'mailchimp'].map((id) => [id, TOOL_GREEN]))
 
 // ------------------------------------------------------------------ the café day
 // phase 0 = 9:30 am … 0.62 golden hour … 0.86 cosy close … 0.95→1 eases back to morning
@@ -158,16 +158,24 @@ function drawShadows(ctx, world, img, c, L, quality) {
 }
 
 function drawOutline(ctx, c, a, color, strength) {
-  // tint the current frame (already in c.frame) and stamp it around the sprite
+  // tint the current frame (already in c.frame) and stamp it one pixel around the sprite: a crisp edge, no halo
   c.fctx.globalCompositeOperation = 'source-in'
   c.fctx.fillStyle = color
   c.fctx.fillRect(0, 0, 34, 66)
   const x = Math.round(a.x - 16) - 1
   const y = Math.round(a.y - 60 + (isSitting(a.anim) ? SIT_DY : 0) + (a.bobY || 0)) - 1
-  ctx.globalAlpha = 0.28 * strength
-  for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [0, 2], [-1, -1], [1, -1], [-1, 1], [1, 1]]) ctx.drawImage(c.frame, x + dx, y + dy)
-  ctx.globalAlpha = 0.95 * Math.min(1, strength)
+  ctx.globalAlpha = Math.min(1, strength)
   for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) ctx.drawImage(c.frame, x + dx, y + dy)
+  ctx.globalAlpha = 1
+}
+
+function drawToolRing(ctx, a, color, strength) {
+  ctx.globalAlpha = Math.min(1, strength) * (a.alpha ?? 1)
+  ctx.strokeStyle = color
+  ctx.lineWidth = 2
+  ctx.beginPath()
+  ctx.ellipse(a.x, a.y - 1, 11, 3.8, 0, 0, Math.PI * 2)
+  ctx.stroke()
   ctx.globalAlpha = 1
 }
 
@@ -186,15 +194,17 @@ function drawActor(ctx, img, a, t, c, world) {
     ctx.ellipse(a.x, a.y - 1, 8, 2.8, 0, 0, Math.PI * 2)
     ctx.fill()
   }
-  // AI workers get a soft brand-coloured outline so you can always spot them
+  // AI tools: a green ring at their feet and a crisp green outline (brass while they wait for your OK)
   if (a.kind === 'worker' && OUTLINE[a.id] && (a.alpha ?? 1) > 0.5) {
     const needs = world.approvalFor?.(a.id)
     const hot = world.highlightId === a.id
-    const pulse = needs || hot ? 0.75 + 0.5 * (0.5 + 0.5 * Math.sin(t * 6)) : 0.85
+    const pulse = needs || hot ? 0.7 + 0.3 * (0.5 + 0.5 * Math.sin(t * 6)) : 0.95
+    const color = needs ? TOOL_ASK : OUTLINE[a.id]
+    if (!sit) drawToolRing(ctx, a, color, pulse)
     c.fctx.globalCompositeOperation = 'source-over'
     c.fctx.clearRect(0, 0, 34, 66)
     c.fctx.drawImage(img.chars, sx, sy, 32, 64, 1, 1, 32, 64)
-    drawOutline(ctx, c, a, OUTLINE[a.id], hot ? 1.5 : pulse)
+    drawOutline(ctx, c, a, color, hot ? 1 : pulse)
     ctx.globalAlpha = a.alpha ?? 1
   }
   ctx.drawImage(img.chars, sx, sy, 32, 64, x, y, 32, 64)

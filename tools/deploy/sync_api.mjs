@@ -1,5 +1,5 @@
 // Copies the API's source into the hosted Cloud Run function (jacobgold.me/brewmind-api) before a deploy.
-// Brewmind stays the one place you edit: this copies exactly what server/app.js imports, nothing else.
+// This project stays the one place you edit: this copies exactly what server/app.js imports, nothing else.
 //   node tools/deploy/sync_api.mjs [target folder]
 import fs from 'node:fs'
 import path from 'node:path'
@@ -28,11 +28,11 @@ while (queue.length) {
   }
 }
 
-// start clean, so a file deleted from Brewmind doesn't linger in the function
+// start clean, so a file deleted here doesn't linger in the function
 for (const dir of ['server', 'shared', 'src']) fs.rmSync(path.join(TARGET, dir), { recursive: true, force: true })
 for (const file of files) {
   const rel = path.relative(ROOT, file)
-  if (rel.startsWith('..')) throw new Error(`refusing to copy a file outside Brewmind: ${file}`)
+  if (rel.startsWith('..')) throw new Error(`refusing to copy a file outside Cafinity: ${file}`)
   const dest = path.join(TARGET, rel)
   fs.mkdirSync(path.dirname(dest), { recursive: true })
   fs.copyFileSync(file, dest)

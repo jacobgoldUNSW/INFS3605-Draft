@@ -1,11 +1,11 @@
 @echo off
 setlocal
-title Brewmind - AI Marketplace Prototype
+title Cafinity - AI tools for independent cafes
 cd /d "%~dp0"
 
 echo.
 echo   ====================================================
-echo     Brewmind  -  AI tools marketplace for cafe owners
+echo     Cafinity  -  see what AI could take off your plate
 echo   ====================================================
 echo.
 
@@ -44,7 +44,7 @@ goto dev
 
 :dev
 echo.
-echo   Starting Brewmind ^(API on :8787, app on :5173^)... your browser will open automatically.
+echo   Starting Cafinity ^(API on :8787, app on :5173^)... your browser will open automatically.
 echo   Close this window ^(or press Ctrl+C^) to stop both servers.
 echo.
 call npm run dev
@@ -61,7 +61,7 @@ if errorlevel 1 (
   exit /b 1
 )
 echo.
-echo   Starting Brewmind on http://localhost:8787/infs3605/ ...
+echo   Starting Cafinity on http://localhost:8787/infs3605/ ...
 echo   ^(Sign-in, saved plans and the live cafe need this Node server - a static host alone won't do.^)
 echo.
 start "" http://localhost:8787/infs3605/

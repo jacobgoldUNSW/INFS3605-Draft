@@ -7,5 +7,5 @@ const app = await createApp()
 
 app.listen(PORT, () => {
   const gate = process.env.GATE_PASSWORD ? ', password gate on' : ''
-  console.log(`☕ Brewmind API on http://localhost:${PORT}  (Gemini ${geminiReady ? `ready: ${PRIMARY_MODEL} → ${FALLBACK_MODEL}` : 'not configured — using built-in fallbacks'}${gate})`)
+  console.log(`Cafinity API on http://localhost:${PORT}  (Gemini ${geminiReady ? `ready: ${PRIMARY_MODEL} → ${FALLBACK_MODEL}` : 'not configured — using built-in fallbacks'}${gate})`)
 })

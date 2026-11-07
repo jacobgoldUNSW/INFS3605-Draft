@@ -7,10 +7,10 @@ import { withoutLines } from '../../sim/savings'
 
 const FILTERS = [
   { id: 'all', label: 'All' },
-  { id: 'needs', label: '🙋 Needs you' },
-  { id: 'money', label: '💰 Money' },
-  { id: 'customers', label: '☕ Customers' },
-  { id: 'staff', label: '🧑‍🍳 Team' },
+  { id: 'needs', label: 'Needs you' },
+  { id: 'money', label: 'Money' },
+  { id: 'customers', label: 'Customers' },
+  { id: 'staff', label: 'Staff' },
 ]
 const STATUS = {
   noticed: 'Just noticed', thinking: 'Thinking…', queued: 'Queued', working: 'On it', 'needs-you': 'Needs your OK', done: 'Done', solo: 'You handled it alone', stopped: 'Stopped',
@@ -120,7 +120,7 @@ function Totals({ snap }) {
     <div className="lg-totals">
       <p className="lg-note">Everything counted since you opened the café today.</p>
       <table className="lg-table">
-        <thead><tr><th /><th>😌 With your team</th></tr></thead>
+        <thead><tr><th /><th>With your tools</th></tr></thead>
         <tbody>
           {rows.map((r) => (
             <tr key={r.k}>

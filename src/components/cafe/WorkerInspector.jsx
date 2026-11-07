@@ -40,7 +40,7 @@ export default function WorkerInspector({ info, images, now, impact, onClose, on
       role="dialog"
       aria-label={`${info.name}, ${p?.name}`}
     >
-      <button className="insp-close" onClick={onClose} aria-label="Close inspector">✕</button>
+      <button className="insp-close" onClick={onClose} aria-label="Close inspector">×</button>
 
       {/* 1 · who */}
       <div className="insp-head" style={{ '--brand-a': p?.from, '--brand-b': p?.to }}>
@@ -79,7 +79,7 @@ export default function WorkerInspector({ info, images, now, impact, onClose, on
         )}
       </div>
       <div className="insp-impact">
-        ✨ Session impact: <b>{impact.promos}</b> promo{impact.promos === 1 ? '' : 's'} · <b>+{impact.customers}</b> customers · <b>${impact.waste}</b> waste saved · <b>${impact.dollars}</b> kept · <b>{impact.calls}</b> calls answered
+        So far today: <b>{impact.promos}</b> promo{impact.promos === 1 ? '' : 's'} · <b>+{impact.customers}</b> customers · <b>${impact.waste}</b> waste saved · <b>${impact.dollars}</b> kept · <b>{impact.calls}</b> calls answered
       </div>
       {onToggle && (
         <button className="link-btn insp-toggle" onClick={() => onToggle(info.id)}>

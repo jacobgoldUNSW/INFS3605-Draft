@@ -1,22 +1,22 @@
 @echo off
 setlocal
-title Deploy Brewmind to jacobgold.me/infs3605
+title Deploy Cafinity to jacobgold.me/infs3605
 cd /d "%~dp0"
 
-rem Brewmind's pages go to Firebase Hosting (jacobgold.me/infs3605), its API to a Cloud Run function behind
+rem Cafinity's pages go to Firebase Hosting (jacobgold.me/infs3605), its API to a Cloud Run function behind
 rem jacobgold.me/api, and accounts live in Firestore. One-time setup (Blaze plan, secrets, database): HOSTING.md.
 set "SITE=C:\Users\jtgol\OneDrive\Desktop\jacobgold.me"
 set "TARGET=%SITE%\public\infs3605"
 
 echo ==========================================================
-echo   Deploying Brewmind to https://jacobgold.me/infs3605
+echo   Deploying Cafinity to https://jacobgold.me/infs3605
 echo ==========================================================
 echo.
 
-echo [1/5] Building Brewmind...
+echo [1/5] Building Cafinity...
 call npm run build
 if %ERRORLEVEL% neq 0 (
-  echo [!] Brewmind build failed.
+  echo [!] Cafinity build failed.
   pause
   exit /b 1
 )
@@ -72,7 +72,7 @@ if %ERRORLEVEL% neq 0 (
 
 echo.
 echo ==========================================================
-echo   Success! Brewmind is live at:
+echo   Success! Cafinity is live at:
 echo   https://jacobgold.me/infs3605
 echo ==========================================================
 echo.

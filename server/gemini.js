@@ -136,7 +136,7 @@ export async function personaliseDashboard(survey, selected) {
   const tools = selected.map(getProduct).filter(Boolean)
   if (!tools.length || !ai) return { plan: fallback, source: 'fallback' }
   const bill = tools.reduce((s, p) => s + (p.cost || 0), 0)
-  const toolList = tools.map((p) => `- ${p.id}: ${p.name} (${p.priceLabel}) — ${p.description} Worker in the café: ${p.worker.name}, ${p.worker.role}. Default setup idea: ${p.setup.steps.join(' → ')}`).join('\n')
+  const toolList = tools.map((p) => `- ${p.id}: ${p.name} (${p.priceLabel}) — ${p.description} Default setup idea: ${p.setup.steps.join(' → ')}`).join('\n')
   const prompt = `Personalise this café owner's plan.
 
 CAFÉ PROFILE
@@ -154,10 +154,11 @@ Return:
   "Your kitchen lead" — never Jules/Jax/Dex/Dep/Sienna/Leo/Marco/Ollie/Cami/Pia/Sunny/Milo), and a week-1 safety check.
   Phase: quick, cheap tools are "Week 1 · Quick win"; tools touching money/rosters are "Weeks 2–3 · Core habit";
   hardware, stock counts or till changes are "Month 2 · Upgrade".
-- peerTip: one sentence.`
+- peerTip: one sentence.
+Always call each tool by its product name (Dext, Xero, Square…). Never call tools team-mates, workers or helpers with names.`
   try {
     const { data, model, ms } = await generateJSON({
-      system: `You personalise a small-café owner's technology plan for the Brewmind web app.\n${VOICE}`,
+      system: `You personalise a small-café owner's technology plan for Cafinity, a web app that shows independent café owners what tools would save them, what they cost and how to set them up.\n${VOICE}`,
       prompt, schema: personaliseSchema, maxOutputTokens: 3200, temperature: 0.7, timeoutMs: 15000,
     })
     const ids = new Set(selected)

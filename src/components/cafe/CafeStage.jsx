@@ -1,12 +1,11 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import CafeCanvas from './CafeCanvas'
-import WorkerInspector, { Portrait } from './WorkerInspector'
-import TeamPanel from './TeamPanel'
+import WorkerInspector from './WorkerInspector'
 import CurveballMenu, { CURVEBALLS, stepLabel } from './EventRail'
 import CafeLog from './CafeLog'
 import CafeTour, { TOUR } from './CafeTour'
-import PxIcon from './PxIcon'
+import Icon from '../ui/Icon'
 import { CafeWorld } from '../../sim/world'
 import { getCafeSession, dropCafeSessions } from '../../sim/session'
 import { loadCafeImages } from '../../sim/assets'
@@ -28,7 +27,7 @@ function useDocVisible() {
   return v
 }
 
-const tourKey = (userKey) => `brewmind.tour.v3.${userKey}`
+const tourKey = (userKey) => `cafinity.tour.v1.${userKey}`
 const tourDone = (userKey) => { try { return localStorage.getItem(tourKey(userKey)) === 'done' } catch { return true } }
 const markTour = (userKey) => { try { localStorage.setItem(tourKey(userKey), 'done') } catch { /* private mode */ } }
 const mmss = (s) => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`
@@ -38,11 +37,11 @@ const reduceMotion = () => typeof window !== 'undefined' && window.matchMedia?.(
 function SavedStrip({ snap, open, onOpen }) {
   const chips = savedChips(snap.stats).filter((c) => c.on)
   return (
-    <button type="button" className={`saved-strip ${chips.length ? '' : 'ss-empty'}`} data-pop="today" data-tour="saved" aria-expanded={open} onClick={onOpen} title="What your team has saved you today">
+    <button type="button" className={`saved-strip ${chips.length ? '' : 'ss-empty'}`} data-pop="today" data-tour="saved" aria-expanded={open} onClick={onOpen} title="What your tools have saved you today">
       <span className="ss-label">Saved today</span>
       {chips.length
-        ? chips.slice(0, 4).map((c) => <span key={c.k} className="ss-chip" title={c.label}><i aria-hidden>{c.icon}</i>{c.v}</span>)
-        : <span className="ss-wait">your team is getting started…</span>}
+        ? chips.slice(0, 4).map((c) => <span key={c.k} className="ss-chip" title={c.label}><Icon name={c.ico} size={14} />{c.v}</span>)
+        : <span className="ss-wait">Your tools are getting started…</span>}
     </button>
   )
 }
@@ -52,86 +51,69 @@ function Without({ stats, empty }) {
   const lines = withoutLines(stats)
   return (
     <div className="px-without">
-      <b>Without your team, today would have meant…</b>
+      <b>Without these tools, today would have meant…</b>
       {lines.length
-        ? <ul>{lines.map((l) => <li key={l.text}><span aria-hidden>{l.icon}</span>{l.text}</li>)}</ul>
+        ? <ul>{lines.map((l) => <li key={l.text}><Icon name={l.ico} size={15} />{l.text}</li>)}</ul>
         : <p>{empty}</p>}
-      <small>An estimate, built only from what your team did today.</small>
+      <small>An estimate, built only from what your tools did today.</small>
     </div>
   )
 }
 
 /* ------------------------------ pixel popups ------------------------------ */
 
-/** The Team button's icon: the faces of the first few people on your team (just you before anyone's hired). */
-function TeamFaces({ images, ids }) {
-  const faces = ids.length ? ids.slice(0, 3) : ['owner']
-  return (
-    <span className="mbtn-faces" aria-hidden>
-      {faces.map((id) => {
-        const p = getProduct(id)
-        return (
-          <span key={id} className="mbtn-face" style={{ '--a': p?.from || '#f2b46d', '--b': p?.to || '#c85a24' }}>
-            <Portrait images={images} sprite={id} size={32} />
-          </span>
-        )
-      })}
-    </span>
-  )
-}
-
 /** "Today so far": what your team got done, then what the same day would have been without them. */
 function TodayPop({ snap, hired, onLog }) {
   const s = snap.stats || {}
   const items = [
-    { k: 'served', v: s.served || 0, label: 'served', icon: '☕' },
-    { k: 'wait', v: s.waitN ? mmss(s.waitSum / s.waitN) : '—', label: 'average wait', icon: '⏳' },
+    { k: 'served', v: s.served || 0, label: 'served', ico: 'cup' },
+    { k: 'wait', v: s.waitN ? mmss(s.waitSum / s.waitN) : '—', label: 'average wait', ico: 'hourglass' },
     ...savedChips(s).filter((c) => c.k !== 'customers'),
   ]
-  if (s.walkouts) items.push({ k: 'walkouts', v: s.walkouts, label: 'walked out', icon: '😤', bad: true })
-  if (s.missed) items.push({ k: 'missed', v: s.missed, label: 'missed calls', icon: '📵', bad: true })
+  if (s.walkouts) items.push({ k: 'walkouts', v: s.walkouts, label: 'walked out', ico: 'door', bad: true })
+  if (s.missed) items.push({ k: 'missed', v: s.missed, label: 'missed calls', ico: 'phone', bad: true })
   const gaps = [
-    s.walkouts && !hired.includes('square') && 'People walk out when you’re on the till alone. Sienna (Square) keeps the queue moving.',
-    s.missed && !hired.includes('slang') && 'Calls go unanswered while you’re busy. Sunny (Slang.ai) picks up on the first ring.',
+    s.walkouts && !hired.includes('square') && 'People walk out when you’re on the till alone. Square keeps the queue moving.',
+    s.missed && !hired.includes('slang') && 'Calls go unanswered while you’re busy. Slang.ai picks up on the first ring.',
   ].filter(Boolean)
   return (
     <>
-      <div className="px-head"><PxIcon name="sun" /><b>Today so far</b>{snap.clock && <span className="px-head-note">{snap.clock.label}</span>}</div>
+      <div className="px-head"><Icon name="sun" size={16} /><b>Today so far</b>{snap.clock && <span className="px-head-note">{snap.clock.label}</span>}</div>
       <div className="px-scroll">
         <div className="px-stats">
           {items.map((it) => (
             <div key={it.k} className={`px-stat ${it.bad ? 'bad' : ''}`}>
-              <span className="px-stat-ico" aria-hidden>{it.icon}</span>
+              <Icon name={it.ico} size={16} className="px-stat-ico" />
               <b>{it.v}</b>
               <span>{it.label}</span>
             </div>
           ))}
         </div>
-        <Without stats={s} empty="Nothing yet. Throw a curveball, or give your team a minute to find a job." />
+        <Without stats={s} empty="Nothing yet. Throw a curveball, or give your tools a minute to find a job." />
         {gaps.map((g) => <p key={g} className="px-vs">{g}</p>)}
-        <button type="button" className="px-link" onClick={onLog}>Open the café log ▸</button>
+        <button type="button" className="px-link" onClick={onLog}>Open the café log <Icon name="arrowRight" size={14} /></button>
       </div>
     </>
   )
 }
 
-/** What the visitor is looking at: a simulated café whose AI team makes real decisions. */
+/** What the visitor is looking at: a demonstration of their plan, not the product itself. */
 function AboutPop({ hasTeam, live, thinking, cafeName, onTour }) {
   const status = !hasTeam
-    ? { cls: 'idle', text: 'Nobody’s on your team yet, so it’s just you. Add a tool under “Team” and they’ll walk in.' }
+    ? { cls: 'idle', text: 'No tools on your plan yet, so it’s just you. Add one in your toolkit and it walks in.' }
     : thinking
-      ? { cls: 'thinking', text: 'Google Gemini is deciding what your team does next.' }
+      ? { cls: 'thinking', text: 'Our AI is deciding what your tools do next.' }
       : live === false
-        ? { cls: 'offline', text: 'The AI can’t be reached right now, so built-in example responses are standing in. They follow the same rules.' }
-        : { cls: 'live', text: 'Live: your team’s decisions are being written by Google Gemini as you watch.' }
+        ? { cls: 'offline', text: 'The AI can’t be reached right now, so built-in examples are standing in. They follow the same rules.' }
+        : { cls: 'live', text: 'Live: what your tools do is being decided by AI as you watch.' }
   return (
     <>
-      <div className="px-head"><PxIcon name="question" /><b>What am I looking at?</b></div>
+      <div className="px-head"><Icon name="info" size={16} /><b>What am I looking at?</b></div>
       <div className="px-scroll">
         <div className="px-body">
-          <p><b>A simulation of {cafeName}.</b> The café, the customers and the clock are pretend, so you can see a whole day in about six minutes.</p>
-          <p><b>The AI team is real.</b> When something happens, Google Gemini decides who notices, what they make (an email, a roster change, a promo) and when they need your OK. None of it is scripted.</p>
-          <p><b>Each worker stands for a real tool</b> you could sign up for. Their outline and outfit are the tool’s brand colour.</p>
+          <p><b>A picture of a day at {cafeName}, with your plan in action.</b> The café, the customers and the clock are pretend, so you can see a whole day in about six minutes.</p>
+          <p><b>Green means a tool.</b> Each person with a green ring stands for a real tool on your plan. Customers and your own staff have none.</p>
+          <p><b>You stay in charge.</b> When a tool wants to spend money or message a customer, its ring turns brass and it asks you first.</p>
           <p><b>Nothing leaves this page.</b> No emails, texts or orders are actually sent.</p>
         </div>
         <p className={`px-status ${status.cls}`}><i aria-hidden /> {status.text}</p>
@@ -146,7 +128,7 @@ function AboutPop({ hasTeam, live, thinking, cafeName, onTour }) {
 function SoundPop({ muted, musicOn }) {
   return (
     <>
-      <div className="px-head"><PxIcon name="note" /><b>Sound</b></div>
+      <div className="px-head"><Icon name="music" size={16} /><b>Sound</b></div>
       <div className="px-scroll">
         <div className="px-toggles">
           <button type="button" className={`px-toggle ${muted ? '' : 'on'}`} role="switch" aria-checked={!muted} onClick={() => { sound.ensure(); music.unlock(); sound.setMuted(!muted) }}>
@@ -166,34 +148,34 @@ function SoundPop({ muted, musicOn }) {
 function WrapUp({ wrap, cafeName, onClose }) {
   const s = wrap.today || {}
   const rows = [
-    { icon: '☕', label: 'Served', v: s.served || 0 },
-    { icon: '⏳', label: 'Average wait', v: s.waitN ? mmss(s.waitSum / s.waitN) : '—' },
-    { icon: '🕒', label: 'Your time back', v: fmtMins(s.minutes || 0) },
-    { icon: '💰', label: 'Kept or earned', v: `$${(s.dollars || 0) + (s.waste || 0)}` },
-    { icon: '📞', label: 'Calls answered', v: s.calls || 0 },
-    { icon: '✅', label: 'Asked you first', v: (s.approvalsYou || 0) + (s.approvalsAuto || 0) },
+    { ico: 'cup', label: 'Served', v: s.served || 0 },
+    { ico: 'hourglass', label: 'Average wait', v: s.waitN ? mmss(s.waitSum / s.waitN) : '—' },
+    { ico: 'clock', label: 'Your time back', v: fmtMins(s.minutes || 0) },
+    { ico: 'coins', label: 'Kept or earned', v: `$${(s.dollars || 0) + (s.waste || 0)}` },
+    { ico: 'phone', label: 'Calls answered', v: s.calls || 0 },
+    { ico: 'check', label: 'Asked you first', v: (s.approvalsYou || 0) + (s.approvalsAuto || 0) },
   ]
-  if (s.walkouts) rows.push({ icon: '😤', label: 'Walked out', v: s.walkouts, bad: true })
-  if (s.missed) rows.push({ icon: '📵', label: 'Missed calls', v: s.missed, bad: true })
+  if (s.walkouts) rows.push({ ico: 'door', label: 'Walked out', v: s.walkouts, bad: true })
+  if (s.missed) rows.push({ ico: 'phone', label: 'Missed calls', v: s.missed, bad: true })
   return (
     <>
       <div className="wrap-scrim" onClick={onClose} aria-hidden />
       <div className="px-pop wrapup" role="dialog" aria-label={`Closing time, day ${wrap.day}`}>
-        <div className="px-head"><PxIcon name="moon" /><b>Closing time · day {wrap.day}</b></div>
+        <div className="px-head"><Icon name="moon" size={16} /><b>Closing time · day {wrap.day}</b></div>
         <p className="px-sub">Here’s how today went at {cafeName}.</p>
         <table className="wrap-table">
-          <thead><tr><th scope="col"><span className="sr-only">Today</span></th><th scope="col">With your team</th></tr></thead>
+          <thead><tr><th scope="col"><span className="sr-only">Today</span></th><th scope="col">With your tools</th></tr></thead>
           <tbody>
             {rows.map((r) => (
               <tr key={r.label}>
-                <th scope="row"><span aria-hidden>{r.icon}</span> {r.label}</th>
+                <th scope="row"><Icon name={r.ico} size={15} /> {r.label}</th>
                 <td className={r.bad ? 'worse' : undefined}>{r.v}</td>
               </tr>
             ))}
           </tbody>
         </table>
-        <Without stats={s} empty="A quiet day: your team didn’t have much to take off your plate." />
-        <div className="px-actions"><button type="button" className="px-btn" onClick={onClose}>Start tomorrow ▸</button></div>
+        <Without stats={s} empty="A quiet day: your tools didn’t have much to take off your plate." />
+        <div className="px-actions"><button type="button" className="px-btn" onClick={onClose}>Start tomorrow <Icon name="arrowRight" size={14} /></button></div>
       </div>
     </>
   )
@@ -214,8 +196,8 @@ function EventTicker({ snap }) {
   const result = ev.status === 'done' ? outcomeText(ev.outcome || {}) : ''
   return (
     <div className={`ev-ticker st-${ev.status}`} role="status">
-      <span className="evt-row"><span aria-hidden>{c.icon}</span> <b>{c.title}</b> <em>{stepLabel(ev.status)}</em>{result && <span className="evt-win">{result}</span>}</span>
-      {ev.status === 'done' && alone && <span className="evt-without">Without your team: {alone.without}</span>}
+      <span className="evt-row"><b>{c.title}</b> <em>{stepLabel(ev.status)}</em>{result && <span className="evt-win">{result}</span>}</span>
+      {ev.status === 'done' && alone && <span className="evt-without">Without these tools: {alone.without}</span>}
       {ev.status === 'solo' && alone && <span className="evt-without">{alone.tip}</span>}
     </div>
   )
@@ -458,9 +440,9 @@ export default function CafeStage({ selected, onToggleWorker, cafeName = 'your c
   const onPick = (id) => {
     sound.ensure()
     if (id === 'cat') return world.petCat()
-    if (id === 'owner') return showTip('That’s you ☕ — whenever something needs a “yes”, your team walks over to ask.')
+    if (id === 'owner') return showTip('That’s you. Whenever something needs a yes, a tool walks over to ask.')
     const person = world.actors.get(id)
-    if (person && (person.kind === 'barista' || person.kind === 'crew')) return showTip(`That’s ${person.name}, one of your human staff. People, not tools: no outline.`)
+    if (person && (person.kind === 'barista' || person.kind === 'crew')) return showTip(`That’s ${person.name}, one of your own staff. People, not tools: no green ring.`)
     setInspect(id)
   }
 
@@ -490,31 +472,26 @@ export default function CafeStage({ selected, onToggleWorker, cafeName = 'your c
             <i className="ai-dot" aria-hidden />
             <span className="mbtn-label">{ai.label}</span>
           </button>
-          <button type="button" className="mbtn team" data-pop="team" data-tour="team" aria-expanded={pop === 'team'} onClick={() => togglePop('team')} title="Your team" aria-label={`Your team: ${team} hired${needsYou ? `, ${needsYou} waiting for you` : ''}`}>
-            <TeamFaces images={images} ids={selected} />
-            <span className="mbtn-label">Team</span>
-            {needsYou > 0 && <em className="mbtn-badge">{needsYou}</em>}
-          </button>
           <button type="button" className="mbtn" data-pop="log" data-tour="log" aria-expanded={pop === 'log'} onClick={() => togglePop('log')} title="Café log" aria-label={`Café log${unread ? `: ${unread} new` : ''}`}>
-            <PxIcon name="quill" />
+            <Icon name="list" size={16} />
             <span className="mbtn-label">Log</span>
             {unread > 0 && pop !== 'log' && <em className="mbtn-badge">{unread > 99 ? '99+' : unread}</em>}
           </button>
           <button type="button" className="mbtn" data-pop="events" data-tour="events" aria-expanded={pop === 'events'} onClick={() => togglePop('events')} title="Throw in a curveball" aria-label="Curveballs">
-            <PxIcon name="bangRed" />
+            <Icon name="rain" size={16} />
             <span className="mbtn-label">Curveballs</span>
             {liveEvents > 0 && <em className="mbtn-badge">{liveEvents}</em>}
           </button>
           <span className="mbtn-gap" aria-hidden />
           <button type="button" className="mbtn icon" onClick={() => setPaused((p) => !p)} aria-pressed={paused} title={paused ? 'Resume the café' : 'Pause the café'} aria-label={paused ? 'Resume' : 'Pause'}>
-            <span className={`px-pp ${paused ? 'play' : 'pause'}`} aria-hidden />
+            <Icon name={paused ? 'play' : 'pause'} size={16} />
           </button>
           <button type="button" className={`mbtn icon ${muted ? 'muted' : ''}`} data-pop="sound" aria-expanded={pop === 'sound'} onClick={() => togglePop('sound')} title="Sound" aria-label="Sound settings">
-            <PxIcon name={muted ? 'zzz' : 'note'} />
+            <Icon name={muted ? 'speakerOff' : 'speaker'} size={16} />
           </button>
           {fsOK && (
             <button type="button" className="mbtn icon" onClick={toggleFs} aria-pressed={fs} title={fs ? 'Leave full screen' : 'Full screen'} aria-label={fs ? 'Leave full screen' : 'Full screen'}>
-              <PxIcon name={fs ? 'arrowDown' : 'arrowNE'} />
+              <Icon name={fs ? 'close' : 'external'} size={16} />
             </button>
           )}
         </nav>
@@ -525,29 +502,13 @@ export default function CafeStage({ selected, onToggleWorker, cafeName = 'your c
             ref={popRef}
             className={`px-pop pop-${pop}`}
             role="dialog"
-            aria-label={{ ai: 'What is this simulation?', team: 'Your team', log: 'Café log', today: 'Today so far', events: 'Curveballs', sound: 'Sound' }[pop]}
+            aria-label={{ ai: 'What is this simulation?', log: 'Café log', today: 'Today so far', events: 'Curveballs', sound: 'Sound' }[pop]}
             style={{ '--caret': `${caret}px`, '--pop-max': `${popMax}px` }}
           >
-            <button type="button" className="px-close" onClick={() => setPop(null)} aria-label="Close">✕</button>
-            {pop === 'team' && (
-              <>
-                <div className="px-head"><TeamFaces images={images} ids={selected} /><b>Your team</b><span className="px-head-note">{team ? `${team} hired` : 'nobody yet'}</span></div>
-                <div className="px-scroll">
-                  <TeamPanel
-                    selected={selected}
-                    snap={snap}
-                    images={images}
-                    onToggle={onToggleWorker}
-                    onInspect={(id) => { if (selected.includes(id)) { setPop(null); setInspect(id) } else { leaveFs(); setOpenId(id, false) } }}
-                    onDetails={(id) => { leaveFs(); setOpenId(id, false) }}
-                    onHover={(id) => { world.highlightId = id }}
-                  />
-                </div>
-              </>
-            )}
+            <button type="button" className="px-close" onClick={() => setPop(null)} aria-label="Close"><Icon name="close" size={16} /></button>
             {pop === 'log' && (
               <>
-                <div className="px-head"><PxIcon name="quill" /><b>Café log</b>{snap.clock && <span className="px-head-note">{snap.clock.label}</span>}</div>
+                <div className="px-head"><Icon name="list" size={16} /><b>Café log</b>{snap.clock && <span className="px-head-note">{snap.clock.label}</span>}</div>
                 <div className="px-scroll">
                   <CafeLog world={world} snap={snap} version={snap.v} />
                 </div>
@@ -556,7 +517,7 @@ export default function CafeStage({ selected, onToggleWorker, cafeName = 'your c
             {pop === 'today' && <TodayPop snap={snap} hired={selected} onLog={() => setPop('log')} />}
             {pop === 'events' && (
               <>
-                <div className="px-head"><PxIcon name="bangRed" /><b>Throw in a curveball</b></div>
+                <div className="px-head"><Icon name="rain" size={16} /><b>Throw in a curveball</b></div>
                 <div className="px-scroll">
                   <CurveballMenu snap={snap} hired={selected} cool={cool} onFire={fire} />
                 </div>
@@ -580,24 +541,23 @@ export default function CafeStage({ selected, onToggleWorker, cafeName = 'your c
               onApprove={(id) => { sound.ensure(); world.approve(id) }}
               onInspect={(id) => setInspect(id)}
             />
-            <button type="button" className="sim-badge" onClick={() => togglePop('ai')} title="What is this simulation?">Simulation · real AI</button>
             <EventTicker snap={snap} />
             {wrap && <WrapUp wrap={wrap} cafeName={cafeName} onClose={() => setWrap(null)} />}
             <span className="room-label front" aria-hidden>Front of house</span>
-            <span className="room-label back" aria-hidden>🔒 Back office · customers never see this</span>
-            {!images && <div className="stage-loading">{error ? `Couldn’t load the café art (${error})` : 'Unlocking the front door…'}</div>}
+            <span className="room-label back" aria-hidden>Back office</span>
+            {!images && <div className="stage-loading">{error ? `Couldn’t load the café art (${error})` : 'Opening up…'}</div>}
             <AnimatePresence>
               {paused && (
                 <motion.button key="pz" className="stage-paused" onClick={() => setPaused(false)} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  ⏸ Paused — tap to resume
+                  Paused. Tap to carry on.
                 </motion.button>
               )}
             </AnimatePresence>
             <AnimatePresence>
               {tip && (
                 <motion.div key={tip} className="stage-tip" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }}>
-                  <span>💡</span> {tip}
-                  <button onClick={() => setTip(null)} aria-label="Dismiss tip">✕</button>
+                  <Icon name="info" size={16} /> {tip}
+                  <button onClick={() => setTip(null)} aria-label="Dismiss tip"><Icon name="close" size={14} /></button>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -621,6 +581,12 @@ export default function CafeStage({ selected, onToggleWorker, cafeName = 'your c
           </div>
         </div>
       </div>
+      <ul className="stage-legend" aria-label="Who’s who in the café">
+        <li><i className="lg-tool" /> AI tool on your plan</li>
+        <li><i className="lg-ask" /> A tool asking for your OK</li>
+        <li><i className="lg-none" /> Customers and your staff</li>
+        <li className="lg-tip"><Icon name="eye" size={14} /> Tap anyone to see what they’re doing</li>
+      </ul>
 
       {tourStep != null && images && tourStep < TOUR.length && (
         <CafeTour step={tourStep} setStep={setTourStep} onClose={closeTour} snap={snap} stageRef={stageRef} canvasApi={canvasApi} world={world} />
