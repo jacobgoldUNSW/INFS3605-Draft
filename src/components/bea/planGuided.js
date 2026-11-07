@@ -42,8 +42,15 @@ export function planTurn(text, { survey, selected, setupCards = [] }) {
 
   if (/need all|fewer|too many|simpler|just one|cut back|start small/.test(t)) {
     if (tools.length <= 1) return { text: 'There’s only one tool on your plan, so it’s as simple as it gets.' }
-    const weakest = [...tools].sort((a, b) => a.hrs - b.hrs || b.cost - a.cost)[0]
-    return { text: `Not necessarily. ${weakest.name} gives back the least time for its cost, so it’s the one I’d leave for later. Here’s your plan without it:`, proposal: change(survey, selected, [weakest.id]) }
+    // the tool whose removal loses the fewest hours, and saves the most money
+    const now = buildDashboard(survey, selected).hoursSaved
+    const options = tools.map((p) => ({ p, lost: now - buildDashboard(survey, selected.filter((id) => id !== p.id)).hoursSaved, saved: p.cost || 0 }))
+      .sort((a, b) => a.lost - b.lost || b.saved - a.saved)
+    const { p: pick, lost, saved } = options[0]
+    const why = lost <= 0
+      ? `your other tools already cover the hours it would save, so you keep all ${now} hours${saved ? ` and save ${money(saved)} a month` : ''}`
+      : `leaving it out costs about ${lost} hour${lost === 1 ? '' : 's'} a week${saved ? ` and saves ${money(saved)} a month` : ''}`
+    return { text: `Not necessarily. ${pick.name} adds the least on top of the others: ${why}. Here’s your plan without it:`, proposal: change(survey, selected, [pick.id]) }
   }
 
   if (/plan my setup|schedule|calendar|when should|around my week|setup dates/.test(t)) {
