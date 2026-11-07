@@ -24,7 +24,7 @@ export function fallbackPersonalisation(survey = {}, selected = []) {
   const headline = headlines[goal?.id] || `A calmer week at ${name}`
   const painText = pains[0]?.label?.toLowerCase() || 'the admin'
   const summary = tools.length
-    ? `Your ${tools.length} new team-mate${tools.length === 1 ? '' : 's'} take ${painText} off your plate — and nothing important happens without your “yes”.`
+    ? `${tools.length === 1 ? 'This tool takes' : `These ${tools.length} tools take`} ${painText} off your plate, and nothing important happens without your yes.`
     : 'Pick a couple of tools and we’ll show exactly what they’d take off your plate.'
 
   const toolReasons = {}
@@ -33,7 +33,7 @@ export function fallbackPersonalisation(survey = {}, selected = []) {
     const clause = rant && rantHits.get(p.id) && rantClauseFor(rant, p.id)
     if (clause) {
       const snippet = clause.length > 48 ? clause.slice(0, 46).trim() + '…' : clause
-      toolReasons[p.id] = `You said “${snippet}” — ${p.worker.name} handles exactly that.`
+      toolReasons[p.id] = `You said “${snippet}”. ${p.name} handles exactly that.`
     } else if (pain) {
       toolReasons[p.id] = `Takes “${pain.label.toLowerCase()}” off your plate.`
     } else {

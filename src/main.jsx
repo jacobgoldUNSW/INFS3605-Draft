@@ -1,10 +1,13 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App'
-import './styles/global.css'
-import './styles/v2.css'
+import './styles/cafinity/tokens.css'
+import './styles/cafinity/base.css'
+import './styles/cafinity/components.css'
+import './styles/cafinity/shared.css'
+import './styles/cafinity/plan.css'
+import './styles/cafinity/gate.css'
+import './styles/cafinity/legacy-vars.css'
 import './styles/cafe.css'
-import './styles/v3.css'
-import './styles/bea.css'
 
 createRoot(document.getElementById('root')).render(<App />)

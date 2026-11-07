@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { api, gateStore } from '../../api'
-import Ambient from '../layout/Ambient'
-import { Logo } from '../layout/TopNav'
+import { LeafMark } from '../ui/Logo'
+import Botanical from '../ui/Botanical'
+import Icon from '../ui/Icon'
 
 const ease = [0.22, 1, 0.36, 1]
 
@@ -25,7 +26,7 @@ function GatePage({ state, onOpen, onRetry }) {
       if (r?.token) gateStore.set(r.token)
       onOpen()
     } catch (err) {
-      setError(err.status === 0 ? 'We can’t reach Brewmind right now. Try again in a moment.' : err.message)
+      setError(err.status === 0 ? 'We can’t reach Cafinity right now. Try again in a moment.' : err.message)
       setShake((n) => n + 1)
       setPw('')
       inputRef.current?.focus()
@@ -34,14 +35,13 @@ function GatePage({ state, onOpen, onRetry }) {
     }
   }
 
-  // while we ask the server, just the page's background (a returning visitor goes straight in);
+  // while we ask the server, just a quiet page (a returning visitor goes straight in);
   // a note appears only if the server is slow to wake
   if (state === 'checking') {
     return (
-      <main className="gate">
-        <Ambient />
+      <main className="gate gate-checking">
         <motion.p className="gate-wait" role="status" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9, duration: 0.4 }}>
-          ☕ Warming up the machine…
+          <span className="live-dot" /> Opening up…
         </motion.p>
       </main>
     )
@@ -49,51 +49,51 @@ function GatePage({ state, onOpen, onRetry }) {
 
   return (
     <main className="gate">
-      <Ambient />
-      <motion.div className="gate-wrap" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease }}>
-        <div className="gate-sign" aria-hidden><span>Private preview</span></div>
-        <motion.div
-          key={shake}
-          className="gate-card"
-          animate={shake ? { x: [0, -12, 10, -7, 4, 0] } : undefined}
-          transition={{ duration: 0.45 }}
-        >
-          <Logo />
+      <aside className="gate-art on-dark">
+        <div className="gate-brand"><LeafMark size={30} /><span>Cafinity</span></div>
+        <Botanical variant="coffee" className="gate-plant" sway />
+        <p className="gate-art-line">See what AI could take off your plate, before you spend a cent.</p>
+      </aside>
+      <motion.section className="gate-form-wrap" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease }}>
+        <motion.div key={shake} className="gate-card" animate={shake ? { x: [0, -10, 8, -5, 3, 0] } : undefined} transition={{ duration: 0.42 }}>
           {state === 'offline' ? (
             <>
-              <h1>The café’s closed for a moment</h1>
-              <p className="gate-lede">We can’t reach the Brewmind server right now. It’s usually back within a minute.</p>
-              <button type="button" className="btn primary gate-go" onClick={onRetry}>Try again</button>
+              <span className="kicker">Back in a moment</span>
+              <h1>We can’t reach the server just now</h1>
+              <p className="lede">It’s usually back within a minute.</p>
+              <button type="button" className="btn btn-primary" onClick={onRetry}><Icon name="refresh" size={17} /> Try again</button>
             </>
           ) : (
             <form onSubmit={submit} noValidate>
-              <span className="script-note">pull up a chair</span>
+              <span className="kicker">Private preview</span>
               <h1>This one’s just for our group</h1>
-              <p className="gate-lede">Brewmind is a prototype we’re building for INFS3605. Pop in the password from the group chat to come inside.</p>
-              <label htmlFor="gate-pw" className="sr-only">Password</label>
-              <div className="gate-field">
-                <input
-                  ref={inputRef}
-                  id="gate-pw"
-                  type="password"
-                  value={pw}
-                  onChange={(e) => { setPw(e.target.value); if (error) setError('') }}
-                  placeholder="Password"
-                  autoComplete="current-password"
-                  autoCapitalize="off"
-                  spellCheck={false}
-                  autoFocus
-                  aria-invalid={!!error}
-                  aria-describedby="gate-msg"
-                />
-                <button type="submit" className="btn primary gate-go" disabled={busy}>{busy ? 'Checking…' : 'Come in ☕'}</button>
-              </div>
+              <p className="lede">Cafinity is a prototype we’re building for INFS3605. Use the password from the group chat to come in.</p>
+              <label htmlFor="gate-pw" className="field">
+                <span>Password</span>
+                <div className="gate-field">
+                  <input
+                    ref={inputRef}
+                    id="gate-pw"
+                    className="input"
+                    type="password"
+                    value={pw}
+                    onChange={(e) => { setPw(e.target.value); if (error) setError('') }}
+                    autoComplete="current-password"
+                    autoCapitalize="off"
+                    spellCheck={false}
+                    autoFocus
+                    aria-invalid={!!error}
+                    aria-describedby="gate-msg"
+                  />
+                  <button type="submit" className="btn btn-primary" disabled={busy}>{busy ? 'Checking…' : <>Come in <Icon name="arrowRight" size={17} className="go" /></>}</button>
+                </div>
+              </label>
               <p id="gate-msg" className={`gate-msg ${error ? 'err' : ''}`} role="alert">{error || 'Capitals don’t matter.'}</p>
             </form>
           )}
         </motion.div>
-        <p className="gate-fine">🔒 The password keeps the AI (and its bill) to our group while we test.</p>
-      </motion.div>
+        <p className="fine gate-fine"><Icon name="lock" size={14} /> The password keeps the AI, and its bill, to our group while we test.</p>
+      </motion.section>
     </main>
   )
 }

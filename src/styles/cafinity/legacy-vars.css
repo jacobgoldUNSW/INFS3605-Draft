@@ -1,0 +1,12 @@
+/* Old variable names still used by the café simulation's stylesheet, mapped onto the Cafinity palette. */
+:root {
+  --ink-soft: var(--ink-2);
+  --mocha: var(--walnut-700);
+  --espresso: var(--forest-900);
+  --brick: var(--terracotta);
+  --latte: var(--oat);
+  --latte-2: var(--oat-2);
+  --f-display: var(--f-serif);
+  --f-body: var(--f-sans);
+  --f-pixel: var(--f-sans);
+}

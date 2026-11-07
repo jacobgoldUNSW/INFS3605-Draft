@@ -4,7 +4,7 @@ import React from 'react'
 export default function PlaceholderTag({ className = '' }) {
   return (
     <span className={`ph-tag ${className}`} title="We don’t have real testimonials yet. The quote, name and photo are placeholders.">
-      Placeholder testimonial
+      Placeholder story
     </span>
   )
 }

@@ -208,14 +208,33 @@ export function buildDashboard(survey, selectedIds, { hourly = DEFAULT_HOURLY, c
   }
 
   // ---- Time allocation (hours / week of owner+team admin-type time)
-  const allocBefore = [
-    { label: 'Paperwork & finance', hours: Math.round(adminHours * 0.38), color: '#8B5E3C' },
-    { label: 'Rostering & ordering', hours: Math.round(adminHours * 0.27), color: '#D9772B' },
-    { label: 'Marketing & posts', hours: Math.round(adminHours * 0.2), color: '#F2B46D' },
-    { label: 'Customer messages', hours: Math.round(adminHours * 0.15), color: '#7A9A6B' },
-  ]
-  const ratio = after.adminHours / before.adminHours
-  const allocAfter = allocBefore.map((a) => ({ ...a, hours: Math.max(1, Math.round(a.hours * ratio)) }))
+  // Each tool takes hours off the kind of work it actually does, so the breakdown shows *where* the time comes back.
+  const fit = (arr, total) => {
+    const diff = total - arr.reduce((a, x) => a + x.hours, 0)
+    if (diff) { const big = arr.reduce((m, x, i) => (x.hours > arr[m].hours ? i : m), 0); arr[big] = { ...arr[big], hours: Math.max(0, arr[big].hours + diff) } }
+    return arr
+  }
+  const allocBefore = fit([
+    { id: 'paper', label: 'Paperwork & finance', hours: Math.round(adminHours * 0.38), color: '#574333' },
+    { id: 'roster', label: 'Rosters & ordering', hours: Math.round(adminHours * 0.27), color: '#2C4636' },
+    { id: 'market', label: 'Marketing & posts', hours: Math.round(adminHours * 0.2), color: '#A86F3C' },
+    { id: 'msgs', label: 'Customer messages', hours: Math.round(adminHours * 0.15), color: '#8FA083' },
+  ], adminHours)
+  const CAT_OF = { bookkeeping: 0, scheduling: 1, inventory: 1, ordering: 1, marketing: 2, content: 2, service: 3 }
+  const claimedBy = [0, 0, 0, 0]
+  const toolsBy = [[], [], [], []]
+  picked.forEach((p) => { const c = CAT_OF[p.useCases[0]] ?? 0; claimedBy[c] += p.hrs || 0; toolsBy[c].push(p.name) })
+  const claimedAll = claimedBy.reduce((a, b) => a + b, 0) || 1
+  let cut = claimedBy.map((h) => (h / claimedAll) * hoursSaved)
+  const room = allocBefore.map((a) => a.hours * 0.8)
+  let spill = 0
+  cut = cut.map((c, i) => { if (c > room[i]) { spill += c - room[i]; return room[i] } return c })
+  if (spill > 0) {
+    const left = cut.map((c, i) => room[i] - c)
+    const leftAll = left.reduce((a, b) => a + b, 0)
+    if (leftAll > 0) cut = cut.map((c, i) => c + (spill * left[i]) / leftAll)
+  }
+  const allocAfter = fit(allocBefore.map((a, i) => ({ ...a, hours: Math.max(0, Math.round(a.hours - cut[i])), tools: toolsBy[i] })), adminHours - hoursSaved)
 
   // ---- Weekly admin hours by day
   const dayShape = [1.2, 1.0, 1.0, 1.1, 1.3, 0.7, 0.5]

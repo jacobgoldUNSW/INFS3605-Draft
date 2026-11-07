@@ -1,0 +1,70 @@
+/* =========================================================
+   Cafinity: design tokens
+   A well-kept café back office, in a room full of plants.
+   Forest-green velvet, sage, almond paper, walnut, brass.
+   ========================================================= */
+:root {
+  /* greens */
+  --forest-950: #111D16;
+  --forest-900: #16271E;
+  --forest-800: #1F3529;
+  --forest-700: #2C4636;
+  --forest-600: #3A5745;
+  --moss: #5B7653;
+  --moss-2: #6F8A66;
+  --sage: #A9B79F;
+  --sage-2: #C6D0BC;
+  --sage-mist: #E1E7DA;
+
+  /* papers */
+  --almond: #F5F0E6;
+  --almond-2: #EFE8DA;
+  --paper: #FBF8F2;
+  --oat: #EAE0CE;
+  --oat-2: #DDD0B8;
+
+  /* woods & metals */
+  --walnut: #2E2219;
+  --walnut-700: #574333;
+  --walnut-500: #7A6551;
+  --caramel: #A86F3C;
+  --caramel-2: #8C5A2E;
+  --brass: #B69257;
+  --brass-2: #D2B57E;
+  --terracotta: #A4523A;
+  --terracotta-mist: #F1DED5;
+
+  /* semantic */
+  --bg: var(--almond);
+  --ink: var(--walnut);
+  --ink-2: var(--walnut-700);
+  --ink-3: var(--walnut-500);
+  --line: rgba(46, 34, 25, 0.14);
+  --line-2: rgba(46, 34, 25, 0.26);
+  --line-3: rgba(46, 34, 25, 0.42);
+  --good: var(--moss);
+  --warn: var(--terracotta);
+
+  --on-dark: #F2EBDC;
+  --on-dark-2: rgba(242, 235, 220, 0.74);
+  --on-dark-3: rgba(242, 235, 220, 0.52);
+  --line-dark: rgba(242, 235, 220, 0.16);
+  --line-dark-2: rgba(242, 235, 220, 0.3);
+
+  /* type */
+  --f-serif: 'Newsreader', 'Iowan Old Style', Georgia, serif;
+  --f-sans: 'Libre Franklin', 'Helvetica Neue', Arial, sans-serif;
+
+  /* shape & motion */
+  --r: 2px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --t-fast: 160ms;
+  --t: 260ms;
+  --t-slow: 520ms;
+
+  /* layout */
+  --wrap: 1240px;
+  --gutter: clamp(16px, 4vw, 40px);
+  --nav-h: 64px;
+}

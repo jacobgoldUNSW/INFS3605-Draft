@@ -14,7 +14,7 @@ export const LOGOS = {
   xero: (
     <>
       <circle cx="24" cy="24" r="17" fill="none" stroke={W} strokeWidth="3.4" />
-      <text x="24" y="28.6" textAnchor="middle" fontFamily="'DM Sans', system-ui, sans-serif" fontWeight="700" fontSize="12.5" fill={W} letterSpacing="-0.3">xero</text>
+      <text x="24" y="28.6" textAnchor="middle" fontFamily="'Libre Franklin', Arial, sans-serif" fontWeight="700" fontSize="12.5" fill={W} letterSpacing="-0.3">xero</text>
     </>
   ),
   // tiny tiles: the wordmark is unreadable, so show Xero's bold "x" in the circle instead
@@ -63,7 +63,7 @@ export const LOGOS = {
   canva: (
     <>
       <circle cx="24" cy="24" r="17.5" fill={W} />
-      <text x="24.5" y="32.5" textAnchor="middle" fontFamily="'Pacifico', cursive" fontSize="22" fill="#5B39D9">C</text>
+      <text x="24" y="32" textAnchor="middle" fontFamily="'Newsreader', Georgia, serif" fontStyle="italic" fontWeight="600" fontSize="24" fill="#5B39D9">C</text>
     </>
   ),
   podium: (
@@ -104,44 +104,30 @@ export function BrandLogo({ id, size = 24, className = '' }) {
   )
 }
 
-/** Gradient app-style icon tile with the tool's brand mark. */
-export default function IconTile({ p, size = 84, radius, className = '', style }) {
+/** A flat, square tile in the tool's own brand colour, carrying its mark. */
+export default function IconTile({ p, size = 40, className = '', style }) {
   const logo = logoFor(p.id, size)
   return (
-    <div
-      className={`icon-tile ${className}`}
-      style={{
-        width: size,
-        height: size,
-        borderRadius: radius ?? size * 0.27,
-        background: `linear-gradient(145deg, ${p.from}, ${p.to})`,
-        fontSize: size * 0.5,
-        ...style,
-      }}
-      title={p.name}
-    >
+    <span className={`tool-tile ${className}`} style={{ width: size, height: size, background: p.to, ...style }} title={p.name}>
       {logo ? (
-        <svg className="icon-emoji icon-logo" viewBox="0 0 48 48" width={size * 0.62} height={size * 0.62} aria-hidden>
-          {logo}
-        </svg>
+        <svg viewBox="0 0 48 48" aria-hidden>{logo}</svg>
       ) : (
-        <span className="icon-emoji">{p.emoji}</span>
+        <span style={{ fontFamily: 'var(--f-serif)', fontSize: size * 0.5 }}>{p.name[0]}</span>
       )}
-      <span className="icon-gloss" />
-    </div>
+    </span>
   )
 }
 
-/** Fade-up reveal on scroll. */
-export function Reveal({ children, delay = 0, y = 28, className = '', as = 'div', ...rest }) {
+/** Quiet fade-up as a block scrolls into view. */
+export function Reveal({ children, delay = 0, y = 18, className = '', as = 'div', ...rest }) {
   const Comp = motion[as]
   return (
     <Comp
       className={className}
       initial={{ opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-60px' }}
-      transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
       {...rest}
     >
       {children}

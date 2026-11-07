@@ -54,7 +54,9 @@ function cleanSchedule(s) {
     .map((x) => ({ week: Math.max(1, Math.min(12, Math.round(Number(x.week) || 1))), day: x.day, toolId: x.toolId, tool: String(x.tool || '').slice(0, 40), minutes: Math.max(5, Math.min(240, Math.round(Number(x.minutes) || 30))), what: String(x.what || '').slice(0, 140) }))
   return sessions.length ? { timeOfDay: ['morning', 'afternoon', 'evening'].includes(s.timeOfDay) ? s.timeOfDay : 'afternoon', sessions } : null
 }
-const cleanChat = (c) => (c && typeof c === 'object' ? { checkup: cleanTranscript(c.checkup), plan: cleanTranscript(c.plan), schedule: cleanSchedule(c.schedule) } : undefined)
+// setup steps the owner has ticked off, as "toolId:stepIndex"
+const cleanDone = (d) => (Array.isArray(d) ? [...new Set(d.filter((x) => typeof x === 'string' && /^[a-z]{2,20}:\d{1,2}$/.test(x)))].slice(0, 120) : [])
+const cleanChat = (c) => (c && typeof c === 'object' ? { checkup: cleanTranscript(c.checkup), plan: cleanTranscript(c.plan), schedule: cleanSchedule(c.schedule), done: cleanDone(c.done) } : undefined)
 
 /**
  * The whole API as an Express app, without listening: server/index.js runs it locally, and the hosted
