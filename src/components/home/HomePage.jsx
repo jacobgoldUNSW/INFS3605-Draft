@@ -14,7 +14,7 @@ import AnimatedNumber from '../ui/AnimatedNumber'
 import Rail from '../ui/Rail'
 import WeekRail from '../shared/WeekRail'
 import Stories from '../shared/Stories'
-import CafeTeaser from '../cafe/CafeTeaser'
+import { LazyTeaser } from '../cafe/LazyCafe'
 
 const ease = [0.22, 1, 0.36, 1]
 const money = (n) => `$${Math.round(n).toLocaleString('en-AU')}`
@@ -363,7 +363,7 @@ function SeeIt() {
         </Reveal>
         <Reveal className="window see-window" delay={0.1}>
           <div className="window-bar"><span>{name}</span><span className="label">A scripted preview</span></div>
-          <CafeTeaser key={mine ? selected.join(',') : 'demo'} cafeName={mine ? name : 'Little Fern'} team={mine ? selected : undefined} profile={mine ? { employees: survey.employees, cafeType: survey.cafeType } : undefined} />
+          <LazyTeaser key={mine ? selected.join(',') : 'demo'} cafeName={mine ? name : 'Little Fern'} team={mine ? selected : undefined} profile={mine ? { employees: survey.employees, cafeType: survey.cafeType } : undefined} />
         </Reveal>
       </div>
     </section>

@@ -35,12 +35,12 @@ export function AddButton({ p, size = 'sm' }) {
   )
 }
 
-function ToolCard({ p, i }) {
+const ToolCard = React.forwardRef(function ToolCard({ p, i }, ref) {
   const { navigate, selected } = useApp()
   const on = selected.includes(p.id)
   const jobs = USE_CASES.filter((u) => p.useCases.includes(u.id)).slice(0, 2)
   return (
-    <motion.li layout initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 0.35, ease, delay: Math.min(i, 8) * 0.03 }}>
+    <motion.li ref={ref} layout initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 0.35, ease, delay: Math.min(i, 8) * 0.03 }}>
       <a className={`tool card-link ${on ? 'on' : ''}`} href={hrefFor('pantry', p.id)} onClick={(e) => { e.preventDefault(); navigate('pantry', p.id) }}>
         <div className="tool-top">
           <IconTile p={p} size={44} />
@@ -60,7 +60,7 @@ function ToolCard({ p, i }) {
       </a>
     </motion.li>
   )
-}
+})
 
 export default function MarketplacePage() {
   const [job, setJob] = useState('all')

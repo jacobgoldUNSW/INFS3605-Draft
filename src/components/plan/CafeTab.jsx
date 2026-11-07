@@ -2,7 +2,7 @@ import React from 'react'
 import { useApp } from '../../state'
 import { getProduct } from '../../data/products'
 import { usePlan } from './PlanContext'
-import CafeStage from '../cafe/CafeStage'
+import { LazyStage } from '../cafe/LazyCafe'
 import Icon from '../ui/Icon'
 
 /** The full café simulation: a demonstration of the plan, not the plan itself. */
@@ -24,7 +24,7 @@ export default function CafeTab() {
           <li><Icon name="rain" size={20} /><span><b>Try a curveball</b>, like rain or a sick barista, and see who handles it.</span></li>
         </ul>
       </section>
-      <CafeStage
+      <LazyStage
         selected={selected}
         cafeName={name}
         userKey={userKey}

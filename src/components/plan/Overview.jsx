@@ -14,7 +14,7 @@ import IconTile, { Reveal } from '../ui/IconTile'
 import AnimatedNumber from '../ui/AnimatedNumber'
 import WeekRail from '../shared/WeekRail'
 import Stories from '../shared/Stories'
-import CafeTeaser from '../cafe/CafeTeaser'
+import { LazyTeaser } from '../cafe/LazyCafe'
 
 const ease = [0.22, 1, 0.36, 1]
 const OWNER_PHOTO = { specialty: 'mia', bakery: 'sophie', drive: 'brothers', franchise: 'hiro' }
@@ -179,7 +179,7 @@ export default function Overview() {
         </div>
         <div className="window">
           <div className="window-bar"><span>{name}</span><span className="label">A scripted preview</span></div>
-          <CafeTeaser key={selected.join(',')} cafeName={name} team={selected.length ? selected : undefined} profile={{ employees: survey.employees, cafeType: survey.cafeType }} />
+          <LazyTeaser key={selected.join(',')} cafeName={name} team={selected.length ? selected : undefined} profile={{ employees: survey.employees, cafeType: survey.cafeType }} />
         </div>
       </section>
 

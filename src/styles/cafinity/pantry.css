@@ -92,7 +92,7 @@
 .tp-setup-meta .ico { color: var(--brass); }
 .tp-setup ol { display: grid; gap: 4px; }
 .tp-setup li { display: flex; gap: 14px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
-.tp-setup li .num { font-size: 18px; color: var(--brass); min-width: 16px; }
+.tp-setup li .num { font-size: 18px; color: var(--brass-ink); min-width: 16px; }
 .tp-safe { display: flex; gap: 10px; padding: 12px 14px; background: var(--sage-mist); color: var(--forest-700); font-size: 14px; }
 .tp-safe .ico { flex: none; margin-top: 2px; }
 @media (max-width: 700px) { .tp-jobs, .tp-pc { grid-template-columns: 1fr; } }

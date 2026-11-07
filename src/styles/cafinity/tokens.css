@@ -10,7 +10,7 @@
   --forest-800: #1F3529;
   --forest-700: #2C4636;
   --forest-600: #3A5745;
-  --moss: #5B7653;
+  --moss: #526C4A;
   --moss-2: #6F8A66;
   --sage: #A9B79F;
   --sage-2: #C6D0BC;
@@ -31,6 +31,7 @@
   --caramel-2: #8C5A2E;
   --brass: #B69257;
   --brass-2: #D2B57E;
+  --brass-ink: #86683A; /* brass for numerals and small text on light backgrounds */
   --terracotta: #A4523A;
   --terracotta-mist: #F1DED5;
 
@@ -47,7 +48,7 @@
 
   --on-dark: #F2EBDC;
   --on-dark-2: rgba(242, 235, 220, 0.74);
-  --on-dark-3: rgba(242, 235, 220, 0.52);
+  --on-dark-3: rgba(242, 235, 220, 0.6);
   --line-dark: rgba(242, 235, 220, 0.16);
   --line-dark-2: rgba(242, 235, 220, 0.3);
 

@@ -63,7 +63,7 @@
 .how-step { display: grid; align-content: start; gap: 14px; padding: 28px clamp(18px, 2.4vw, 32px) 8px; border-left: 1px solid var(--line); }
 .how-step:first-child { border-left: 0; padding-left: 0; }
 .how-top { display: flex; align-items: center; justify-content: space-between; }
-.how-n { font-size: 44px; line-height: 1; color: var(--brass); }
+.how-n { font-size: 44px; line-height: 1; color: var(--brass-ink); }
 .how-ico { color: var(--forest-700); }
 .how-step h3 { font-size: 25px; }
 .how-step p { color: var(--ink-2); font-size: 15.5px; }

@@ -1,7 +1,11 @@
-# Hosting Brewmind at jacobgold.me/infs3605
+# Hosting Cafinity at jacobgold.me/infs3605
 
-The group preview is a private, password-protected copy of Brewmind on the jacobgold.me Firebase project
+The group preview is a private, password-protected copy of Cafinity on the jacobgold.me Firebase project
 (`jacobgold-me`).
+
+> The project was called Brewmind until November 2026. The hosting pieces still carry that name on purpose
+> (`brewmind-api`, `brewmindApi`, `functions:brewmind`, the `BREWMIND_*` secrets, the `x-brewmind-gate` header):
+> renaming them would mean re-creating the function and its secrets. Everything people see says Cafinity.
 
 ```
 browser ──► jacobgold.me (Firebase Hosting)
@@ -19,7 +23,7 @@ browser ──► jacobgold.me (Firebase Hosting)
 - **The function** is the same Express app that runs locally (`server/app.js`). It runs on one instance, so
   the per-person and guess limits hold. It sleeps when idle, so the first visit after a quiet spell takes a
   few seconds ("Warming up the machine…").
-- **Firestore** stores accounts because the function's disk is wiped whenever it sleeps. Locally, Brewmind
+- **Firestore** stores accounts because the function's disk is wiped whenever it sleeps. Locally, Cafinity
   still uses SQLite. The database rules (`firestore.rules` on the site) block all direct browser access;
   only the function reads and writes.
 - **The static files** (scripts, images, music) can be fetched by anyone who knows their exact address, as
@@ -39,7 +43,7 @@ browser ──► jacobgold.me (Firebase Hosting)
 
 Double-click `deploy_to_jacobgold_me.bat`. It:
 
-1. builds Brewmind;
+1. builds Cafinity;
 2. copies the build into `jacobgold.me/public/infs3605`;
 3. syncs the API into `brewmind-api`;
 4. builds the portfolio site;

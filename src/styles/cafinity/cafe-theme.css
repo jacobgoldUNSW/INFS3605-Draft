@@ -125,3 +125,8 @@
   .mbtn { padding: 0 10px; }
   .stage-legend .lg-tip { margin-left: 0; }
 }
+
+/* while the café downloads */
+.cafe-lazy { position: relative; }
+.cafe-placeholder { aspect-ratio: 960 / 544; display: flex; align-items: center; justify-content: center; gap: 10px; background: var(--forest-950); color: var(--on-dark-2); font-size: 14px; }
+.stage-wait .cafe-placeholder { border: 1px solid var(--forest-900); }

@@ -224,7 +224,7 @@
 .working-cols h4 .ico { color: var(--brass); }
 .working-cols ol { display: grid; gap: 10px; counter-reset: w; }
 .working-cols li { position: relative; padding-left: 26px; font-size: 13.5px; line-height: 1.55; color: var(--ink-2); counter-increment: w; }
-.working-cols li::before { content: counter(w); position: absolute; left: 0; top: 0; font-family: var(--f-serif); font-size: 14px; color: var(--brass); }
+.working-cols li::before { content: counter(w); position: absolute; left: 0; top: 0; font-family: var(--f-serif); font-size: 14px; color: var(--brass-ink); }
 @media (max-width: 900px) { .working-cols, .working-knobs { grid-template-columns: 1fr; } }
 
 .detail { display: grid; }
@@ -272,7 +272,7 @@
 .su-path { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
 .su-phase { display: grid; align-content: start; gap: 16px; min-width: 0; }
 .su-phase-head { display: flex; align-items: center; gap: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--ink); }
-.su-phase-n { font-size: 36px; line-height: 1; color: var(--brass); }
+.su-phase-n { font-size: 36px; line-height: 1; color: var(--brass-ink); }
 .su-phase-head h3 { font-size: 22px; }
 .su-phase-cards { display: grid; gap: 16px; }
 .su-card { display: grid; gap: 14px; padding: 20px; background: var(--paper); border: 1px solid var(--line); border-radius: var(--r); transition: border-color var(--t); }
