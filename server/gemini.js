@@ -289,3 +289,20 @@ ${hint}`
     return { step: fallback, source: 'fallback', error: String(e.message || e) }
   }
 }
+
+/** Turn a short voice note into text, for browsers that can't transcribe speech on their own. */
+export async function transcribeAudio(data, mimeType) {
+  if (!ai) return null
+  const res = await withTimeout(ai.models.generateContent({
+    model: FALLBACK_MODEL,
+    contents: [{
+      role: 'user',
+      parts: [
+        { inlineData: { mimeType, data } },
+        { text: 'Transcribe exactly what the speaker says. Use Australian English spelling. Reply with only the words spoken, with no quotes or notes. If there is no speech, reply with nothing.' },
+      ],
+    }],
+    config: { temperature: 0, thinkingConfig: { thinkingBudget: 0 } },
+  }), 15000)
+  return String(res?.text || '').trim().slice(0, 500)
+}

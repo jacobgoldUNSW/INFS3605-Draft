@@ -26,7 +26,7 @@ async function call(path, { method = 'GET', body, signal, auth = true } = {}) {
     res = await fetch(`/api${path}`, { method, headers, body: body !== undefined ? JSON.stringify(body) : undefined, signal })
   } catch (e) {
     if (e.name === 'AbortError') throw e
-    throw new ApiError('Can’t reach the Brewmind server — is it running?', 0)
+    throw new ApiError('We can’t reach the Cafinity server. Is it running?', 0)
   }
   let data = null
   try { data = await res.json() } catch { /* empty */ }
@@ -54,4 +54,5 @@ export const api = {
   // Bea, the host: the chat check-up and "Ask Bea" on the plan
   beaCheckup: (b, signal) => call('/bea/checkup', { method: 'POST', body: b, signal }),
   beaPlan: (b, signal) => call('/bea/plan', { method: 'POST', body: b, signal }),
+  beaTranscribe: (b, signal) => call('/bea/transcribe', { method: 'POST', body: b, signal }),
 }

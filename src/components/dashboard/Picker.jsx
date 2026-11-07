@@ -1,68 +1,47 @@
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useApp } from '../../state'
-import { getProduct, overlapsIn } from '../../data/products'
-import { recommendProducts, PAIN_POINTS, PRIMARY_GOALS, PAIN_TOOLS, rantMatches, rantClauseFor } from '../../data/mockDashboard'
-import { CatalogBrowser } from '../marketplace/ProductGrid'
-import IconTile, { BrandLogo } from '../ui/IconTile'
+import { hrefFor } from '../../router'
+import { PRODUCTS, getProduct, overlapsIn } from '../../data/products'
+import { recommendProducts, buildDashboard, PAIN_POINTS, PRIMARY_GOALS, PAIN_TOOLS, rantMatches, rantClauseFor } from '../../data/mockDashboard'
+import IconTile from '../ui/IconTile'
+import Icon from '../ui/Icon'
+import AnimatedNumber from '../ui/AnimatedNumber'
 
 const ease = [0.22, 1, 0.36, 1]
+const money = (n) => `$${Math.round(n).toLocaleString('en-AU')}`
 
-function RecCard({ p, index, why }) {
-  const { selected, toggle, setOpenId } = useApp()
-  const on = selected.includes(p.id)
+function Row({ p, why, on, onToggle, i }) {
   return (
-    <motion.div
-      className={`rec-card ${on ? 'on' : ''}`}
-      initial={{ opacity: 0, x: 40 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: 0.3 + index * 0.08, type: 'spring', stiffness: 200, damping: 22 }}
-      whileHover={{ y: -5 }}
-    >
-      <div className="rec-top">
-        <IconTile p={p} size={52} />
-        <div className="rec-text">
-          <div className="rec-name">{p.name}</div>
-          <div className="rec-why">{why}</div>
+    <motion.li className={`pk-row ${on ? 'on' : ''}`} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease, delay: Math.min(i, 8) * 0.04 }}>
+      <IconTile p={p} size={40} />
+      <div className="pk-txt">
+        <div className="pk-name">
+          <b>{p.name}</b>
+          <a className="link small" href={hrefFor('pantry', p.id)} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>Details <Icon name="external" size={12} className="out" /></a>
         </div>
+        <span className="pk-why">{why}</span>
       </div>
-      <span className="worker-pill">{p.worker.emoji} Unlocks {p.worker.name} in your café</span>
-      <div className="rec-actions">
-        <button className="link-btn" onClick={() => setOpenId(p.id, false)}>Peek inside</button>
-        <motion.button className={`mini-btn ${on ? 'on' : ''}`} whileTap={{ scale: 0.9 }} onClick={() => toggle(p.id)}>
-          {on ? '✓ Added' : '+ Add'}
-        </motion.button>
-      </div>
-    </motion.div>
-  )
-}
-
-/** A little bean that flies from the tapped card into the tray. */
-function Flyer({ f, onDone }) {
-  return (
-    <motion.div
-      className="flyer"
-      style={{ background: `linear-gradient(145deg, ${f.from}, ${f.to})` }}
-      initial={{ left: f.x, top: f.y, width: f.w, height: f.w, opacity: 1, borderRadius: f.w * 0.27 }}
-      animate={{
-        left: f.tx, top: f.ty, width: 40, height: 40, borderRadius: 11, opacity: [1, 1, 0.9],
-        scale: [1, 1.15, 0.8],
-      }}
-      transition={{ duration: 0.8, ease: [0.5, 0, 0.2, 1] }}
-      onAnimationComplete={onDone}
-    >
-      <BrandLogo id={f.id} size={24} />
-    </motion.div>
+      <span className="pk-meta"><span className="num">{p.priceLabel}</span><span className="fine">~{p.hrs} hrs/wk back</span></span>
+      <button type="button" role="switch" aria-checked={on} aria-label={`${on ? 'Remove' : 'Add'} ${p.name}`} className="switch" onClick={() => onToggle(p)} />
+    </motion.li>
   )
 }
 
 export default function Picker() {
-  const { survey, selected, toggle, setStep, showToast } = useApp()
-  const trayRef = useRef(null)
-  const [flyers, setFlyers] = useState([])
+  const { survey, selected, setSelected, toggle, setStep, showToast } = useApp()
+  const [more, setMore] = useState(false)
+  const recs = useMemo(() => recommendProducts(survey).slice(0, 5), [survey])
+  const primed = useRef(false)
 
-  const recs = useMemo(() => recommendProducts(survey).slice(0, 6), [survey])
-  // one reason per card, most specific first, and never the same reason twice
+  // start from our top three, so there's a sensible plan to react to
+  useEffect(() => {
+    if (primed.current) return
+    primed.current = true
+    if (!selected.length && recs.length) setSelected(recs.slice(0, 3).map((p) => p.id))
+  }, [recs, selected.length, setSelected])
+
+  // one reason per tool, most specific first, never the same reason twice
   const reasons = useMemo(() => {
     const used = new Set()
     const out = {}
@@ -70,7 +49,6 @@ export default function Picker() {
     const goal = PRIMARY_GOALS.find((g) => g.id === survey.goal)
     const rant = survey.rant ? rantMatches(survey.rant) : new Map()
     const helps = (pp) => pp && `Helps with “${pp.label.toLowerCase()}”`
-    // most specific first: the owner's own words, then the tool built for that headache, then its main job...
     const levels = [
       (p) => { const c = rant.get(p.id) && rantClauseFor(survey.rant, p.id); return c && `You said: “${c.length > 46 ? c.slice(0, 44).trim() + '…' : c}”` },
       (p) => helps(pains.find((pp) => PAIN_TOOLS[pp.id]?.includes(p.id))),
@@ -79,152 +57,72 @@ export default function Picker() {
       (p) => goal && goal.use.some((u) => p.useCases.includes(u)) && `Good for your goal: ${goal.label.toLowerCase()}`,
     ]
     for (const level of levels) {
-      for (const p of recs) {
+      for (const p of PRODUCTS) {
         if (out[p.id]) continue
         const r = level(p)
         if (r && !used.has(r)) { out[p.id] = r; used.add(r) }
       }
     }
-    for (const p of recs) if (!out[p.id]) out[p.id] = `Popular with ${p.bestFor.length < 4 ? 'cafés like yours' : 'small cafés'}`
+    for (const p of PRODUCTS) if (!out[p.id]) out[p.id] = p.tagline
     return out
-  }, [recs, survey])
-  const reasonFor = (p) => reasons[p.id]
-  const bill = selected.reduce((sum, id) => sum + (getProduct(id)?.cost || 0), 0)
+  }, [survey])
+
+  const d = useMemo(() => buildDashboard(survey, selected), [survey, selected])
   const clashes = overlapsIn(selected)
-  const top3 = recs.slice(0, 3)
-  const addTop3 = () => {
-    const add = top3.filter((p) => !selected.includes(p.id))
-    add.forEach((p) => toggle(p.id))
-    if (add.length) showToast(`Added ${add.map((p) => p.name).join(', ')}`, '🧺')
-  }
-
-  const onPick = (p, el) => {
+  const recIds = recs.map((p) => p.id)
+  const rest = PRODUCTS.filter((p) => !recIds.includes(p.id))
+  const onToggle = (p) => {
     const adding = !selected.includes(p.id)
-    if (adding) {
-      const icon = el.querySelector('.icon-tile')?.getBoundingClientRect()
-      const tray = trayRef.current?.getBoundingClientRect()
-      if (icon && tray) {
-        setFlyers((f) => [
-          ...f,
-          {
-            key: Date.now() + Math.random(), x: icon.left, y: icon.top, w: icon.width,
-            tx: tray.left + 24 + selected.length * 30, ty: tray.top + (tray.height - 40) / 2,
-            from: p.from, to: p.to, id: p.id,
-          },
-        ])
-      }
-    }
     toggle(p.id)
+    showToast(adding ? `${p.name} added` : `${p.name} removed`, adding ? 'plus' : 'minus')
   }
-
   const go = () => {
-    if (!selected.length) return showToast('Pick at least one tool first', '☝️')
+    if (!selected.length) return showToast('Pick at least one tool first', 'info')
     setStep(2)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   return (
-    <div className="picker">
-      <motion.div className="picker-head" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease }}>
-        <span className="script-note big">great, thanks{survey.name ? ` — ${survey.name}` : ''}!</span>
-        <h1>Now pick the <span className="script">tools</span> you’re curious about</h1>
-        <p>Every tool is a team-mate who walks into your café. Tap to hire — hit the <span className="inline-plus">+</span> for a peek inside.</p>
-      </motion.div>
-
-      {recs.length > 0 && (
-        <div className="rec-section">
-          <div className="rec-title">
-            <span className="script-note">recommended for you</span><span className="rec-sub">based on your answers</span>
-            {top3.length >= 3 && (
-              <button type="button" className="rec-top3" onClick={addTop3} disabled={top3.every((p) => selected.includes(p.id))}>
-                {top3.every((p) => selected.includes(p.id)) ? '✓ Top 3 added' : '+ Add my top 3'}
-              </button>
-            )}
-          </div>
-          <div className="rec-row">
-            {recs.map((p, i) => (
-              <RecCard key={p.id} p={p} index={i} why={reasonFor(p)} />
-            ))}
-          </div>
-        </div>
-      )}
-
-      <div className="rec-title all"><span className="script-note">the whole menu</span></div>
-      <CatalogBrowser mode="pick" onPick={onPick} recommendedIds={recs.map((r) => r.id)} />
-
-      <div className="tray-spacer" />
-
-      {/* ----- selection tray ----- */}
-      <motion.div
-        className="tray"
-        initial={{ y: 120, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ type: 'spring', stiffness: 160, damping: 20, delay: 0.5 }}
-      >
-        {(clashes.length > 0 || selected.length > 3) && (
-          <div className="tray-notes" aria-live="polite">
-            {clashes.map((c) => <span key={c.ids.join('+')} className="tray-note warn">⚠️ {c.note}</span>)}
-            {!clashes.length && selected.length > 3 && <span className="tray-note">Most cafés start with 2–3 tools, then add more once those feel easy.</span>}
-          </div>
-        )}
-        <div className="tray-icons" ref={trayRef}>
+    <div className="picker2">
+      <div className="checkup-intro">
+        <h1>The tools that fit {survey.name || 'your café'}</h1>
+        <p className="lede">We’ve switched on our top picks from your answers. Add or remove any. You can change them any time from your plan’s toolkit.</p>
+      </div>
+      <div className="pk-grid">
+        <div>
+          <div className="pk-head"><span className="label">Recommended for you</span><span className="fine">Based on your answers</span></div>
+          <ul className="pk-list">{recs.map((p, i) => <Row key={p.id} p={p} why={reasons[p.id]} on={selected.includes(p.id)} onToggle={onToggle} i={i} />)}</ul>
+          <button type="button" className="kit-more pk-more" onClick={() => setMore((m) => !m)} aria-expanded={more}>
+            <Icon name={more ? 'minus' : 'plus'} size={16} /> {more ? 'Hide the other tools' : `See the other ${rest.length} tools`}
+          </button>
           <AnimatePresence initial={false}>
-            {selected.length === 0 && (
-              <motion.span key="empty" className="tray-empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, position: 'absolute' }}>
-                Your plan is empty — tap a tile ☝️
-              </motion.span>
-            )}
-            {selected.slice(0, 7).map((id, i) => {
-              const p = getProduct(id)
-              return (
-                <motion.div
-                  key={id}
-                  layout
-                  className="tray-ico"
-                  style={{ zIndex: 10 - i }}
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0, opacity: 0 }}
-                  transition={{ type: 'spring', stiffness: 420, damping: 24, delay: 0.55 }}
-                  onClick={() => toggle(id)}
-                  title={`Remove ${p.name}`}
-                >
-                  <IconTile p={p} size={40} radius={11} />
-                </motion.div>
-              )
-            })}
-            {selected.length > 7 && (
-              <motion.span key="more" layout className="tray-more">+{selected.length - 7}</motion.span>
+            {more && (
+              <motion.ul className="pk-list pk-rest" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.35, ease }}>
+                {rest.map((p, i) => <Row key={p.id} p={p} why={reasons[p.id]} on={selected.includes(p.id)} onToggle={onToggle} i={i} />)}
+              </motion.ul>
             )}
           </AnimatePresence>
         </div>
-
-        <div className="tray-count">
-          <span className="tc-top">
-            <AnimatePresence mode="popLayout" initial={false}>
-              <motion.b key={selected.length} initial={{ y: 12, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -12, opacity: 0 }}>
-                {selected.length}
-              </motion.b>
+        <aside className="pk-sum">
+          <span className="label">So far</span>
+          <ul className="pk-sel">
+            <AnimatePresence initial={false}>
+              {selected.map((id) => {
+                const p = getProduct(id)
+                return <motion.li key={id} layout initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}><IconTile p={p} size={22} /> {p.name}</motion.li>
+              })}
             </AnimatePresence>
-            <span>selected</span>
-          </span>
-          {selected.length > 0 && <span className="tc-bill">about ${bill}/mo</span>}
-        </div>
-
-        <motion.button
-          className="btn primary glow"
-          onClick={go}
-          animate={{ opacity: selected.length ? 1 : 0.55 }}
-          whileHover={selected.length ? { scale: 1.05 } : undefined}
-          whileTap={{ scale: 0.95 }}
-        >
-          Brew my plan ✨
-        </motion.button>
-      </motion.div>
-
-      {flyers.map((f) => (
-        <Flyer key={f.key} f={f} onDone={() => setFlyers((fl) => fl.filter((x) => x.key !== f.key))} />
-      ))}
+            {!selected.length && <li className="fine">No tools yet</li>}
+          </ul>
+          <div className="ledger">
+            <div className="ledger-row"><span>Costs about</span><span className="dots" /><span className="val"><AnimatedNumber value={d.toolCost} format={money} duration={0.5} /><small>/mo</small></span></div>
+            <div className="ledger-row"><span>Time back</span><span className="dots" /><span className="val"><AnimatedNumber value={d.hoursSaved} duration={0.5} /><small> hrs/wk</small></span></div>
+          </div>
+          {clashes.map((c) => <p key={c.ids.join('+')} className="pk-warn"><Icon name="alert" size={15} /> {c.note}</p>)}
+          {!clashes.length && selected.length > 3 && <p className="fine">Most cafés start with two or three tools, then add more once those feel easy.</p>}
+          <button className="btn btn-primary btn-block" onClick={go} disabled={!selected.length}>Show me my plan <Icon name="arrowRight" size={17} className="go" /></button>
+        </aside>
+      </div>
     </div>
   )
 }

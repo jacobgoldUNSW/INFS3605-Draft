@@ -1,63 +1,19 @@
-import React, { useEffect, useRef } from 'react'
-import { CHARS } from '../../sim/assets'
-import { useCafeImages } from '../../sim/useCafeImages'
+import React from 'react'
+import { motion } from 'framer-motion'
 
-// Bea's sprite (tools/cafe/build_chars.py): head and shoulders of her front-facing idle frame
-const CROP = { y: 10, w: 32, h: 46 }
-// where her eyes sit in that crop, so she can blink
-const EYES = [[10, 30], [20, 30]]
-
-const reduceMotion = () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-
-/**
- * Bea, drawn in the café's own pixel art. She bobs gently, blinks now and then, and a wisp of steam
- * rises from her cup while she's thinking.
- */
-export default function BeaAvatar({ size = 56, thinking = false, className = '' }) {
-  const images = useCafeImages()
-  const ref = useRef(null)
-  const scale = Math.max(1, Math.round(size / CROP.w))
-
-  useEffect(() => {
-    const cv = ref.current
-    const meta = CHARS.chars.bea
-    if (!cv || !images || !meta) return
-    const ctx = cv.getContext('2d')
-    ctx.imageSmoothingEnabled = false
-    const draw = (blink) => {
-      ctx.clearRect(0, 0, cv.width, cv.height)
-      ctx.drawImage(images.chars, 43 * 32, meta.y + 2 * 64 + CROP.y, CROP.w, CROP.h, 0, 0, CROP.w * scale, CROP.h * scale)
-      if (!blink) return
-      const skin = ctx.getImageData(13 * scale, 31 * scale, 1, 1).data
-      for (const [x, y] of EYES) {
-        ctx.fillStyle = `rgb(${skin[0]},${skin[1]},${skin[2]})`
-        ctx.fillRect(x * scale, y * scale, 2 * scale, 4 * scale)
-        ctx.fillStyle = '#4a3436'
-        ctx.fillRect((x - 1) * scale, (y + 2) * scale, 4 * scale, 2 * scale)
-      }
-    }
-    draw(false)
-    if (reduceMotion()) return
-    let t1
-    let t2
-    const loop = () => {
-      t1 = setTimeout(() => {
-        draw(true)
-        t2 = setTimeout(() => { draw(false); loop() }, 140)
-      }, 2600 + Math.random() * 2600)
-    }
-    loop()
-    return () => { clearTimeout(t1); clearTimeout(t2) }
-  }, [images, scale])
-
+/** Bea's mark: a serif "B" on forest green with a small leaf. A quiet line breathes underneath while she thinks. */
+export default function BeaAvatar({ size = 40, thinking = false, className = '' }) {
   return (
-    <span className={`bea-av ${thinking ? 'thinking' : ''} ${className}`} style={{ '--bea-size': `${size}px` }} aria-hidden>
-      <span className="bea-av-steam"><i /><i /><i /></span>
-      <span className="bea-av-frame">
-        {images && CHARS.chars.bea
-          ? <canvas ref={ref} width={CROP.w * scale} height={CROP.h * scale} className="bea-av-cv" />
-          : <span className="bea-av-fallback">B</span>}
-      </span>
+    <span className={`bea-av ${thinking ? 'thinking' : ''} ${className}`} style={{ width: size, height: size }} aria-hidden>
+      <svg viewBox="0 0 40 40" width={size} height={size}>
+        <rect width="40" height="40" fill="var(--forest-800)" />
+        <text x="18" y="28" textAnchor="middle" fontFamily="var(--f-serif)" fontSize="23" fill="var(--on-dark)">B</text>
+        <path d="M29.5 9.5c-4.6.4-6.4 3.6-5.7 7.1 3.6.3 6.4-2.6 5.7-7.1z" fill="var(--sage)" />
+        <path d="M24.2 16.2c1.3-1.8 2.7-3.2 4.4-4.6" stroke="var(--forest-800)" strokeWidth="0.9" fill="none" strokeLinecap="round" />
+      </svg>
+      {thinking && (
+        <motion.i className="bea-av-line" initial={{ scaleX: 0.2, opacity: 0.4 }} animate={{ scaleX: [0.2, 1, 0.2], opacity: [0.4, 1, 0.4] }} transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }} />
+      )}
     </span>
   )
 }

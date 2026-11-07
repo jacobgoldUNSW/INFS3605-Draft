@@ -6,7 +6,7 @@ import express from 'express'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { openStore, publicUser } from './store/index.js'
-import { agentStep, geminiReady, personaliseDashboard, PRIMARY_MODEL, FALLBACK_MODEL } from './gemini.js'
+import { agentStep, geminiReady, personaliseDashboard, transcribeAudio, PRIMARY_MODEL, FALLBACK_MODEL } from './gemini.js'
 import { beaCheckup, beaPlan, cleanTranscript } from './bea.js'
 import { DEFAULT_SURVEY } from '../src/data/mockDashboard.js'
 import { PRODUCTS } from '../src/data/products.js'
@@ -232,6 +232,20 @@ export async function createApp() {
   }
   app.post('/api/bea/checkup', requireAuth, beaRoute(beaCheckup))
   app.post('/api/bea/plan', requireAuth, beaRoute(beaPlan))
+
+  // a voice note for Bea, from browsers without built-in speech recognition
+  app.post('/api/bea/transcribe', requireAuth, async (req, res) => {
+    const audio = String(req.body?.audio || '')
+    const mime = String(req.body?.mime || 'audio/webm').split(';')[0].trim()
+    if (!/^audio\/(webm|ogg|mp4|mpeg|wav|aac|x-m4a)$/.test(mime) || !audio || audio.length > 190000) return bad(res, 400, 'That recording didn’t come through. Try a shorter one?')
+    if (!geminiReady) return bad(res, 503, 'Voice notes need our AI switched on. You can type to Bea instead.')
+    if (!allow(req.user.id, 'voice', 1500, 200)) return bad(res, 429, 'One moment, then try again.')
+    try {
+      res.json({ text: (await transcribeAudio(audio, mime)) || '' })
+    } catch {
+      bad(res, 502, 'Bea couldn’t make that out. Try again, or type instead.')
+    }
+  })
 
   // ---------------------------------------------------------------- production: serve the built app
   const dist = path.join(here, '..', 'dist')

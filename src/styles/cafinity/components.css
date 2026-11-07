@@ -234,3 +234,10 @@
 
 /* nav: the tool count beside "My café plan" */
 .nav-count { display: inline-grid; place-items: center; min-width: 20px; height: 20px; margin-left: 8px; padding: 0 5px; background: var(--brass-2); color: var(--forest-900); font-size: 12px; border-radius: 1px; }
+
+/* light cards sitting inside a dark band keep their own ink */
+.on-dark .on-light, .on-dark .on-light .label, .on-dark .on-light .fine, .on-dark .on-light .muted { color: inherit; }
+.on-dark .on-light { color: var(--ink); }
+.on-dark .on-light .label, .on-dark .on-light .fine { color: var(--ink-3); }
+.on-dark .on-light .link { color: var(--forest-700); text-decoration-color: var(--line-2); }
+.on-dark .on-light .tag { color: var(--ink-2); border-color: var(--line-2); }
