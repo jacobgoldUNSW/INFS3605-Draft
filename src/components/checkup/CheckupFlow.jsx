@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useApp } from '../../state'
 import Survey from '../dashboard/Survey'
 import CheckupChat from '../bea/CheckupChat'
@@ -47,11 +47,9 @@ export default function CheckupFlow() {
           <span className="kicker">Your café check-up</span>
           <Stepper step={step} setStep={setStep} />
         </div>
-        <AnimatePresence mode="wait">
-          <motion.div key={step === 0 ? `0-${mode}` : step} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.4, ease }}>
-            {view}
-          </motion.div>
-        </AnimatePresence>
+        <motion.div key={step === 0 ? `0-${mode}` : step} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease }}>
+          {view}
+        </motion.div>
       </div>
     </section>
   )

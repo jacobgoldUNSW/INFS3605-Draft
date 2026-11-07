@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useApp } from '../../state'
 import { PlanProvider } from './PlanContext'
 import PlanHeader from './PlanHeader'
@@ -50,11 +50,9 @@ function PlanLayout({ tab }) {
       <PlanHeader tab={tab} />
       <div className="wrap plan-body" ref={bodyRef}>
         <div className="plan-main">
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div key={tab} initial={{ opacity: 0, x: 14 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.3, ease }}>
-              <View />
-            </motion.div>
-          </AnimatePresence>
+          <motion.div key={tab} initial={{ opacity: 0, x: 14 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.35, ease }}>
+            <View />
+          </motion.div>
         </div>
         <ToolkitSidebar />
       </div>

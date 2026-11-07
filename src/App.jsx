@@ -85,21 +85,19 @@ function Shell() {
     <>
       <a className="sr-only" href="#main">Skip to content</a>
       <TopNav />
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.main
-          id="main"
-          key={key}
-          className="page-enter"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -6 }}
-          transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-        >
-          {route.page === 'home' && <HomePage />}
-          {route.page === 'plan' && <PlanPage />}
-          {route.page === 'pantry' && (route.sub ? <ToolPage id={route.sub} /> : <PantryPage />)}
-        </motion.main>
-      </AnimatePresence>
+      {/* each page fades in as it arrives (no exit wait, so a change of page is never held up) */}
+      <motion.main
+        id="main"
+        key={key}
+        className="page-enter"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      >
+        {route.page === 'home' && <HomePage />}
+        {route.page === 'plan' && <PlanPage />}
+        {route.page === 'pantry' && (route.sub ? <ToolPage id={route.sub} /> : <PantryPage />)}
+      </motion.main>
       <Footer />
       <BeaLayer />
       <AuthModal />
