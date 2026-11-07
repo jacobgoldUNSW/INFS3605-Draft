@@ -124,6 +124,7 @@ export default function CheckupChat({ onUseForm }) {
   const gState = useRef({ askedRant: false, proposed: false })
   const surveyRef = useRef(survey)
   surveyRef.current = survey
+  useEffect(() => { api.health().then((h) => { if (!h.gemini) guided.current = true }).catch(() => {}) }, [])
   const latestProposalId = useMemo(() => [...messages].reverse().find((m) => m.proposal)?.id, [messages])
 
   // "Talk to Bea" from the top bar: start listening here

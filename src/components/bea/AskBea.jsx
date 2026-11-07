@@ -8,6 +8,7 @@ import { getProduct as tool, PRODUCTS } from '../../data/products'
 import AnimatedNumber from '../ui/AnimatedNumber'
 import BeaThread from './BeaThread'
 import BeaAvatar from './BeaAvatar'
+import { planTurn } from './planGuided'
 
 const ease = [0.22, 1, 0.36, 1]
 let uid = 0
@@ -163,6 +164,17 @@ export default function AskBea({ open, onClose, listenSignal = 0, setupCards = [
     return [{ id: nextId(), from: 'bea', ...greeting(bill), fresh: true }]
   })
   const ctrl = useRef(null)
+  // without the AI, Bea answers the everyday asks herself (see planGuided.js)
+  const offline = useRef(false)
+  useEffect(() => { api.health().then((h) => { if (!h.gemini) offline.current = true }).catch(() => {}) }, [])
+  const answerLocally = (text, withOwner) => {
+    const r = planTurn(text, { survey, selected, setupCards })
+    const b = { id: nextId(), from: 'bea', text: r.text, quickReplies: r.quickReplies || [], proposal: r.proposal || null, fresh: true }
+    const all = [...withOwner, b]
+    setMessages(all)
+    if (b.proposal) setStates((st) => ({ ...st, [b.id]: 'pending' }))
+    setBeaChat((c) => ({ ...c, plan: toTranscript(all).slice(-40) }))
+  }
 
   useEffect(() => {
     if (!open) return
@@ -190,6 +202,10 @@ export default function AskBea({ open, onClose, listenSignal = 0, setupCards = [
     }
     setMessages(withOwner)
     setBusy(true)
+    if (offline.current) {
+      setTimeout(() => { answerLocally(text, withOwner); setBusy(false) }, 600)
+      return
+    }
     ctrl.current?.abort()
     ctrl.current = new AbortController()
     try {
@@ -201,8 +217,8 @@ export default function AskBea({ open, onClose, listenSignal = 0, setupCards = [
       setBeaChat((c) => ({ ...c, plan: toTranscript(all).slice(-40) }))
     } catch (e) {
       if (e.name === 'AbortError') return
-      const t = e.status === 429 ? 'Give me a second, then ask again?' : 'Sorry, I can’t reach my notes right now. You can still add or remove tools in your toolkit, and ask me to show you any part of your plan.'
-      setMessages([...withOwner, { id: nextId(), from: 'bea', text: t, fresh: true }])
+      if (e.status === 429) setMessages([...withOwner, { id: nextId(), from: 'bea', text: 'Give me a second, then ask again?', fresh: true }])
+      else { offline.current = true; answerLocally(text, withOwner) }
     } finally {
       setBusy(false)
     }
