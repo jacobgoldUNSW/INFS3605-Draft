@@ -83,8 +83,12 @@
 .sl-text b { font-size: 15px; }
 .sl-why { font-size: 13px; color: var(--ink-2); }
 .sl-price { font-size: 14.5px; color: var(--ink-2); white-space: nowrap; }
-.sl-nums { display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 13.5px; color: var(--ink-2); }
-.sl-nums b { font-family: var(--f-serif); font-weight: 400; font-size: 19px; color: var(--forest-700); }
+.sl-nums { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 4px 0 2px; border-top: 1px solid var(--forest-800); }
+.sl-nums > div { display: grid; gap: 2px; padding: 12px 12px 4px 0; }
+.sl-nums > div + div { padding-left: 12px; border-left: 1px solid var(--line); }
+.sl-nums b { font-family: var(--f-serif); font-weight: 500; font-size: clamp(22px, 2.2vw, 28px); line-height: 1.05; letter-spacing: -0.015em; color: var(--forest-800); white-space: nowrap; }
+.sl-nums .sl-l { font-size: 12.5px; line-height: 1.35; color: var(--ink-2); }
+@media (max-width: 520px) { .sl-nums { grid-template-columns: 1fr; } .sl-nums > div + div { padding-left: 0; border-left: 0; border-top: 1px solid var(--line); } }
 .sl-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 
 /* ---------------------------------------------------------------- the quick form */

@@ -47,11 +47,19 @@ const ToolCard = React.forwardRef(function ToolCard({ p, i }, ref) {
           {on && <span className="tag green"><Icon name="check" size={12} /> In your plan</span>}
         </div>
         <h3>{p.name}</h3>
-        <p className="tool-tag">{p.tagline}</p>
-        <ul className="tool-jobs">{jobs.map((j) => <li key={j.id}><Icon name={JOB_ICON[j.id]} size={14} /> {j.label}</li>)}</ul>
+        <p className="tool-tag" title={p.tagline}>{p.tagline}</p>
+        <ul className="tool-jobs" title={jobs.map((j) => j.label).join(', ')}>{jobs.map((j) => <li key={j.id}><Icon name={JOB_ICON[j.id]} size={14} /> {SHORT[j.id]}</li>)}</ul>
         <dl className="tool-facts">
-          <div><dt>Price</dt><dd className="num">{p.priceLabel}</dd></div>
-          <div><dt>Time back</dt><dd className="num">~{p.hrs} hrs/wk</dd></div>
+          <div>
+            <dt>About</dt>
+            <dd className="num">{p.cost ? `A$${p.cost}` : 'Free'}<small>{p.cost ? ' a month' : ' to start'}</small></dd>
+            <span className="tool-fine" title={p.priceLabel}>{p.priceLabel}</span>
+          </div>
+          <div>
+            <dt>Time back</dt>
+            <dd className="num">~{p.hrs}<small> hrs a week</small></dd>
+            <span className="tool-fine">Ready in {p.weeks} week{p.weeks === 1 ? '' : 's'}</span>
+          </div>
         </dl>
         <div className="tool-foot">
           <span className="link small">Details <Icon name="arrowRight" size={14} className="go" /></span>
@@ -107,17 +115,23 @@ export default function MarketplacePage() {
               </button>
             ))}
           </div>
-          <div className="pan-tools">
-            <label className="pan-search"><Icon name="search" size={17} /><input className="input" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search tools" aria-label="Search tools" /></label>
-            <label className="pan-sort"><span className="label">Sort</span>
-              <select className="input" value={sort} onChange={(e) => setSort(e.target.value)} aria-label="Sort tools">{SORTS.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}</select>
-            </label>
-          </div>
+          <label className="pan-job-pick">
+            <span className="label">Show</span>
+            <select className="input" value={job} onChange={(e) => setJob(e.target.value)} aria-label="Filter by job">
+              {[{ id: 'all', label: 'All tools' }, ...USE_CASES].map((u) => <option key={u.id} value={u.id}>{u.id === 'all' ? u.label : SHORT[u.id]}</option>)}
+            </select>
+          </label>
         </div>
       </div>
 
       <section className="wrap pan-body">
-        <p className="fine pan-count" aria-live="polite">{list.length} tool{list.length === 1 ? '' : 's'}{job !== 'all' ? ` for ${USE_CASES.find((u) => u.id === job)?.label.toLowerCase()}` : ''}</p>
+        <div className="pan-tools">
+          <p className="fine pan-count" aria-live="polite">{list.length} tool{list.length === 1 ? '' : 's'}{job !== 'all' ? ` for ${SHORT[job].toLowerCase()}` : ''}</p>
+          <label className="pan-search"><Icon name="search" size={17} /><input className="input" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search tools" aria-label="Search tools" /></label>
+          <label className="pan-sort"><span className="label">Sort</span>
+            <select className="input" value={sort} onChange={(e) => setSort(e.target.value)} aria-label="Sort tools">{SORTS.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}</select>
+          </label>
+        </div>
         <motion.ul layout className="pan-grid">
           <AnimatePresence mode="popLayout">
             {list.map((p, i) => <ToolCard key={p.id} p={p} i={i} />)}

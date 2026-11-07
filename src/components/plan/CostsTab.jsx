@@ -121,7 +121,7 @@ function Standing() {
 }
 
 function Working() {
-  const { d, hourly, setHourly, ownTime, setOwnTime } = usePlan()
+  const { d, hourly, setHourly, ownTime, setOwnTime, paybackWhy } = usePlan()
   return (
     <div className="working">
       <div className="working-knobs">
@@ -138,7 +138,7 @@ function Working() {
       <div className="working-cols">
         <section><h4><Icon name="clock" size={18} /> Hours back each week</h4><ol>{d.why.hours.map((l) => <li key={l}>{l}</li>)}</ol></section>
         <section><h4><Icon name="coins" size={18} /> Better off each month</h4><ol>{d.why.money.map((l) => <li key={l}>{l}</li>)}</ol></section>
-        <section><h4><Icon name="calendar" size={18} /> Paying for itself</h4><ol>{d.why.payback.map((l) => <li key={l}>{l}</li>)}</ol></section>
+        <section><h4><Icon name="calendar" size={18} /> Paying for itself</h4><ol>{paybackWhy.map((l) => <li key={l}>{l}</li>)}</ol></section>
       </div>
       {d.why.revenue && <p className="fine">{d.why.revenue}</p>}
     </div>
@@ -188,11 +188,12 @@ export default function CostsTab() {
         <div>
           <span className="kicker">What it costs</span>
           <h2 className="costs-big"><span className="num"><AnimatedNumber value={d.toolCost} format={(n) => money(n)} duration={0.7} /></span><small> a month</small></h2>
-          <p className="lede">For {d.picked.length} tool{d.picked.length === 1 ? '' : 's'}{freePlans ? `, ${freePlans} with a free plan` : ''}. Allow about {money(d.toolCost * 2)} for the first two months while you set up.</p>
+          <p className="lede">For {d.picked.length} tool{d.picked.length === 1 ? '' : 's'}{freePlans ? `, ${freePlans} with a free plan` : ''}. Every price is below, with the fine print and a link to check it on the vendor’s site.</p>
         </div>
         <div className="costs-stats">
-          <Stat icon="coins" label="Better off by" value={gain ? money(d.netGain) : '—'} unit={gain ? 'a month' : ''} blurb={gain ? `Likely between ${money(d.range[0])} and ${money(d.range[1])}.` : 'In cash, about even. The win is your time.'} />
-          <Stat icon="calendar" label="Pays for itself in" value={paybackWeeks || '—'} unit={paybackWeeks ? (paybackWeeks === 1 ? 'week' : 'weeks') : ''} blurb="After two months of subscriptions." />
+          <Stat icon="receipt" label="First two months" value={<span>{money(d.toolCost * 2)}</span>} blurb="Subscriptions while you set up, before the savings arrive." />
+          <Stat icon="coins" label="Better off by" value={<span>{gain ? money(d.netGain) : '—'}</span>} unit={gain ? 'a month' : ''} blurb={gain ? `Likely between ${money(d.range[0])} and ${money(d.range[1])}.` : 'In cash, about even. The win is your time.'} />
+          <Stat icon="calendar" label="Pays back in" value={<span>{paybackWeeks || '—'}</span>} unit={paybackWeeks ? (paybackWeeks === 1 ? 'week' : 'weeks') : ''} blurb="Counting those two months of subscriptions." />
         </div>
       </section>
 

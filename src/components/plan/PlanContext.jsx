@@ -53,9 +53,12 @@ export function PlanProvider({ children }) {
 
   // payback in weeks reads better than "1 month" for small bills
   const paybackWeeks = d.netGain > 0 ? Math.max(1, Math.ceil(((d.toolCost * 2) / d.netGain) * 4.33)) : null
+  const paybackWhy = paybackWeeks
+    ? [`Allow two months of subscriptions while you set up: ${money(d.toolCost * 2)}.`, `${money(d.toolCost * 2)} ÷ ${money(d.netGain)} a month ≈ ${(d.toolCost * 2 / d.netGain).toFixed(1)} months, or about ${paybackWeeks} week${paybackWeeks === 1 ? '' : 's'}, to pay for themselves.`]
+    : d.why.payback
   const freePlans = d.picked.filter((p) => p.pricing?.free).length
 
-  const value = { d, plan, name, hourly, setHourly, ownTime, setOwnTime, rebrew, rebrewing, stale, fresh, paybackWeeks, freePlans }
+  const value = { d, plan, name, hourly, setHourly, ownTime, setOwnTime, rebrew, rebrewing, stale, fresh, paybackWeeks, paybackWhy, freePlans }
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>
 }
 

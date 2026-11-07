@@ -46,18 +46,6 @@
   .proof-item:nth-child(n + 3) { border-top: 1px solid var(--line); }
 }
 
-/* ---------------------------------------------------------------- the problem, plainly */
-.problem { overflow: hidden; }
-.problem-fern { left: -70px; bottom: -40px; width: 260px; color: var(--sage); opacity: 0.7; }
-.problem-in { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(260px, 0.8fr); gap: clamp(32px, 6vw, 96px); align-items: end; }
-.problem-say { display: grid; gap: 18px; }
-.problem-say h2 { max-width: 22ch; }
-.problem-stat { display: grid; gap: 12px; padding: 26px 28px; background: var(--forest-800); color: var(--on-dark); }
-.problem-n { font-size: clamp(44px, 4vw, 58px); line-height: 1; color: var(--brass-2); letter-spacing: -0.02em; }
-.problem-stat p { color: var(--on-dark-2); font-size: 15px; }
-.problem-stat .link { color: var(--on-dark); text-decoration-color: var(--line-dark-2); }
-@media (max-width: 860px) { .problem-in { grid-template-columns: 1fr; } }
-
 /* ---------------------------------------------------------------- how it works */
 .how-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--ink); }
 .how-step { display: grid; align-content: start; gap: 14px; padding: 28px clamp(18px, 2.4vw, 32px) 8px; border-left: 1px solid var(--line); }
@@ -72,35 +60,6 @@
   .how-steps { grid-template-columns: 1fr; }
   .how-step, .how-step:first-child { border-left: 0; padding: 24px 0; border-bottom: 1px solid var(--line); }
 }
-
-/* ---------------------------------------------------------------- the week */
-.week-sum { display: grid; justify-items: end; gap: 8px; }
-.week-sum-n { display: flex; align-items: center; gap: 12px; color: var(--ink-3); }
-.week-sum-n .num { font-size: clamp(26px, 2.6vw, 34px); color: var(--forest-700); white-space: nowrap; }
-.week-sum-n .num.was { color: var(--ink-3); text-decoration: line-through; text-decoration-thickness: 1px; text-decoration-color: var(--line-3); }
-.week-note { margin-top: 18px; }
-@media (max-width: 760px) { .week-sum { justify-items: start; } }
-
-/* ---------------------------------------------------------------- case studies */
-.cases .rail-track { padding-top: 4px; }
-.case { height: 100%; display: flex; flex-direction: column; gap: 14px; padding: 24px; background: var(--paper); color: var(--ink); border: 1px solid var(--forest-900); border-radius: var(--r); user-select: none; }
-.case-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
-.case-head h3 { font-size: 23px; }
-.case-tool { display: inline-flex; align-items: center; gap: 8px; flex: none; font-size: 13px; font-weight: 600; color: var(--ink); text-decoration: none; }
-.case-tool:hover { text-decoration: underline; text-underline-offset: 3px; }
-.case-headline { font-family: var(--f-serif); font-size: 24px; line-height: 1.2; color: var(--forest-700); }
-.case-graph { display: grid; gap: 10px; padding: 14px; background: var(--almond); }
-.case-bars { display: grid; gap: 8px; }
-.cb { display: grid; grid-template-columns: 48px minmax(0, 1fr); grid-template-areas: 'l bar' '. v'; align-items: center; gap: 2px 10px; font-size: 12px; color: var(--ink-3); }
-.cb span { grid-area: l; }
-.cb i { grid-area: bar; display: block; height: 10px; }
-.cb i.b { background: var(--oat-2); }
-.cb i.a { background: var(--forest-700); }
-.cb em { grid-area: v; font-style: normal; font-family: var(--f-serif); font-size: 15px; color: var(--ink); }
-.case-single { font-size: 34px; line-height: 1.1; color: var(--forest-700); }
-.case-sum { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
-.case-src { margin-top: auto; padding-top: 12px; border-top: 1px solid var(--line); width: 100%; color: var(--forest-700) !important; text-decoration-color: var(--line-2) !important; }
-.cases-note { margin-top: 18px; }
 
 /* ---------------------------------------------------------------- research time */
 .research-in { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(32px, 5vw, 72px); align-items: center; }
@@ -119,18 +78,6 @@
 .rb-legend i.caf { background: var(--forest-700); }
 .rb-legend .num { color: var(--ink-3); }
 @media (max-width: 900px) { .research-in { grid-template-columns: 1fr; } }
-
-/* ---------------------------------------------------------------- featured tools */
-.feat-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
-.feat { height: 100%; display: flex; flex-direction: column; gap: 12px; padding: 22px; background: var(--paper); border: 1px solid var(--line); border-radius: var(--r); text-decoration: none; color: var(--ink); }
-.feat-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.feat-price { font-size: 15px; color: var(--ink-2); text-align: right; }
-.feat h3 { font-size: 24px; }
-.feat p { font-size: 14.5px; color: var(--ink-2); flex: 1; }
-.feat-foot { display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-2); }
-.feat-foot span { display: inline-flex; align-items: center; gap: 6px; }
-@media (max-width: 980px) { .feat-grid { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 540px) { .feat-grid { grid-template-columns: 1fr; } }
 
 /* ---------------------------------------------------------------- questions */
 .faq-in { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: clamp(28px, 5vw, 80px); align-items: start; }

@@ -13,32 +13,38 @@
 @media (max-width: 860px) { .pan-head-in { grid-template-columns: 1fr; } }
 
 .pan-bar { position: sticky; top: var(--nav-h); z-index: 50; background: rgba(245, 240, 230, 0.97); border-bottom: 1px solid var(--line); }
-.pan-bar-in { display: flex; align-items: center; gap: 18px; justify-content: space-between; }
+.pan-bar-in { display: flex; align-items: center; }
 .pan-jobs { border-bottom: 0; flex: 1; min-width: 0; }
-.pan-tools { display: flex; align-items: center; gap: 10px; flex: none; padding-block: 8px; }
+.pan-job-pick { display: none; align-items: center; gap: 10px; padding-block: 10px; width: 100%; }
+.pan-job-pick .input { min-height: 40px; padding: 8px 10px; font-size: 14px; flex: 1; }
+.pan-tools { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.pan-tools .pan-count { margin: 0 auto 0 0; }
 .pan-search { position: relative; display: block; }
 .pan-search .ico { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--ink-3); pointer-events: none; }
 .pan-search .input { width: 190px; min-height: 40px; padding: 8px 12px 8px 36px; font-size: 14px; }
 .pan-sort { display: flex; align-items: center; gap: 10px; }
 .pan-sort .input { min-height: 40px; padding: 8px 10px; font-size: 14px; width: auto; }
-@media (max-width: 1100px) { .pan-bar-in { flex-direction: column; align-items: stretch; gap: 0; } .pan-tools { padding-bottom: 12px; } .pan-search { flex: 1; } .pan-search .input { width: 100%; } }
+@media (max-width: 900px) { .pan-jobs { display: none; } .pan-job-pick { display: flex; } }
+@media (max-width: 640px) { .pan-tools { flex-wrap: wrap; } .pan-tools .pan-count { width: 100%; } .pan-search { flex: 1; } .pan-search .input { width: 100%; } }
 
 .pan-body { padding-block: 22px clamp(64px, 8vw, 110px); }
-.pan-count { margin-bottom: 14px; }
 .pan-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); gap: 18px; }
 .tool { height: 100%; display: flex; flex-direction: column; gap: 12px; padding: 22px; background: var(--paper); border: 1px solid var(--line); border-radius: var(--r); color: var(--ink); text-decoration: none; }
-.tool.on { border-color: rgba(91, 118, 83, 0.55); }
-.tool-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.tool h3 { font-size: 25px; }
-.tool-tag { font-size: 14.5px; color: var(--ink-2); line-height: 1.45; flex: 1; }
-.tool-jobs { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: var(--ink-2); }
-.tool-jobs li { display: inline-flex; align-items: center; gap: 6px; }
+.tool.on { border-color: rgba(82, 108, 74, 0.55); }
+.tool-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; }
+.tool h3 { font-size: 25px; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* every card keeps the same rhythm: two lines of tagline, one line of jobs, then the facts */
+.tool-tag { font-size: 14.5px; color: var(--ink-2); line-height: 1.45; height: 2.9em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.tool-jobs { display: flex; gap: 14px; height: 20px; overflow: hidden; font-size: 12.5px; color: var(--ink-2); }
+.tool-jobs li { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
 .tool-jobs .ico { color: var(--brass); }
-.tool-facts { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--line); }
-.tool-facts > div { padding-top: 10px; }
+.tool-facts { display: grid; grid-template-columns: 1fr 1fr; margin-top: auto; border-top: 1px solid var(--line); }
+.tool-facts > div { display: grid; align-content: start; gap: 2px; padding-top: 10px; min-width: 0; }
 .tool-facts > div + div { padding-left: 14px; border-left: 1px solid var(--line); }
 .tool-facts dt { font-size: 10.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-3); }
-.tool-facts dd { font-size: 16px; }
+.tool-facts dd { font-size: 21px; line-height: 1.15; white-space: nowrap; }
+.tool-facts dd small { font-family: var(--f-sans); font-size: 12px; color: var(--ink-3); }
+.tool-fine { font-size: 12px; line-height: 1.35; color: var(--ink-3); height: 2.7em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .tool-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 12px; border-top: 1px solid var(--line); }
 .btn.in-plan { color: var(--forest-700); border-color: rgba(91, 118, 83, 0.5); background: var(--sage-mist); }
 .pan-help { margin-top: clamp(40px, 6vw, 64px); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; padding: 28px 32px; background: var(--forest-800); color: var(--on-dark); }

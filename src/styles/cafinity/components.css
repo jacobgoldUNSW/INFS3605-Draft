@@ -105,8 +105,9 @@
 .stat-top { display: flex; align-items: center; gap: 10px; }
 .stat-ico { color: var(--brass); }
 .on-dark .stat-ico { color: var(--brass-2); }
-.stat-val { font-family: var(--f-serif); font-size: clamp(40px, 4.2vw, 58px); font-weight: 400; line-height: 0.95; letter-spacing: -0.025em; font-variant-numeric: lining-nums tabular-nums; white-space: nowrap; }
-.stat-val small { font-size: 0.4em; letter-spacing: 0; margin-left: 5px; color: var(--ink-2); font-weight: 400; }
+.stat-val { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 6px; font-family: var(--f-serif); font-size: clamp(40px, 4.2vw, 58px); font-weight: 400; line-height: 0.95; letter-spacing: -0.025em; font-variant-numeric: lining-nums tabular-nums; }
+.stat-val > span { white-space: nowrap; }
+.stat-val small { font-size: 0.4em; letter-spacing: 0; color: var(--ink-2); font-weight: 400; white-space: nowrap; }
 .on-dark .stat-val small { color: var(--on-dark-2); }
 .stat-blurb { font-size: 14px; line-height: 1.45; color: var(--ink-2); max-width: 28ch; }
 .on-dark .stat-blurb { color: var(--on-dark-2); }
@@ -115,7 +116,7 @@
 
 /* hover popover with the working */
 .pop {
-  position: absolute; z-index: 40; left: 0; top: calc(100% + 10px);
+  position: absolute; z-index: 60; left: 0; top: calc(100% + 10px);
   width: min(320px, 80vw); padding: 14px 16px;
   background: var(--forest-950); color: var(--on-dark); border: 1px solid var(--line-dark-2); border-radius: var(--r);
   font-size: 13px; line-height: 1.55; text-align: left;

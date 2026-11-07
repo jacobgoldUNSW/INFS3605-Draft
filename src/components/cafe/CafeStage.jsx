@@ -41,7 +41,7 @@ function SavedStrip({ snap, open, onOpen }) {
       <span className="ss-label">Saved today</span>
       {chips.length
         ? chips.slice(0, 4).map((c) => <span key={c.k} className="ss-chip" title={c.label}><Icon name={c.ico} size={14} />{c.v}</span>)
-        : <span className="ss-wait">Your tools are getting started…</span>}
+        : <span className="ss-wait">Nothing yet</span>}
     </button>
   )
 }
@@ -454,10 +454,11 @@ export default function CafeStage({ selected, onToggleWorker, cafeName = 'your c
   const unread = Math.max(0, (snap.journalN || 0) - ui.seenJournal)
   const liveEvents = CURVEBALLS.filter((c) => { const ev = snap.events?.[c.id]; return ev && !['done', 'solo', 'stopped'].includes(ev.status) }).length
   const hasTeam = (snap.present || []).length > 0
+  // the dot shows whether the AI is live; the label stays plain (the panel explains the rest)
   const ai = !hasTeam ? { cls: 'idle', label: 'What is this?' }
-    : snap.thinking ? { cls: 'thinking', label: 'AI thinking' }
-      : live === false ? { cls: 'offline', label: 'House recipes' }
-        : { cls: 'live', label: 'Live AI' }
+    : snap.thinking ? { cls: 'thinking', label: 'What is this?' }
+      : live === false ? { cls: 'offline', label: 'What is this?' }
+        : { cls: 'live', label: 'What is this?' }
 
   return (
     <section ref={stageRef} className={`stage ${fs ? 'is-fs' : ''}`} onPointerDown={() => { sound.ensure(); music.unlock() }}>
@@ -581,12 +582,6 @@ export default function CafeStage({ selected, onToggleWorker, cafeName = 'your c
           </div>
         </div>
       </div>
-      <ul className="stage-legend" aria-label="Who’s who in the café">
-        <li><i className="lg-tool" /> AI tool on your plan</li>
-        <li><i className="lg-ask" /> A tool asking for your OK</li>
-        <li><i className="lg-none" /> Customers and your staff</li>
-        <li className="lg-tip"><Icon name="eye" size={14} /> Tap anyone to see what they’re doing</li>
-      </ul>
 
       {tourStep != null && images && tourStep < TOUR.length && (
         <CafeTour step={tourStep} setStep={setTourStep} onClose={closeTour} snap={snap} stageRef={stageRef} canvasApi={canvasApi} world={world} />

@@ -90,11 +90,11 @@ function Shortlist({ proposal, live, onAccept, onPickMyself }) {
         })}
       </ul>
       <div className="sl-nums">
-        <span><b className="num"><AnimatedNumber value={proposal.bill} format={money} /></b> a month</span>
-        <span><b className="num"><AnimatedNumber value={proposal.hours} /></b> hrs a week back</span>
-        {proposal.net > 0
-          ? <span>likely <b className="num">{money(proposal.range[0])}–{money(proposal.range[1])}</b> a month better off</span>
-          : <span>the payoff is <b>your time</b></span>}
+        <div><b className="num"><AnimatedNumber value={proposal.bill} format={money} /></b><span className="sl-l">a month for these tools</span></div>
+        <div><b className="num"><AnimatedNumber value={proposal.hours} /> hrs</b><span className="sl-l">back every week</span></div>
+        <div>{proposal.net > 0
+          ? <><b className="num">{money(proposal.range[0])}–{money(proposal.range[1])}</b><span className="sl-l">a month better off, likely</span></>
+          : <><b className="num">Your time</b><span className="sl-l">is the payoff here</span></>}</div>
       </div>
       {live && (
         <div className="sl-actions">

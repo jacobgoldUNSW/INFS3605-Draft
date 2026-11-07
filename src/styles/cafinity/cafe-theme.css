@@ -67,9 +67,9 @@
 
 /* the café itself */
 .stage-canvas { position: relative; background: var(--forest-950); }
-.room-label { position: absolute; z-index: 3; top: 10px; padding: 4px 8px; font-family: var(--f-sans); font-size: 10.5px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--on-dark); background: rgba(17, 29, 22, 0.72); border-radius: 1px; pointer-events: none; }
-.room-label.front { left: 10px; }
-.room-label.back { right: 10px; }
+.room-label { position: absolute; z-index: 3; top: auto; bottom: 8px; padding: 2px 7px; font-family: var(--f-sans); font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--on-dark); background: rgba(17, 29, 22, 0.62); border-radius: 1px; pointer-events: none; white-space: nowrap; }
+.room-label.front { left: 8px; }
+.room-label.back { left: auto; right: 8px; background: rgba(17, 29, 22, 0.62); }
 .stage-loading, .stage-paused { font-family: var(--f-sans); }
 .stage-paused { position: absolute; inset: 0; z-index: 6; display: grid; place-items: center; background: rgba(17, 29, 22, 0.55); color: var(--on-dark); font-size: 15px; font-weight: 600; border: 0; }
 .stage-tip { position: absolute; left: 50%; bottom: 14px; z-index: 8; transform: translateX(-50%); display: flex; align-items: center; gap: 10px; max-width: min(560px, calc(100% - 24px)); padding: 10px 14px; background: var(--forest-950); color: var(--on-dark); border: 1px solid var(--line-dark-2); border-radius: var(--r); font-size: 13.5px; box-shadow: none; }
@@ -79,7 +79,9 @@
 /* speech, thought and request bubbles over the canvas */
 .cb-say > span, .cb-think > span { font-family: var(--f-sans); border-radius: 2px; box-shadow: none; }
 .cb-say > span { background: var(--paper); color: var(--ink); border: 1px solid var(--forest-900); }
-.cb-think > span { background: var(--sage-mist); color: var(--forest-900); border: 1px dashed var(--forest-700); }
+.cb-think > span { background: var(--sage-mist); color: var(--forest-900); border: 1px dashed var(--forest-700); font-family: var(--f-sans) !important; font-style: italic; font-weight: 500 !important; line-height: 1.35 !important; }
+.stage .cb-think > span { font-size: 0.8rem !important; }
+.teaser .cb-think > span, .cafe-canvas.compact .cb-think > span { font-size: 0.64rem !important; }
 .cb-tag > span { font-family: var(--f-sans); border-radius: 1px; box-shadow: none; }
 .cb-tag.brand > span { background: var(--forest-800) !important; color: var(--on-dark) !important; border: 1px solid #8BD88F; }
 .cb-tag.you > span { background: var(--brass-2); color: var(--forest-900); }
@@ -91,16 +93,6 @@
 
 /* curveball ticker */
 .ev-ticker { border-radius: 2px; box-shadow: none; background: var(--paper); color: var(--ink); border: 1px solid var(--forest-900); font-family: var(--f-sans); }
-
-/* the legend under the café */
-.stage-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 22px; padding: 11px 16px; background: var(--forest-900); border-top: 1px solid var(--line-dark); font-size: 12.5px; color: var(--on-dark-2); }
-.stage-legend li { display: inline-flex; align-items: center; gap: 8px; }
-.stage-legend i { width: 16px; height: 7px; border-radius: 50%; border: 2px solid; }
-.stage-legend .lg-tool { border-color: #8BD88F; }
-.stage-legend .lg-ask { border-color: #F2C14E; }
-.stage-legend .lg-none { border-color: var(--on-dark-3); border-style: dotted; }
-.stage-legend .lg-tip { margin-left: auto; color: var(--on-dark-3); }
-.stage-legend .lg-tip .ico { color: var(--brass-2); }
 
 /* the worker inspector and closing-time card */
 .inspector { border-radius: 2px; box-shadow: none; border: 1px solid var(--line-2); background: var(--paper); color: var(--ink); }
@@ -123,10 +115,15 @@
   .saved-strip { grid-column: 1 / -1; grid-row: 2; }
   .mbtn-label { display: none; }
   .mbtn { padding: 0 10px; }
-  .stage-legend .lg-tip { margin-left: 0; }
 }
 
 /* while the café downloads */
 .cafe-lazy { position: relative; }
 .cafe-placeholder { aspect-ratio: 960 / 544; display: flex; align-items: center; justify-content: center; gap: 10px; background: var(--forest-950); color: var(--on-dark-2); font-size: 14px; }
 .stage-wait .cafe-placeholder { border: 1px solid var(--forest-900); }
+
+/* tour counter and progress in the Cafinity palette */
+.tour-count { color: var(--brass-ink) !important; }
+.tour-dots i, .tour-dots span { background: var(--oat-2) !important; }
+.tour-dots i.on, .tour-dots span.on, .tour-dots .on { background: var(--forest-800) !important; }
+.tour-dots i.past { background: var(--sage) !important; }

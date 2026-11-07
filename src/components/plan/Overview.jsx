@@ -4,7 +4,6 @@ import { useApp } from '../../state'
 import { hrefFor } from '../../router'
 import { PEER_STORIES, photo } from '../../data/people'
 import { PAIN_POINTS } from '../../data/mockDashboard'
-import { weekFor, mins } from '../../data/week'
 import { usePlan, money, hoursFeel, flatWhites } from './PlanContext'
 import HoursBreakdown from './HoursBreakdown'
 import Stat from '../ui/Stat'
@@ -12,9 +11,7 @@ import Clock from '../ui/Clock'
 import Icon from '../ui/Icon'
 import IconTile, { Reveal } from '../ui/IconTile'
 import AnimatedNumber from '../ui/AnimatedNumber'
-import WeekRail from '../shared/WeekRail'
 import Stories from '../shared/Stories'
-import { LazyTeaser } from '../cafe/LazyCafe'
 
 const ease = [0.22, 1, 0.36, 1]
 const OWNER_PHOTO = { specialty: 'mia', bakery: 'sophie', drive: 'brothers', franchise: 'hiro' }
@@ -23,7 +20,7 @@ const Why = ({ lines }) => <ol>{lines.map((l) => <li key={l}>{l}</li>)}</ol>
 
 function SummaryCard() {
   const { survey, openBea } = useApp()
-  const { d, plan, paybackWeeks, freePlans } = usePlan()
+  const { d, plan, paybackWeeks, paybackWhy, freePlans } = usePlan()
   const who = OWNER_PHOTO[survey.cafeType] || 'mia'
   const names = d.picked.map((p) => p.name)
   const gain = d.netGain > 0
@@ -44,7 +41,7 @@ function SummaryCard() {
           <Stat
             icon="clock"
             label="Time back"
-            visual={<Clock hours={d.hoursSaved} size={84} />}
+            visual={<Clock hours={d.hoursSaved} size={68} />}
             value={<AnimatedNumber value={d.hoursSaved} format={(n) => Math.round(n)} />}
             unit="hrs a week"
             blurb={`${hoursFeel(d.hoursSaved)}. ${d.ownerHours} of them yours.`}
@@ -72,7 +69,7 @@ function SummaryCard() {
             value={paybackWeeks ? <AnimatedNumber value={paybackWeeks} format={(n) => Math.round(n)} /> : '—'}
             unit={paybackWeeks ? (paybackWeeks === 1 ? 'week' : 'weeks') : ''}
             blurb={paybackWeeks ? 'Counting two months of subscriptions while you set up.' : 'Your time is the payoff here, not cash.'}
-            why={<Why lines={d.why.payback} />}
+            why={<Why lines={paybackWhy} />}
           />
         </div>
       </div>
@@ -83,10 +80,6 @@ function SummaryCard() {
 export default function Overview() {
   const { survey, selected, toggle, showToast, navigate } = useApp()
   const { d, plan, name } = usePlan()
-  const week = useMemo(() => weekFor(selected, survey.pains || []), [selected, survey.pains])
-  const real = week.filter((m) => !m.cafinity)
-  const wBefore = real.reduce((s, m) => s + m.before.mins, 0)
-  const wAfter = real.reduce((s, m) => s + (m.covered ? m.after.mins : m.before.mins), 0)
   const stories = useMemo(() => {
     const score = (s) => s.tools.filter((t) => selected.includes(t)).length * 2 + (s.type === survey.cafeType ? 1 : 0)
     return [...PEER_STORIES].sort((a, b) => score(b) - score(a)).slice(0, 3)
@@ -121,23 +114,6 @@ export default function Overview() {
       </Reveal>
 
       <section className="ov-sec">
-        <div className="ov-head row-head">
-          <div>
-            <span className="kicker">Your week with these tools</span>
-            <h3>When the tools step in</h3>
-            <p className="muted">The moments that usually eat your week, and what changes. Drag or swipe along.</p>
-          </div>
-          <div className="ov-week-sum">
-            <span className="num">{mins(wBefore)}</span>
-            <Icon name="arrowRight" size={18} />
-            <span className="num strong">{mins(wAfter)}</span>
-            <span className="label">across these jobs</span>
-          </div>
-        </div>
-        <WeekRail moments={week} planMode onAdd={add} />
-      </section>
-
-      <section className="ov-sec">
         <div className="ov-head">
           <span className="kicker">Owners who started where you are</span>
           <h3>Their stories, in their words</h3>
@@ -167,21 +143,6 @@ export default function Overview() {
           </ul>
         </section>
       )}
-
-      <section className="ov-sec ov-cafe">
-        <div className="ov-head row-head">
-          <div>
-            <span className="kicker">See it running</span>
-            <h3>A day at {name}, with these tools</h3>
-            <p className="muted">A moving picture of your café. The customers are pretend; it shows where the time goes, and when a tool would ask for your OK.</p>
-          </div>
-          <button type="button" className="btn btn-outline" onClick={() => navigate('plan', 'cafe')}>Open the full café <Icon name="arrowRight" size={18} className="go" /></button>
-        </div>
-        <div className="window">
-          <div className="window-bar"><span>{name}</span><span className="label">A scripted preview</span></div>
-          <LazyTeaser key={selected.join(',')} cafeName={name} team={selected.length ? selected : undefined} profile={{ employees: survey.employees, cafeType: survey.cafeType }} />
-        </div>
-      </section>
 
       <p className="fine ov-disclaimer">{plan.source === 'gemini' ? 'Written for your café by our AI advisor; the numbers come from our own formulas. ' : ''}Every figure is an illustrative estimate for a prototype, not financial advice. Check prices with each vendor before you sign up.</p>
     </div>

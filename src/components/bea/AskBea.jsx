@@ -15,6 +15,8 @@ let uid = 0
 const nextId = () => `a${Date.now().toString(36)}${++uid}`
 const toTranscript = (msgs) => msgs.map((m) => ({ from: m.from, text: m.text }))
 const money = (n) => `$${Math.round(n).toLocaleString()}`
+// payback in weeks, worked out the same way as on the plan
+const weeksOf = (s) => (s?.net > 0 ? `${Math.max(1, Math.ceil(((s.bill * 2) / s.net) * 4.33))} wks` : '—')
 const DAY_NAMES = { Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday', Sun: 'Sunday' }
 
 // "Show me the costs", "take me to setup", "open Xero": Bea moves you around the app, even offline
@@ -50,7 +52,7 @@ function ChangeDocket({ p, state, onAccept, onDismiss, onUndo }) {
     { k: 'bill', label: 'Monthly bill', a: money(p.before.bill), b: p.after.bill, fmt: money },
     { k: 'hours', label: 'Hours back a week', a: p.before.hours, b: p.after.hours, fmt: (n) => Math.round(n) },
     { k: 'gain', label: 'Likely better off', a: p.before.net > 0 ? `${money(p.before.range[0])}–${money(p.before.range[1])}` : 'time only', text: p.after.net > 0 ? `${money(p.after.range[0])}–${money(p.after.range[1])}` : 'time only' },
-    { k: 'payback', label: 'Pays for itself', a: p.before.payback ? `${p.before.payback} mo` : '—', text: p.after.payback ? `${p.after.payback} mo` : '—' },
+    { k: 'payback', label: 'Pays for itself', a: weeksOf(p.before), text: weeksOf(p.after) },
   ]
   return (
     <motion.div className={`docket-card ${state}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease, delay: 0.3 }}>

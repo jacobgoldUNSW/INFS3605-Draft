@@ -45,9 +45,9 @@ npm start          # serves the built app + API at http://localhost:8787/infs360
 
 | Page | Route | What it does |
 | --- | --- | --- |
-| Home | `#/` | The plain-English story, proof, the week before and after, real café results, research time, stories, tools, questions, and a café preview at the bottom |
+| Home | `#/` | The plain-English promise, proof (20 hours of research saved), how it works, research time compared, owner stories, fair questions, and a café preview at the bottom |
 | Check-up | `#/plan` (before a plan exists) | Talk to Bea (type, tap or speak) or use the quick form, confirm tools, then "putting your plan together" |
-| Plan › Overview | `#/plan` | The café profile strip, the summary card (photo, hours-back clock, four key numbers), hours by task, the week rail, owner stories, other tools, the café preview |
+| Plan › Overview | `#/plan` | The café profile strip, the summary card (photo, hours-back clock, four key numbers), hours by task, owner stories, other tools |
 | Plan › Costs | `#/plan/costs` | The monthly bill as a ledger, where you stand month by month, the working (adjustable wage), the numbers in detail |
 | Plan › Setup | `#/plan/setup` | Week-by-week setup with checklists saved to the account, first-week checks, vendor links, `.ics` calendar export |
 | Plan › Reality checks | `#/plan/checks` | The honest risk register, most serious first |
@@ -67,7 +67,6 @@ remove any, and every number on the page updates. Tools are only humanised (Dex,
 | AI Pantry and tool pages | `src/components/marketplace/` |
 | Check-up, quick form, tool picker, loader | `src/components/checkup/`, `src/components/dashboard/` |
 | Bea: chat, voice, drawer, guided offline check-up | `src/components/bea/`, `src/voice/useVoice.js` |
-| The week in a café (pain moments and which tools step in) | `src/data/week.js` |
 | Real-world evidence (sourced case studies, admin stat, research time) | `src/data/evidence.js` |
 | Tools, prices, risks, setup steps | `src/data/products.js`, `src/data/risks.js` |
 | Plan estimates (hours, money, payback, hours by task) | `src/data/mockDashboard.js` |
@@ -113,8 +112,8 @@ Every figure has a "How we got this" hover and the full working on the Costs tab
 ### Evidence
 
 `src/data/evidence.js` lists published case studies from cafés and restaurants using Pantry tools (Blackwood
-Pantry, Beta, Monastery Coffee, Curry Leaf Café, Café Crêpe, Red Rocks Cafe) and an AMP Bank GO survey on admin
-hours. Every case study is published by the tool's maker, so the app labels them as best cases and links each source.
+Pantry, Beta, Monastery Coffee, Curry Leaf Café, Café Crêpe, Red Rocks Cafe), shown on each tool's Pantry page.
+Every case study is published by the tool's maker, so the app labels them as best cases and links each source.
 Sources were checked in November 2026.
 
 ### Before and after

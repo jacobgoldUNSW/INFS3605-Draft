@@ -1,18 +1,14 @@
 import React, { useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useApp, surveyComplete } from '../../state'
-import { hrefFor } from '../../router'
-import { PRODUCTS, getProduct, PRICES_CHECKED } from '../../data/products'
+import { PRODUCTS, PRICES_CHECKED } from '../../data/products'
 import { PEER_STORIES, photo } from '../../data/people'
 import { buildDashboard } from '../../data/mockDashboard'
-import { WEEK, weekTotals, mins } from '../../data/week'
-import { CASES, ADMIN_STAT, RESEARCH, EVIDENCE_CHECKED } from '../../data/evidence'
-import IconTile, { Reveal } from '../ui/IconTile'
+import { RESEARCH } from '../../data/evidence'
+import { Reveal } from '../ui/IconTile'
 import Icon from '../ui/Icon'
 import Botanical from '../ui/Botanical'
 import AnimatedNumber from '../ui/AnimatedNumber'
-import Rail from '../ui/Rail'
-import WeekRail from '../shared/WeekRail'
 import Stories from '../shared/Stories'
 import { LazyTeaser } from '../cafe/LazyCafe'
 
@@ -133,26 +129,6 @@ function ProofStrip() {
   )
 }
 
-function Problem() {
-  return (
-    <section className="sec problem">
-      <Botanical variant="fern" className="problem-fern" sway />
-      <div className="wrap problem-in">
-        <Reveal className="problem-say">
-          <span className="kicker">Why Cafinity</span>
-          <h2>You don’t need convincing that AI exists. You need to see what it would <em className="accent">actually do</em> for your café.</h2>
-          <p className="lede">Plenty of good tools are out there. The hard part is knowing which ones fit a café like yours, what they’d really save, and what they’d really cost, before you hand over a card. That’s what we show you.</p>
-        </Reveal>
-        <Reveal className="problem-stat" delay={0.1}>
-          <span className="problem-n num">{ADMIN_STAT.value}</span>
-          <p>{ADMIN_STAT.text}</p>
-          <a className="link small" href={ADMIN_STAT.source.url} target="_blank" rel="noreferrer">{ADMIN_STAT.source.label} <Icon name="external" size={13} className="out" /></a>
-        </Reveal>
-      </div>
-    </section>
-  )
-}
-
 function HowItWorks() {
   const steps = [
     { icon: 'chat', title: 'Tell us about your café', text: 'Chat with Bea, talk out loud, or tap through a short form: your team, your rushes, what eats your week.', time: 'About 5 minutes' },
@@ -176,78 +152,6 @@ function HowItWorks() {
             </Reveal>
           ))}
         </ol>
-      </div>
-    </section>
-  )
-}
-
-function Week() {
-  const t = weekTotals(WEEK)
-  return (
-    <section className="sec week">
-      <div className="wrap">
-        <Reveal className="sec-head row">
-          <div>
-            <span className="kicker">Your week, before and after</span>
-            <h2>Where the time goes, and when the tools step in</h2>
-            <p className="lede">An example week in a small café. Drag along: each moment shows the job, the time it takes now, and the time it takes with the right tool.</p>
-          </div>
-          <div className="week-sum">
-            <span className="label">Across these jobs</span>
-            <span className="week-sum-n"><span className="num was">{mins(t.before)}</span><Icon name="arrowRight" size={20} /><span className="num">{mins(t.after)}</span></span>
-          </div>
-        </Reveal>
-        <WeekRail moments={WEEK} />
-        <p className="fine week-note">Times are our estimates for a typical café with three to eight staff. Dark cards are the moments you’d spend with Cafinity itself.</p>
-      </div>
-    </section>
-  )
-}
-
-function CaseCard({ c }) {
-  const { navigate } = useApp()
-  const tool = getProduct(c.tool)
-  const max = Math.max(c.before?.value || 0, c.after?.value || 0, 1)
-  return (
-    <article className="case on-light">
-      <header className="case-head">
-        <div>
-          <h3>{c.business}</h3>
-          <span className="fine">{c.kind} · {c.place}</span>
-        </div>
-        <a className="case-tool" href={hrefFor('pantry', tool.id)} onClick={(e) => { e.preventDefault(); navigate('pantry', tool.id) }}><IconTile p={tool} size={24} /> {tool.name}</a>
-      </header>
-      <p className="case-headline">{c.headline}</p>
-      <div className="case-graph">
-        <span className="label">{c.task}</span>
-        {c.before ? (
-          <div className="case-bars">
-            <div className="cb"><span>Before</span><motion.i className="b" initial={{ width: 0 }} whileInView={{ width: '100%' }} viewport={{ once: true }} transition={{ duration: 0.9, ease }} /><em>{c.before.label}</em></div>
-            <div className="cb"><span>After</span><motion.i className="a" initial={{ width: 0 }} whileInView={{ width: `${Math.max(3, (c.after.value / max) * 100)}%` }} viewport={{ once: true }} transition={{ duration: 0.9, ease, delay: 0.3 }} /><em>{c.after.label}</em></div>
-          </div>
-        ) : (
-          <div className="case-single num">{c.after.label}</div>
-        )}
-      </div>
-      <p className="case-sum">{c.summary}</p>
-      <a className="link small case-src" href={c.source.url} target="_blank" rel="noreferrer">{c.source.label} <Icon name="external" size={13} className="out" /></a>
-    </article>
-  )
-}
-
-function Cases() {
-  return (
-    <section className="sec band-dark cases on-dark">
-      <div className="wrap">
-        <Reveal className="sec-head">
-          <span className="kicker">Real cafés, real numbers</span>
-          <h2>What changed when they brought the tools in</h2>
-          <p className="lede">Published results from cafés and restaurants using tools in our Pantry. Drag along to see more.</p>
-        </Reveal>
-        <Rail label="Case studies" width="minmax(300px, 360px)" gap={18}>
-          {CASES.map((c) => <CaseCard key={c.id} c={c} />)}
-        </Rail>
-        <p className="fine cases-note">Each story is published by the tool’s maker, so read these as best cases rather than averages. Sources checked {EVIDENCE_CHECKED}.</p>
       </div>
     </section>
   )
@@ -283,36 +187,6 @@ function Research() {
           </div>
           <p className="fine">Our estimates. Setting each tool up still takes 15 to 45 minutes, and your plan walks you through it.</p>
         </Reveal>
-      </div>
-    </section>
-  )
-}
-
-function Featured() {
-  const { navigate } = useApp()
-  const featured = ['dext', 'deputy', 'square', 'canva'].map(getProduct)
-  return (
-    <section className="sec band-oat featured">
-      <div className="wrap">
-        <Reveal className="sec-head row">
-          <div>
-            <span className="kicker">From the AI Pantry</span>
-            <h2>Where most cafés start</h2>
-          </div>
-          <a className="link" href={hrefFor('pantry')} onClick={(e) => { e.preventDefault(); navigate('pantry') }}>See all {PRODUCTS.length} tools <Icon name="arrowRight" size={16} className="go" /></a>
-        </Reveal>
-        <div className="feat-grid">
-          {featured.map((p, i) => (
-            <Reveal key={p.id} delay={i * 0.07}>
-              <a className="feat card-link" href={hrefFor('pantry', p.id)} onClick={(e) => { e.preventDefault(); navigate('pantry', p.id) }}>
-                <div className="feat-top"><IconTile p={p} size={44} /><span className="num feat-price">{p.priceLabel}</span></div>
-                <h3>{p.name}</h3>
-                <p>{p.tagline}</p>
-                <div className="feat-foot"><span><Icon name="clock" size={15} /> About {p.hrs} hrs a week</span><Icon name="arrowRight" size={18} className="go" /></div>
-              </a>
-            </Reveal>
-          ))}
-        </div>
       </div>
     </section>
   )
@@ -391,10 +265,7 @@ export default function HomePage() {
     <div className="home">
       <Hero />
       <ProofStrip />
-      <Problem />
       <HowItWorks />
-      <Week />
-      <Cases />
       <Research />
       <section className="sec stories-sec">
         <div className="wrap">
@@ -406,7 +277,6 @@ export default function HomePage() {
           <Stories stories={stories} rail />
         </div>
       </section>
-      <Featured />
       <Faq />
       <SeeIt />
       <Closing />
